@@ -1,19 +1,22 @@
+import { nextui } from "@nextui-org/react";
 import { type Config } from "tailwindcss";
 import { fontFamily } from "tailwindcss/defaultTheme";
-import {nextui} from "@nextui-org/react";
 
 export default {
   content: [
     "./src/**/*.tsx",
-    "./node_modules/@nextui-org/theme/dist/**/*.{js,ts,jsx,tsx}"
+    "./node_modules/@nextui-org/theme/dist/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
     extend: {
       fontFamily: {
         sans: ["var(--font-sans)", ...fontFamily.sans],
       },
+      colors: {
+        primary: "#DE0376",
+      },
     },
   },
   darkMode: "class",
-  plugins: [nextui()]
+  plugins: [nextui()],
 } satisfies Config;
