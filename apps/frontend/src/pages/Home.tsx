@@ -18,11 +18,10 @@ import { Wallet, fmtBalance } from '../utils/wallet';
 
 export function Home() {
   const [connectLoading, setConnectLoading] = useState(false);
-  const sell = trpc.order.sell.useMutation();
   const [accounts, setAccounts] = useState<InjectedAccountWithMeta[]>([])
   const [selectedAccountIndex, setSelectedAccountIndex] = useState(0);
 
-  const create = trpc.order.create.useMutation();
+  const sell = trpc.order.sell.useMutation();
   const wallet = new Wallet();
 
   useEffect(() => {
