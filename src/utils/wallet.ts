@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { ApiPromise, WsProvider } from "@polkadot/api";
 import {
   web3Accounts,
@@ -6,7 +8,9 @@ import {
 } from "@polkadot/extension-dapp";
 import type { InjectedAccountWithMeta } from "@polkadot/extension-inject/types";
 import { type u128 } from "@polkadot/types";
+import { formatBalance } from "@polkadot/util";
 import { decodeAddress, encodeAddress } from "@polkadot/util-crypto";
+import { env } from "~/env.js";
 import { BizError } from "./error";
 
 export class Wallet {
@@ -15,8 +19,8 @@ export class Wallet {
 
   private api!: ApiPromise;
 
-  constructor(endpoint: string) {
-    this.endpoint = endpoint;
+  constructor(endpoint?: string) {
+    this.endpoint = endpoint ?? env.NEXT_PUBLIC_POLKADOT_ENDPOINT;
   }
 
   /**
@@ -38,14 +42,11 @@ export class Wallet {
    * 查询账户余额
    * @param address
    */
-  async getBalance(address: string): Promise<string> {
+  async getBalance(address: string): Promise<u128> {
     await this.connect();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment
     const result = (await this.api.query.system.account(address)) as any;
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    const balance = result.data.free as u128;
-    console.log("Free balance:", balance);
-    return balance.toString();
+    return result.data.free as u128;
   }
 
   /**
@@ -108,10 +109,20 @@ export class Wallet {
 }
 
 /**
- * 格式化成波主网钱包地址
+ * 格式化成波卡主网钱包地址
  * @param address
  * @returns
  */
 export function fmtAddress(address: string): string {
   return encodeAddress(decodeAddress(address), 0);
+}
+
+/**
+ * 格式化成波卡代币数量
+ */
+export function fmtBalance(balance: u128): string {
+  return formatBalance(balance, {
+    withUnit: false,
+    decimals: env.NEXT_PUBLIC_POLKADOT_DECIMALS,
+  });
 }

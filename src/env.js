@@ -12,8 +12,10 @@ export const env = createEnv({
       .url()
       .refine(
         (str) => !str.includes("YOUR_MYSQL_URL_HERE"),
-        "You forgot to change the default URL"
+        "You forgot to change the default URL",
       ),
+    POLKADOT_ENDPOINT: z.string().url(),
+    POLKADOT_DECIMALS: z.coerce.number(),
     NODE_ENV: z
       .enum(["development", "test", "production"])
       .default("development"),
@@ -25,7 +27,8 @@ export const env = createEnv({
    * `NEXT_PUBLIC_`.
    */
   client: {
-    // NEXT_PUBLIC_CLIENTVAR: z.string(),
+    NEXT_PUBLIC_POLKADOT_ENDPOINT: z.string().url(),
+    NEXT_PUBLIC_POLKADOT_DECIMALS: z.coerce.number(),
   },
 
   /**
@@ -35,6 +38,10 @@ export const env = createEnv({
   runtimeEnv: {
     DATABASE_URL: process.env.DATABASE_URL,
     NODE_ENV: process.env.NODE_ENV,
+    POLKADOT_ENDPOINT: process.env.POLKADOT_ENDPOINT,
+    POLKADOT_DECIMALS: process.env.POLKADOT_DECIMALS,
+    NEXT_PUBLIC_POLKADOT_ENDPOINT: process.env.NEXT_PUBLIC_POLKADOT_ENDPOINT,
+    NEXT_PUBLIC_POLKADOT_DECIMALS: process.env.NEXT_PUBLIC_POLKADOT_DECIMALS,
     // NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
   },
   /**

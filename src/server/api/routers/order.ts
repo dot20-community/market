@@ -1,9 +1,9 @@
 import { ApiPromise, WsProvider } from "@polkadot/api";
 import { z } from "zod";
-
+import { env } from "~/env.js";
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 
-const wsProvider = new WsProvider("wss://westend-rpc.polkadot.io");
+const wsProvider = new WsProvider(env.POLKADOT_ENDPOINT);
 const api = await ApiPromise.create({ provider: wsProvider });
 
 export const orderRouter = createTRPCRouter({

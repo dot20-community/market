@@ -16,14 +16,16 @@ export default function Home() {
   const create = api.order.create.useMutation();
 
   async function handleConnect() {
-    const { Wallet } = await import("../utils/wallet");
-    const wallet = new Wallet("wss://westend-rpc.polkadot.io");
-
+    setConnectLoading(true);
     try {
-      setConnectLoading(true);
+      const { Wallet } = await import("../utils/wallet");
+      const wallet = new Wallet();
+      console.log("Account balance 0:", 111);
       await wallet.open();
+      console.log("Account balance 1:", 111);
       const balace = await wallet.getBalance(wallet.accounts[0].address);
-      console.log("Account balance:", balace);
+      console.log("Account balance 2:", balace);
+      // console.log("Account balance 3:", balace, fmtBalance(balace));
       return;
 
       const serializedTransfer = await wallet.signTransferInscribe(
@@ -40,7 +42,7 @@ export default function Home() {
       });
       console.log("Create order response:", resp);
     } catch (e) {
-      console.error("Failed to create order:", typeof e, JSON.stringify(e));
+      throw e;
     } finally {
       setConnectLoading(false);
     }
