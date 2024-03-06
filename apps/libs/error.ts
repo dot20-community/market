@@ -1,4 +1,6 @@
 export type ErrorCode =
+  "OK"
+  | "ERROR"
   /**
    * 没有安装钱包扩展
    */

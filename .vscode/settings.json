@@ -1,3 +1,6 @@
 {
-  "cSpell.words": ["fastify", "nrwl", "pino", "trpc"]
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": "explicit"
+  }
 }

@@ -10,11 +10,33 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique @db.VarChar(255)
-  role      String   @db.VarChar(255)
-  password  String   @db.VarChar(255)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+enum Status {
+  PENDING
+  CANCELED
+  LISTING
+  LOCKED
+  SOLD
+  FAILED
+}
+
+model Order {
+  id         BigInt    @id @default(autoincrement())
+  seller     String    @db.VarChar(64)
+  buyer      String?   @db.VarChar(64)
+  tick       String    @db.VarChar(16)
+  amount     BigInt
+  status     Status    @default(PENDING)
+  totalPrice BigInt    @map("total_price")
+  serviceFee BigInt    @default(0) @map("service_fee")
+  gasFee     BigInt    @default(0) @map("gas_fee")
+  txHash     String?   @map("tx_hash")
+  listingAt  DateTime? @map("listing_at")
+  soldAt     DateTime? @map("sold_at")
+  canceledAt DateTime? @map("canceled_at")
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @default(now()) @updatedAt @map("updated_at")
+
+  @@index([txHash])
+  @@index([seller])
+  @@map("order")
 }

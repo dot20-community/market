@@ -1,19 +1,19 @@
-import { trpc } from '@utils/trpc';
 import {
-  Button,
-  Navbar,
-  NavbarBrand,
-  Image,
-  NavbarContent,
-  NavbarItem,
-  Link,
+    Button,
+    Image,
+    Link,
+    Navbar,
+    NavbarBrand,
+    NavbarContent,
+    NavbarItem,
 } from '@nextui-org/react';
+import { trpc } from '@utils/trpc';
 import { useState } from 'react';
 import { Wallet, fmtBalance } from '../utils/wallet';
 
 export function Home() {
   const [connectLoading, setConnectLoading] = useState(false);
-  const create = trpc.order.create.useMutation();
+  const sell = trpc.order.sell.useMutation();
 
   async function handleConnect() {
     setConnectLoading(true);
@@ -34,7 +34,7 @@ export function Home() {
         '100',
       );
       console.log('Serialized signed transfer:', serializedTransfer);
-      const resp = await create.mutateAsync({
+      const resp = await sell.mutateAsync({
         from: wallet.accounts[0].address,
         signedTransfer: serializedTransfer,
       });
