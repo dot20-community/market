@@ -84,6 +84,10 @@ export class Wallet {
     }
   }
 
+  setAccountsFromJSON(accountsJSON: string) {
+    this.accounts = JSON.parse(accountsJSON)
+  }
+
   private async request(from: string): Promise<InjectedAccountWithMeta> {
     await this.connect();
 
@@ -105,6 +109,7 @@ export class Wallet {
     const provider = new WsProvider(this.endpoint);
     this.api = await ApiPromise.create({ provider });
   }
+
 }
 
 /**
