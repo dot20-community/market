@@ -60,7 +60,7 @@ export default function Home() {
           <NavbarBrand>
             <Image src="/logo.svg" alt="logo" width={120} height={40} />
           </NavbarBrand>
-          <NavbarContent className="hidden gap-12 sm:flex" justify="center">
+          <NavbarContent className="gap-4 sm:flex" justify="center">
             <NavbarItem isActive>
               <Link href="#" aria-current="page">
                 MARKETPLACE
