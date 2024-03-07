@@ -10,6 +10,7 @@ import type {
   InjectedAccountWithMeta,
   InjectedExtension,
 } from '@polkadot/extension-inject/types';
+// eslint-disable-next-line @nx/enforce-module-boundaries
 import { buildInscribeTransfer, fmtAddress } from 'apps/libs/util';
 import { Decimal } from 'decimal.js';
 import { BizError } from '../../../libs/error';

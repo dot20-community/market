@@ -12,7 +12,7 @@ import {
   NavbarItem,
 } from '@nextui-org/react';
 import type { InjectedAccountWithMeta } from '@polkadot/extension-inject/types';
-import { trpc } from '@utils/trpc';
+// eslint-disable-next-line @nx/enforce-module-boundaries
 import { fmtAddress } from 'apps/libs/util';
 import { useEffect, useState } from 'react';
 import { Link as Linkto, Outlet } from 'react-router-dom';
@@ -23,7 +23,7 @@ export function Layout() {
   const [accounts, setAccounts] = useState<InjectedAccountWithMeta[]>([]);
   const [selectedAccountIndex, setSelectedAccountIndex] = useState(0);
 
-  const sell = trpc.order.sell.useMutation();
+  // const sell = trpc.order.sell.useMutation();
   const wallet = new Wallet();
 
   useEffect(() => {
@@ -133,6 +133,8 @@ export function Layout() {
                   disallowEmptySelection
                   selectionMode="single"
                   onSelectionChange={(keys) => {
+                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                    // @ts-ignore
                     const currentKey = keys['currentKey'] as string;
                     if (currentKey === 'disconnect') {
                       localStorage.setItem('DotWalletAccounts', '');
@@ -143,16 +145,17 @@ export function Layout() {
                   }}
                 >
                   {[
-                    ...accounts.map((account, index) => (
-                      <DropdownItem color="primary" key={index}>{`Account${
+                    ...accounts.map((account, index) => {
+                      const address = fmtAddress(account.address)
+                      return <DropdownItem color="primary" key={index}>{`Account${
                         index + 1
-                      } [${account.address.substring(
+                      } [${address.substring(
                         0,
                         6,
-                      )}...${account.address.substring(
-                        account.address.length - 6,
+                      )}...${address.substring(
+                        address.length - 6,
                       )}]`}</DropdownItem>
-                    )),
+                    }),
                     <DropdownItem color="primary" key="disconnect">
                       Disconnect
                     </DropdownItem>,

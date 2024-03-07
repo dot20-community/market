@@ -7,13 +7,22 @@ export interface SellModalContext {
   dotaBalance: number
 }
 
-const dotPrice = 10
+async function getDotPrice() {
+  const resp = await fetch("https://data-api.binance.vision/api/v3/ticker/price?symbol=DOTUSDT")
+  const data = await resp.json()
+  if (resp.status >= 300) {
+    throw new Error(data.message || "server error")
+  }
+  return parseFloat(data.price)
+}
 
 export const SellModal: FC<SellModalContext> = ({ isOpen, dotaBalance, onOpenChange }) => {
   const [amount, setAmount] = useState("");
   const [price, setPrice] = useState("");
+  const [dotPrice, setDotPrice] = useState(10);
 
   useEffect(() => {
+    getDotPrice().then(price => setDotPrice(price))
     setAmount("")
     setPrice("")
   }, []);
