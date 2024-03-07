@@ -15,8 +15,7 @@ import type { InjectedAccountWithMeta } from "@polkadot/extension-inject/types";
 import { trpc } from '@utils/trpc';
 import { useEffect, useState } from 'react';
 import { Link as Linkto, Outlet } from "react-router-dom";
-import { Wallet, fmtBalance } from '../utils/wallet';
-
+import { Wallet, fmtAddress, fmtBalance } from '../utils/wallet';
 
 export function Layout() {
   const [connectLoading, setConnectLoading] = useState(false);
@@ -35,6 +34,10 @@ export function Layout() {
     if (accountsStr) {
       wallet.setAccountsFromJSON(accountsStr);
       setAccounts(wallet.accounts);
+    }
+    const selectedAccountIndexStr = localStorage.getItem("selectedAccountIndex");
+    if (selectedAccountIndexStr) {
+      setSelectedAccountIndex(parseInt(selectedAccountIndexStr))
     }
   }
 
@@ -70,6 +73,12 @@ export function Layout() {
       setConnectLoading(false);
     }
   }
+
+  let currentAddress = ""
+  if (accounts[selectedAccountIndex]) {
+    currentAddress = fmtAddress(accounts[selectedAccountIndex].address)
+  }
+
   return (
     <div>
       <Navbar position="static" isBordered className="bg-background/70">
@@ -103,7 +112,7 @@ export function Layout() {
                         color="primary"
                         radius="full"
                       >
-                        {`Account${selectedAccountIndex + 1} [${accounts[selectedAccountIndex].address.substring(0, 6)}...${accounts[selectedAccountIndex].address.substring(accounts[selectedAccountIndex].address.length - 6)}]`}
+                        {`Account${selectedAccountIndex + 1} [${currentAddress.substring(0, 6)}...${currentAddress.substring(currentAddress.length - 6)}]`}
                       </Button>
                     </DropdownTrigger>
                     <DropdownMenu 
@@ -114,17 +123,19 @@ export function Layout() {
                       selectionMode="single"
                       onSelectionChange={(keys) => {
                         const currentKey = keys["currentKey"] as string
-                        if (currentKey == "disconnect") {
+                        if (currentKey === "disconnect") {
                           localStorage.setItem("DotWalletAccounts", "");
                           setAccounts([]);
                         } else {
                           setSelectedAccountIndex(parseInt(currentKey));
+                          localStorage.setItem("selectedAccountIndex", currentKey);
                         }
                       }}
                     >
-                      {[...accounts.map((account, index) => (
-                        <DropdownItem color="primary" key={index}>{`Account${index + 1} [${account.address.substring(0, 6)}...${account.address.substring(account.address.length - 6)}]`}</DropdownItem>
-                      )), <DropdownItem color="primary" key="disconnect">Disconnect</DropdownItem>
+                      {[...accounts.map((account, index) => {
+                        const address = fmtAddress(account.address)
+                        return <DropdownItem color="primary" key={index}>{`Account${index + 1} [${address.substring(0, 6)}...${address.substring(address.length - 6)}]`}</DropdownItem>
+                    }), <DropdownItem color="primary" key="disconnect">Disconnect</DropdownItem>
                       ]}
                     </DropdownMenu>
                   </Dropdown>) : (<Button

@@ -1,16 +1,16 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
-import { ApiPromise, WsProvider } from "@polkadot/api";
+import { ApiPromise, WsProvider } from '@polkadot/api';
 import {
   web3Accounts,
   web3Enable,
   web3FromSource,
-} from "@polkadot/extension-dapp";
-import type { InjectedAccountWithMeta } from "@polkadot/extension-inject/types";
-import { type u128 } from "@polkadot/types";
-import { formatBalance } from "@polkadot/util";
-import { decodeAddress, encodeAddress } from "@polkadot/util-crypto";
-import { BizError } from "../../../libs/error";
+} from '@polkadot/extension-dapp';
+import type { InjectedAccountWithMeta } from '@polkadot/extension-inject/types';
+import { type u128 } from '@polkadot/types';
+import { formatBalance } from '@polkadot/util';
+import { decodeAddress, encodeAddress } from '@polkadot/util-crypto';
+import { BizError } from '../../../libs/error';
 
 export class Wallet {
   endpoint!: string;
@@ -26,13 +26,13 @@ export class Wallet {
    * 连接钱包并获取账户授权
    */
   async open() {
-    const extensions = await web3Enable("My cool dapp");
+    const extensions = await web3Enable('My cool dapp');
     if (extensions.length === 0) {
-      throw new BizError({ code: "NO_EXTENSION" });
+      throw new BizError({ code: 'NO_EXTENSION' });
     }
     const allAccounts = await web3Accounts();
     if (allAccounts.length === 0) {
-      throw new BizError({ code: "NO_ACCOUNT" });
+      throw new BizError({ code: 'NO_ACCOUNT' });
     }
     this.accounts = allAccounts;
   }
@@ -77,15 +77,15 @@ export class Wallet {
       });
       return signedTransfer.toHex();
     } catch (e) {
-      if (e instanceof Error && e.message === "Rejected by user") {
-        throw new BizError({ code: "USER_REJECTED" });
+      if (e instanceof Error && e.message === 'Rejected by user') {
+        throw new BizError({ code: 'USER_REJECTED' });
       }
       throw e;
     }
   }
 
   setAccountsFromJSON(accountsJSON: string) {
-    this.accounts = JSON.parse(accountsJSON)
+    this.accounts = JSON.parse(accountsJSON);
   }
 
   private async request(from: string): Promise<InjectedAccountWithMeta> {
@@ -93,7 +93,7 @@ export class Wallet {
 
     const account = this.accounts.find((account) => account.address === from);
     if (!account) {
-      throw new BizError({ code: "NO_ACCOUNT" });
+      throw new BizError({ code: 'NO_ACCOUNT' });
     }
 
     return account;
@@ -109,7 +109,6 @@ export class Wallet {
     const provider = new WsProvider(this.endpoint);
     this.api = await ApiPromise.create({ provider });
   }
-
 }
 
 /**
@@ -129,4 +128,21 @@ export function fmtBalance(balance: u128): string {
     withUnit: false,
     decimals: import.meta.env.VITE_POLKADOT_DECIMALS,
   });
+}
+
+/**
+ * 从localstorage获取当前选中的的账号address
+ */
+export function getCurrentAccountAddress() {
+  const accountsStr = localStorage.getItem('DotWalletAccounts');
+  if (!accountsStr) {
+    return '';
+  }
+  const accounts = JSON.parse(accountsStr) as InjectedAccountWithMeta[];
+  const selectedAccountIndexStr = localStorage.getItem('selectedAccountIndex');
+  if (!selectedAccountIndexStr) {
+    return accounts[0].address;
+  } else {
+    return fmtAddress(accounts[parseInt(selectedAccountIndexStr)].address);
+  }
 }
