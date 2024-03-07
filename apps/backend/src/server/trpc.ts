@@ -1,6 +1,6 @@
 import { initTRPC, TRPCError } from '@trpc/server';
 import superjson from 'superjson';
-import { ErrorCode } from '../../../libs/error';
+import { BizError, ErrorCode } from '../../../libs/error';
 import { Context } from './context';
 export { AppRouter } from './router';
 
@@ -46,6 +46,7 @@ export const adminProcedure = t.procedure.use(isAdmin);
 export type Result<T> = {
   code: ErrorCode;
   data?: T;
+  message?: string;
 };
 
 export type PageReq = {
@@ -67,9 +68,10 @@ export function ok<T>(data: T): Result<T> {
   };
 }
 
-export function error<T>(code?: ErrorCode): Result<T> {
+export function error<T>(bizError?: BizError): Result<T> {
+  const bizError2 = bizError ?? BizError.of('ERROR');
   return {
-    code: code ?? 'ERROR',
-    data: undefined,
+    code: bizError2.code,
+    message: bizError2.message,
   };
 }

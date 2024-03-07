@@ -3,6 +3,7 @@ import { fastifyTRPCPlugin } from '@trpc/server/adapters/fastify';
 import fastify from 'fastify';
 import pino from 'pino';
 import pretty from 'pino-pretty';
+import { setPolkadotDecimals } from './../../../libs/util';
 import { createContextProxy } from './context';
 import { appRouter } from './router';
 
@@ -11,6 +12,7 @@ export interface ServerOptions {
   port?: number;
   prefix?: string;
   environment: 'development' | 'production' | 'test' | 'local';
+  marketAccount: string;
   polkadotEndpoint: string;
   polkadotDecimals: number;
   serverFeeRate: number;
@@ -27,6 +29,8 @@ export async function createServer(opts: ServerOptions) {
     ignore: 'pid,hostname',
   });
   const prettyLogger = pino({ level: 'debug' }, stream);
+
+  setPolkadotDecimals(opts.polkadotDecimals);
 
   const server = fastify({
     logger:

@@ -12,12 +12,10 @@ import {
   NavbarItem,
 } from '@nextui-org/react';
 import type { InjectedAccountWithMeta } from '@polkadot/extension-inject/types';
-import { u128 } from '@polkadot/types';
-import { BN } from '@polkadot/util';
 import { trpc } from '@utils/trpc';
 import { useEffect, useState } from 'react';
 import { Link as Linkto, Outlet } from 'react-router-dom';
-import { dot2Planck, planck2Dot } from '../../../libs/util';
+import { dot2Planck } from '../../../libs/util';
 import { Wallet } from '../utils/wallet';
 
 export function Layout() {
@@ -44,45 +42,38 @@ export function Layout() {
     setConnectLoading(true);
     try {
       await wallet.open();
-      const balace = await wallet.getBalance(wallet.accounts[0].address);
-      console.log('Account balance 2:', balace.toString());
-      const dot = planck2Dot(balace, import.meta.env.VITE_POLKADOT_DECIMALS);
-      console.log('Account balance 3:', dot);
-      console.log(
-        'Account balance 4:',
-        dot2Planck(dot, import.meta.env.VITE_POLKADOT_DECIMALS),
-      );
-
       localStorage.setItem(
         'DotWalletAccounts',
         JSON.stringify(wallet.accounts),
       );
       setAccounts(wallet.accounts);
 
-      // 总价 5 DOT
-      const totalPrice = BigInt(5 * 1e12);
-      // 服务费
+      // 总价 2 DOT
+      const totalPrice = dot2Planck(2);
+      // 服务费 2 * 0.02
+      const serviceFee = totalPrice
+        .mul(import.meta.env.VITE_SERVER_FEE_RATE)
+        .ceil();
+      // 总共应付 总价 + 服务费
+      const totalPayPrice = totalPrice.add(serviceFee);
       const signedExtrinsic = await wallet.signTransferInscribe(
         wallet.accounts[0].address,
-        '5GBRPdwiDdSG5EKn1Zec3mw7umogG23aP2YDDjEhGvFdPNeQ',
-        new BN(15 * 1e12) as u128,
+        '157iXyCn5QhjWmLHyChcBvmGmPoKxKbiTXGhP2E3q1H9ZuMd',
+        totalPayPrice,
         'DOTA',
         10000,
       );
-      console.log('Serialized signed transfer:', signedExtrinsic);
-      /*    const resp = await sell.mutateAsync({
+
+      const resp = await sell.mutateAsync({
         seller: wallet.accounts[0].address,
-        signedTransfer: serializedTransfer,
-      });
-      console.log('Create order response:', resp); */
-      /*  sell.mutateAsync({
-        seller: wallet.accounts[0].address,
-        totalPrice: BigInt(5 * 1e12),
-        serviceFee: BigInt(0.1 * 1e12),
+        totalPrice: totalPrice.toFixed(),
+        serviceFee: serviceFee.toFixed(),
         signedExtrinsic: signedExtrinsic,
-      }); */
+      });
+      console.log('Create order response:', resp);
     } catch (e) {
       console.error('Error:', e);
+      throw e;
     } finally {
       setConnectLoading(false);
     }

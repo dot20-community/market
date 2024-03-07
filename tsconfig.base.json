@@ -11,10 +11,16 @@
     "importHelpers": true,
     "target": "ES2020",
     "module": "esnext",
-    "lib": ["es2017", "dom"],
+    "lib": [
+      "ESNext",
+      "dom"
+    ],
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "baseUrl": "."
   },
-  "exclude": ["node_modules", "tmp"]
+  "exclude": [
+    "node_modules",
+    "tmp"
+  ]
 }

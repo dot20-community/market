@@ -6,8 +6,9 @@ import {
   web3Enable,
   web3FromSource,
 } from '@polkadot/extension-dapp';
-import type { InjectedAccountWithMeta } from '@polkadot/extension-inject/types';
-import { type u128 } from '@polkadot/types';
+import type { InjectedAccountWithMeta, InjectedExtension } from '@polkadot/extension-inject/types';
+import { buildInscribeTransfer } from 'apps/libs/util';
+import { Decimal } from 'decimal.js';
 import { BizError } from '../../../libs/error';
 
 export class Wallet {
@@ -39,11 +40,11 @@ export class Wallet {
    * 查询账户余额
    * @param address
    */
-  async getBalance(address: string): Promise<u128> {
+  async getBalance(address: string): Promise<Decimal> {
     await this.connect();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment
     const result = (await this.api.query.system.account(address)) as any;
-    return result.data.free as u128;
+    return new Decimal(result.data.free.toString());
   }
 
   /**
@@ -58,16 +59,13 @@ export class Wallet {
   async signTransferInscribe(
     from: string,
     to: string,
-    dotAmt: u128,
+    dotAmt: Decimal,
     inscribeTick: string,
     inscribeAmt: number,
   ): Promise<string> {
-    const account = await this.request(from);
-    const injected = await web3FromSource(account.meta.source);
-    const tx1 = this.api.tx.balances.transferKeepAlive(to, dotAmt);
-    const tx2 = this.api.tx.system.remarkWithEvent(
-      `{"p":"dot-20","op":"transfer","tick":"${inscribeTick.toUpperCase()}","amt":${inscribeAmt}}`,
-    );
+    const injected = await this.request(from);
+    const tx1 = this.api.tx.balances.transferKeepAlive(to, dotAmt.toFixed());
+    const tx2 = this.api.tx.system.remarkWithEvent(buildInscribeTransfer(inscribeTick, inscribeAmt));
     const transfer = this.api.tx.utility.batchAll([tx1, tx2]);
     try {
       const signedTransfer = await transfer.signAsync(from, {
@@ -86,7 +84,7 @@ export class Wallet {
     this.accounts = JSON.parse(accountsJSON);
   }
 
-  private async request(from: string): Promise<InjectedAccountWithMeta> {
+  private async request(from: string): Promise<InjectedExtension> {
     await this.connect();
 
     const account = this.accounts.find((account) => account.address === from);
@@ -94,7 +92,7 @@ export class Wallet {
       throw new BizError({ code: 'NO_ACCOUNT' });
     }
 
-    return account;
+    return await web3FromSource(account.meta.source);
   }
 
   private async connect() {

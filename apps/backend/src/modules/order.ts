@@ -1,5 +1,7 @@
-import { ApiPromise } from '@polkadot/api';
 import { Order, Status } from '@prisma/client';
+import { BizError } from 'apps/libs/error';
+import { dot2Planck, parseInscribeTransfer } from 'apps/libs/util';
+import Decimal from 'decimal.js';
 import {
   PageReq,
   PageRes,
@@ -22,11 +24,11 @@ export type SellReq = {
   /**
    * 铭文出售总价
    */
-  totalPrice: bigint;
+  totalPrice: string;
   /**
    * 服务费
    */
-  serviceFee: bigint;
+  serviceFee: string;
   /**
    * 签名交易数据
    */
@@ -39,7 +41,7 @@ export type SellRes = Result<{
   /**
    * 订单ID
    */
-  id: number;
+  id: bigint;
   /**
    * 交易哈希
    */
@@ -104,10 +106,6 @@ export type BuyRes = Result<{
   hash: string;
 }>;
 
-async function waitBlock(api: ApiPromise, extrinsicHash: string) {
-  const blockHash = await api.rpc.chain.getBlockHash(extrinsicHash);
-}
-
 export const orderRouter = router({
   /**
    * 卖单
@@ -116,25 +114,56 @@ export const orderRouter = router({
     .input((input) => input as SellReq)
     .mutation(async ({ input, ctx }): Promise<SellRes> => {
       const extrinsic = ctx.api.createType('Extrinsic', input.signedExtrinsic);
+      const totalPriceDecimal = new Decimal(input.totalPrice);
+      const serviceFeeDecimal = new Decimal(input.serviceFee);
+
       // 校验卖家地址是否与签名地址一致
       if (input.seller !== extrinsic.signer.toString()) {
-        return error('INVALID_TRANSACTION');
+        return error(BizError.of('INVALID_TRANSACTION', 'Invalid seller'));
       }
       // 校验是否满足最小交易金额
-      // 校验手续费是否满足
-
-      try {
-        const errorMsg = await submitAndWaitExtrinsic(
-          ctx.api,
-          input.signedExtrinsic,
-        );
-        if (errorMsg) {
-          return error('TRANSFER_FAILED');
-        }
-        return ok({ id: 1, hash: extrinsic.hash.toHex() });
-      } catch (e) {
-        return error();
+      if (totalPriceDecimal < dot2Planck(ctx.opts.minSellTotalPrice)) {
+        return error(BizError.of('INVALID_TRANSACTION', 'Invalid total price'));
       }
+      // 解析铭文转账数据
+      const inscribeTransfer = parseInscribeTransfer(extrinsic as any);
+      if (!inscribeTransfer) {
+        return error(BizError.of('INVALID_TRANSACTION', 'Invalid inscribe format'));
+      }
+      // 检查是否转账给平台地址
+      if (inscribeTransfer.to !== ctx.opts.marketAccount) {
+        return error(BizError.of('INVALID_TRANSACTION', 'Invalid receiver address'));
+      }
+      // 检查转账金额是否符合
+      const needPayPrice = totalPriceDecimal.add(serviceFeeDecimal);
+      const realTransferPrice = inscribeTransfer.transfer
+      if (realTransferPrice < needPayPrice) {
+        return error(BizError.of('INVALID_TRANSACTION', 'Invalid transfer amount'));
+      }
+
+      // 提交上链
+      const errMsg = await submitAndWaitExtrinsic(
+        ctx.api,
+        extrinsic as any,
+      );
+      if (errMsg) {
+        return error(BizError.of('TRANSFER_FAILED', errMsg));
+      }
+
+      // 存储到数据库
+      const order = await ctx.prisma.order.create({
+        data: {
+          seller: input.seller,
+          totalPrice: BigInt(totalPriceDecimal.toFixed()),
+          serviceFee: BigInt(serviceFeeDecimal.toFixed()),
+          realPayPrice: BigInt(realTransferPrice.toFixed()),
+          txHash: extrinsic.hash.toString(),
+          tick: inscribeTransfer.inscribeTick,
+          amount: inscribeTransfer.inscribeAmt,
+        },
+      });
+
+      return ok({ id: order.id, hash: extrinsic.hash.toHex() });
     }),
   /**
    * 查询订单信息

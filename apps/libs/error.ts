@@ -25,16 +25,21 @@ export type ErrorCode =
    */
   | 'INVALID_TRANSACTION'
   /**
-   * 钱包转账失败，比如dot余额不足
+   * 转账失败，比如dot余额不足
    */
   | 'TRANSFER_FAILED';
 
 export class BizError extends Error {
   code: ErrorCode;
+  message: string;
 
   constructor({ code, message }: { code: ErrorCode; message?: string }) {
     super(message);
     this.code = code;
     this.message = message ?? '';
+  }
+
+  static of(error: ErrorCode, message?: string) {
+    return new BizError({ code: error, message });
   }
 }

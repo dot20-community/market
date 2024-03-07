@@ -1,14 +1,16 @@
 import { ApiPromise } from '@polkadot/api';
+import { u128 } from '@polkadot/types';
+import { Extrinsic } from '@polkadot/types/interfaces';
+import { planck2Dot } from 'apps/libs/util';
 
 export async function submitAndWaitExtrinsic(
   api: ApiPromise,
-  signedExtrinsic: string,
+  extrinsic: Extrinsic,
 ): Promise<string | null> {
-  const extrinsic = api.createType('Extrinsic', signedExtrinsic);
   // 提交事务并等待区块确认
   const blockHash: string = await new Promise(async (resolve, reject) => {
     const unsub = await api.rpc.author.submitAndWatchExtrinsic(
-      extrinsic,
+      extrinsic as any,
       async (result) => {
         if (result.isFinalized) {
           const blockHash = result.asFinalized.toString();
@@ -56,6 +58,11 @@ export async function submitAndWaitExtrinsic(
         return;
       }
     });
+
+  const paymentInfo = (await api.call.transactionPaymentApi.queryInfo(extrinsic, extrinsic.toU8a().length)) as any;
+  console.log(`Gas used 111:`, planck2Dot(paymentInfo.partialFee as u128));
+  console.log(`Gas used 222: ${paymentInfo.partialFee.toHuman()}`);
+
 
   return errorMsg;
 }

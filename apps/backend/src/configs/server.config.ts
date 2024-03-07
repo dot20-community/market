@@ -10,6 +10,7 @@ export const serverConfig: ServerOptions = {
 
   port: get('APP_PORT').required().asPortNumber(),
   prefix: get('API_PREFIX').required().asString(),
+  marketAccount: get('VITE_MARKET_ACCOUNT').required().asString(),
   polkadotEndpoint: get('VITE_POLKADOT_ENDPOINT').required().asString(),
   polkadotDecimals: get('VITE_POLKADOT_DECIMALS').required().asInt(),
   serverFeeRate: get('VITE_SERVER_FEE_RATE').required().asFloat(),
