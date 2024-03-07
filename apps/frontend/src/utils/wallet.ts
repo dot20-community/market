@@ -1,22 +1,20 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
-import { ApiPromise, WsProvider } from "@polkadot/api";
+import { ApiPromise, WsProvider } from '@polkadot/api';
 import {
   web3Accounts,
   web3Enable,
   web3FromSource,
-} from "@polkadot/extension-dapp";
-import type { InjectedAccountWithMeta } from "@polkadot/extension-inject/types";
-import { type u128 } from "@polkadot/types";
-import { formatBalance } from "@polkadot/util";
-import { decodeAddress, encodeAddress } from "@polkadot/util-crypto";
-import { BizError } from "../../../libs/error";
+} from '@polkadot/extension-dapp';
+import type { InjectedAccountWithMeta } from '@polkadot/extension-inject/types';
+import { type u128 } from '@polkadot/types';
+import { BizError } from '../../../libs/error';
 
 export class Wallet {
   endpoint!: string;
   accounts!: InjectedAccountWithMeta[];
 
-  private api!: ApiPromise;
+  api!: ApiPromise;
 
   constructor(endpoint?: string) {
     this.endpoint = endpoint ?? import.meta.env.VITE_POLKADOT_ENDPOINT;
@@ -26,13 +24,13 @@ export class Wallet {
    * 连接钱包并获取账户授权
    */
   async open() {
-    const extensions = await web3Enable("My cool dapp");
+    const extensions = await web3Enable('DOT-20 Market');
     if (extensions.length === 0) {
-      throw new BizError({ code: "NO_EXTENSION" });
+      throw new BizError({ code: 'NO_EXTENSION' });
     }
     const allAccounts = await web3Accounts();
     if (allAccounts.length === 0) {
-      throw new BizError({ code: "NO_ACCOUNT" });
+      throw new BizError({ code: 'NO_ACCOUNT' });
     }
     this.accounts = allAccounts;
   }
@@ -60,9 +58,9 @@ export class Wallet {
   async signTransferInscribe(
     from: string,
     to: string,
-    dotAmt: string,
+    dotAmt: u128,
     inscribeTick: string,
-    inscribeAmt: string,
+    inscribeAmt: number,
   ): Promise<string> {
     const account = await this.request(from);
     const injected = await web3FromSource(account.meta.source);
@@ -77,15 +75,15 @@ export class Wallet {
       });
       return signedTransfer.toHex();
     } catch (e) {
-      if (e instanceof Error && e.message === "Rejected by user") {
-        throw new BizError({ code: "USER_REJECTED" });
+      if (e instanceof Error && e.message === 'Rejected by user') {
+        throw new BizError({ code: 'USER_REJECTED' });
       }
       throw e;
     }
   }
 
   setAccountsFromJSON(accountsJSON: string) {
-    this.accounts = JSON.parse(accountsJSON)
+    this.accounts = JSON.parse(accountsJSON);
   }
 
   private async request(from: string): Promise<InjectedAccountWithMeta> {
@@ -93,7 +91,7 @@ export class Wallet {
 
     const account = this.accounts.find((account) => account.address === from);
     if (!account) {
-      throw new BizError({ code: "NO_ACCOUNT" });
+      throw new BizError({ code: 'NO_ACCOUNT' });
     }
 
     return account;
@@ -109,24 +107,4 @@ export class Wallet {
     const provider = new WsProvider(this.endpoint);
     this.api = await ApiPromise.create({ provider });
   }
-
-}
-
-/**
- * 格式化成波卡主网钱包地址
- * @param address
- * @returns
- */
-export function fmtAddress(address: string): string {
-  return encodeAddress(decodeAddress(address), 0);
-}
-
-/**
- * 格式化成波卡代币数量
- */
-export function fmtBalance(balance: u128): string {
-  return formatBalance(balance, {
-    withUnit: false,
-    decimals: import.meta.env.VITE_POLKADOT_DECIMALS,
-  });
 }

@@ -12,7 +12,7 @@ const t = initTRPC.context<Context>().create({
       return { ...shape, message: 'Internal server error' };
     }
     return shape;
-  }
+  },
 });
 
 const isAuthenticated = t.middleware(({ next, ctx }) => {
@@ -46,19 +46,19 @@ export const adminProcedure = t.procedure.use(isAdmin);
 export type Result<T> = {
   code: ErrorCode;
   data?: T;
-}
+};
 
 export type PageReq = {
   limit: number;
   cursor?: string;
-}
+};
 
 export type PageRes<T> = {
   total: number;
   list: T[];
   prev?: string;
   next?: string;
-}
+};
 
 export function ok<T>(data: T): Result<T> {
   return {

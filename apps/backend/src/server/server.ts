@@ -1,10 +1,10 @@
+import cors from '@fastify/cors';
 import { fastifyTRPCPlugin } from '@trpc/server/adapters/fastify';
 import fastify from 'fastify';
+import pino from 'pino';
+import pretty from 'pino-pretty';
 import { createContextProxy } from './context';
 import { appRouter } from './router';
-import cors from '@fastify/cors';
-import pretty from 'pino-pretty';
-import pino from 'pino';
 
 export interface ServerOptions {
   dev?: boolean;
@@ -13,6 +13,8 @@ export interface ServerOptions {
   environment: 'development' | 'production' | 'test' | 'local';
   polkadotEndpoint: string;
   polkadotDecimals: number;
+  serverFeeRate: number;
+  minSellTotalPrice: number;
 }
 
 export async function createServer(opts: ServerOptions) {
