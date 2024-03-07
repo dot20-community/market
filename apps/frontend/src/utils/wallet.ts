@@ -6,17 +6,19 @@ import {
   web3Enable,
   web3FromSource,
 } from '@polkadot/extension-dapp';
-import type { InjectedAccountWithMeta } from '@polkadot/extension-inject/types';
-import { type u128 } from '@polkadot/types';
-import { formatBalance } from '@polkadot/util';
-import { decodeAddress, encodeAddress } from '@polkadot/util-crypto';
+import type {
+  InjectedAccountWithMeta,
+  InjectedExtension,
+} from '@polkadot/extension-inject/types';
+import { buildInscribeTransfer, fmtAddress } from 'apps/libs/util';
+import { Decimal } from 'decimal.js';
 import { BizError } from '../../../libs/error';
 
 export class Wallet {
   endpoint!: string;
   accounts!: InjectedAccountWithMeta[];
 
-  private api!: ApiPromise;
+  api!: ApiPromise;
 
   constructor(endpoint?: string) {
     this.endpoint = endpoint ?? import.meta.env.VITE_POLKADOT_ENDPOINT;
@@ -26,7 +28,7 @@ export class Wallet {
    * 连接钱包并获取账户授权
    */
   async open() {
-    const extensions = await web3Enable('My cool dapp');
+    const extensions = await web3Enable('DOT-20 Market');
     if (extensions.length === 0) {
       throw new BizError({ code: 'NO_EXTENSION' });
     }
@@ -41,11 +43,11 @@ export class Wallet {
    * 查询账户余额
    * @param address
    */
-  async getBalance(address: string): Promise<u128> {
+  async getBalance(address: string): Promise<Decimal> {
     await this.connect();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment
     const result = (await this.api.query.system.account(address)) as any;
-    return result.data.free as u128;
+    return new Decimal(result.data.free.toString());
   }
 
   /**
@@ -60,15 +62,14 @@ export class Wallet {
   async signTransferInscribe(
     from: string,
     to: string,
-    dotAmt: string,
+    dotAmt: Decimal,
     inscribeTick: string,
-    inscribeAmt: string,
+    inscribeAmt: number,
   ): Promise<string> {
-    const account = await this.request(from);
-    const injected = await web3FromSource(account.meta.source);
-    const tx1 = this.api.tx.balances.transferKeepAlive(to, dotAmt);
+    const injected = await this.request(from);
+    const tx1 = this.api.tx.balances.transferKeepAlive(to, dotAmt.toFixed());
     const tx2 = this.api.tx.system.remarkWithEvent(
-      `{"p":"dot-20","op":"transfer","tick":"${inscribeTick.toUpperCase()}","amt":${inscribeAmt}}`,
+      buildInscribeTransfer(inscribeTick, inscribeAmt),
     );
     const transfer = this.api.tx.utility.batchAll([tx1, tx2]);
     try {
@@ -88,7 +89,7 @@ export class Wallet {
     this.accounts = JSON.parse(accountsJSON);
   }
 
-  private async request(from: string): Promise<InjectedAccountWithMeta> {
+  private async request(from: string): Promise<InjectedExtension> {
     await this.connect();
 
     const account = this.accounts.find((account) => account.address === from);
@@ -96,7 +97,7 @@ export class Wallet {
       throw new BizError({ code: 'NO_ACCOUNT' });
     }
 
-    return account;
+    return await web3FromSource(account.meta.source);
   }
 
   private async connect() {
@@ -109,25 +110,6 @@ export class Wallet {
     const provider = new WsProvider(this.endpoint);
     this.api = await ApiPromise.create({ provider });
   }
-}
-
-/**
- * 格式化成波卡主网钱包地址
- * @param address
- * @returns
- */
-export function fmtAddress(address: string): string {
-  return encodeAddress(decodeAddress(address), 0);
-}
-
-/**
- * 格式化成波卡代币数量
- */
-export function fmtBalance(balance: u128): string {
-  return formatBalance(balance, {
-    withUnit: false,
-    decimals: import.meta.env.VITE_POLKADOT_DECIMALS,
-  });
 }
 
 /**

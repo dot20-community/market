@@ -1,18 +1,22 @@
+import cors from '@fastify/cors';
 import { fastifyTRPCPlugin } from '@trpc/server/adapters/fastify';
 import fastify from 'fastify';
+import pino from 'pino';
+import pretty from 'pino-pretty';
+import { setPolkadotDecimals } from './../../../libs/util';
 import { createContextProxy } from './context';
 import { appRouter } from './router';
-import cors from '@fastify/cors';
-import pretty from 'pino-pretty';
-import pino from 'pino';
 
 export interface ServerOptions {
   dev?: boolean;
   port?: number;
   prefix?: string;
   environment: 'development' | 'production' | 'test' | 'local';
+  marketAccount: string;
   polkadotEndpoint: string;
   polkadotDecimals: number;
+  serverFeeRate: number;
+  minSellTotalPrice: number;
 }
 
 export async function createServer(opts: ServerOptions) {
@@ -25,6 +29,8 @@ export async function createServer(opts: ServerOptions) {
     ignore: 'pid,hostname',
   });
   const prettyLogger = pino({ level: 'debug' }, stream);
+
+  setPolkadotDecimals(opts.polkadotDecimals);
 
   const server = fastify({
     logger:
