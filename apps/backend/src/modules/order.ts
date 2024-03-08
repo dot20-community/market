@@ -2,16 +2,8 @@ import { Order, Status } from '@prisma/client';
 import { BizError } from 'apps/libs/error';
 import { dot2Planck, parseInscribeTransfer } from 'apps/libs/util';
 import Decimal from 'decimal.js';
-import {
-  PageReq,
-  PageRes,
-  error,
-  noAuthProcedure,
-  ok,
-  router,
-} from '../server/trpc';
+import { PageReq, PageRes, noAuthProcedure, router } from '../server/trpc';
 import { submitAndWaitExtrinsic } from '../util/dapp';
-import { Result } from './../server/trpc';
 
 /**
  * 卖单请求参数
@@ -37,7 +29,7 @@ export type SellReq = {
 /**
  * 卖单响应参数
  */
-export type SellRes = Result<{
+export type SellRes = {
   /**
    * 订单ID
    */
@@ -46,7 +38,7 @@ export type SellRes = Result<{
    * 交易哈希
    */
   hash: string;
-}>;
+};
 
 /**
  * 查询订单详情请求参数
@@ -55,7 +47,7 @@ export type DetailReq = number;
 /**
  * 查询订单详情响应参数
  */
-export type DetailRes = Result<Order>;
+export type DetailRes = Order;
 
 /**
  * 查询订单列表请求参数
@@ -73,7 +65,7 @@ export type ListReq = PageReq & {
 /**
  * 查询订单列表响应参数
  */
-export type ListRes = Result<PageRes<Order>>;
+export type ListRes = PageRes<Order>;
 
 /**
  * 买单请求参数
@@ -95,7 +87,7 @@ export type BuyReq = {
 /**
  * 买单响应参数
  */
-export type BuyRes = Result<{
+export type BuyRes = {
   /**
    * 订单ID
    */
@@ -104,7 +96,7 @@ export type BuyRes = Result<{
    * 交易哈希
    */
   hash: string;
-}>;
+};
 
 export const orderRouter = router({
   /**
@@ -119,35 +111,32 @@ export const orderRouter = router({
 
       // 校验卖家地址是否与签名地址一致
       if (input.seller !== extrinsic.signer.toString()) {
-        return error(BizError.of('INVALID_TRANSACTION', 'Invalid seller'));
+        throw BizError.of('INVALID_TRANSACTION', 'Invalid seller');
       }
       // 校验是否满足最小交易金额
       if (totalPriceDecimal < dot2Planck(ctx.opts.minSellTotalPrice)) {
-        return error(BizError.of('INVALID_TRANSACTION', 'Invalid total price'));
+        throw BizError.of('INVALID_TRANSACTION', 'Invalid total price');
       }
       // 解析铭文转账数据
       const inscribeTransfer = parseInscribeTransfer(extrinsic as any);
       if (!inscribeTransfer) {
-        return error(BizError.of('INVALID_TRANSACTION', 'Invalid inscribe format'));
+        throw BizError.of('INVALID_TRANSACTION', 'Invalid inscribe format');
       }
       // 检查是否转账给平台地址
       if (inscribeTransfer.to !== ctx.opts.marketAccount) {
-        return error(BizError.of('INVALID_TRANSACTION', 'Invalid receiver address'));
+        throw BizError.of('INVALID_TRANSACTION', 'Invalid receiver address');
       }
       // 检查转账金额是否符合
       const needPayPrice = totalPriceDecimal.add(serviceFeeDecimal);
-      const realTransferPrice = inscribeTransfer.transfer
+      const realTransferPrice = inscribeTransfer.transfer;
       if (realTransferPrice < needPayPrice) {
-        return error(BizError.of('INVALID_TRANSACTION', 'Invalid transfer amount'));
+        throw BizError.of('INVALID_TRANSACTION', 'Invalid transfer amount');
       }
 
       // 提交上链
-      const errMsg = await submitAndWaitExtrinsic(
-        ctx.api,
-        extrinsic as any,
-      );
+      const errMsg = await submitAndWaitExtrinsic(ctx.api, extrinsic as any);
       if (errMsg) {
-        return error(BizError.of('TRANSFER_FAILED', errMsg));
+        throw BizError.of('TRANSFER_FAILED', errMsg);
       }
 
       // 存储到数据库
@@ -163,7 +152,7 @@ export const orderRouter = router({
         },
       });
 
-      return ok({ id: order.id, hash: extrinsic.hash.toHex() });
+      return { id: order.id, hash: extrinsic.hash.toHex() };
     }),
   /**
    * 查询订单信息
@@ -171,18 +160,18 @@ export const orderRouter = router({
   detail: noAuthProcedure
     .input((input) => input as DetailReq)
     .query(async ({ input }) => {
-      return ok({} as DetailRes);
+      return {};
     }),
   /**
    * 查询订单列表
    */
   list: noAuthProcedure
     .input((input) => input as ListReq)
-    .query(async ({ input }): Promise<ListRes> => {
-      return ok({
+    .query(async ({ input }) => {
+      return {
         total: 0,
         list: [],
-      });
+      };
     }),
   /**
    * 买单
@@ -190,6 +179,6 @@ export const orderRouter = router({
   buy: noAuthProcedure
     .input((input) => input as BuyReq)
     .mutation(async ({ input }) => {
-      return ok({} as BuyRes);
+      return {};
     }),
 });

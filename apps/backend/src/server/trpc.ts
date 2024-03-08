@@ -1,17 +1,22 @@
 import { initTRPC, TRPCError } from '@trpc/server';
+import { BizError } from 'apps/libs/error';
 import superjson from 'superjson';
-import { BizError, ErrorCode } from '../../../libs/error';
 import { Context } from './context';
 export { AppRouter } from './router';
 
 const t = initTRPC.context<Context>().create({
   transformer: superjson,
-  errorFormatter({ shape, error, ctx }) {
-    if (error.code === 'INTERNAL_SERVER_ERROR') {
-      ctx?.req.log.error(error);
-      return { ...shape, message: 'Internal server error' };
-    }
-    return shape;
+  errorFormatter({ shape, error: err, ctx }) {
+    ctx?.req.log.error(err);
+    const bizErr =
+      err instanceof BizError ? err : BizError.of('ERROR', err.message);
+    return {
+      ...shape,
+      data: {
+        code: bizErr.code,
+        message: bizErr.message,
+      },
+    };
   },
 });
 
@@ -43,12 +48,6 @@ export const procedure = t.procedure.use(isAuthenticated);
 export const noAuthProcedure = t.procedure;
 export const adminProcedure = t.procedure.use(isAdmin);
 
-export type Result<T> = {
-  code: ErrorCode;
-  data?: T;
-  message?: string;
-};
-
 export type PageReq = {
   limit: number;
   cursor?: string;
@@ -60,18 +59,3 @@ export type PageRes<T> = {
   prev?: string;
   next?: string;
 };
-
-export function ok<T>(data: T): Result<T> {
-  return {
-    code: 'OK',
-    data,
-  };
-}
-
-export function error<T>(bizError?: BizError): Result<T> {
-  const bizError2 = bizError ?? BizError.of('ERROR');
-  return {
-    code: bizError2.code,
-    message: bizError2.message,
-  };
-}

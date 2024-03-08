@@ -1,5 +1,4 @@
 export type ErrorCode =
-  | 'OK'
   /**
    * 服务器异常
    */
@@ -27,7 +26,11 @@ export type ErrorCode =
   /**
    * 转账失败，比如dot余额不足
    */
-  | 'TRANSFER_FAILED';
+  | 'TRANSFER_FAILED'
+  /**
+   * 调用第三方API失败
+   */
+  | 'API_FAILED';
 
 export class BizError extends Error {
   code: ErrorCode;
