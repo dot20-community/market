@@ -162,9 +162,14 @@ export function Layout() {
                     ...accounts.map((account, index) => {
                       const address = fmtAddress(account.address);
                       return (
-                        <DropdownItem color="primary" key={index}>{`Account${
-                          index + 1
-                        } [${address.substring(0, 6)}...${address.substring(
+                        <DropdownItem
+                          color="primary"
+                          key={index}
+                          showDivider={index == accounts.length - 1}
+                        >{`Account${index + 1} [${address.substring(
+                          0,
+                          6,
+                        )}...${address.substring(
                           address.length - 6,
                         )}]`}</DropdownItem>
                       );

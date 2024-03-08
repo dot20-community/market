@@ -1,9 +1,13 @@
 import cors from '@fastify/cors';
 import { fastifyTRPCPlugin } from '@trpc/server/adapters/fastify';
+import {
+  getApi,
+  setPolkadotDecimals,
+  setPolkadotEndpoint,
+} from 'apps/libs/util';
 import fastify from 'fastify';
 import pino from 'pino';
 import pretty from 'pino-pretty';
-import { setPolkadotDecimals } from './../../../libs/util';
 import { createContextProxy } from './context';
 import { appRouter } from './router';
 
@@ -32,6 +36,7 @@ export async function createServer(opts: ServerOptions) {
   const prettyLogger = pino({ level: 'debug' }, stream);
 
   setPolkadotDecimals(opts.polkadotDecimals);
+  setPolkadotEndpoint(opts.polkadotEndpoint);
 
   const server = fastify({
     logger:
@@ -44,6 +49,9 @@ export async function createServer(opts: ServerOptions) {
     origin: '*',
     methods: '*',
   });
+
+  // 初始化波卡rpc api
+  await getApi();
 
   const createContext = await createContextProxy(opts);
   server.register(fastifyTRPCPlugin, {

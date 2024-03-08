@@ -19,7 +19,8 @@
     "format:check": "nx format:check",
     "backend:dev": "nx run backend:serve",
     "frontend:dev": "nx run frontend:serve",
-    "migrate:dev": "prisma migrate dev --name init",
+    "prisma:migrate": "prisma migrate dev --name init",
+    "prisma:gen": "prisma generate",
     "docker:env": "docker compose --file docker/docker-compose.yaml up --build"
   },
   "dependencies": {

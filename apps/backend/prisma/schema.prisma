@@ -20,34 +20,45 @@ enum Status {
 }
 
 enum ChainStatus {
-  PENDING
-  BLOCK_CONFIRMED
-  BLOCK_FAILED
-  INSCRIBE_CONFIRMED
-  INSCRIBE_FAILED
+  PENDING // 挂单中
+  SELL_BLOCK_CONFIRMED // 卖单区块已确认
+  SELL_INSCRIBE_CONFIRMED // 卖单铭文索引确认成功
+  SELL_INSCRIBE_FAILED // 卖单铭文索引确认失败
+  BUY_BLOCK_CONFIRMED // 买单区块已确认
+  BUY_BLOCK_FAILED // 买单区块确认失败
+  TRADE_TO_SELLER_BLOCK_CONFIRMED // 交易成功后转账给卖家的区块已确认
+  TRADE_TO_SELLER_BLOCK_FAILED // 交易成功后转账给卖家的区块确认失败
+  TRADE_TO_BUYER_BLOCK_CONFIRMED // 交易成功后转账给买家的区块已确认
+  TRADE_TO_BUYER_BLOCK_FAILED // 交易成功后转账给买家的区块确认失败
+  TRADE_TO_BUYER_INSCRIBE_CONFIRMED // 交易成功后转账给买家的铭文索引确认成功
+  TRADE_TO_BUYER_INSCRIBE_FAILED // 交易成功后转账给买家的铭文索引确认失败
 }
 
 model Order {
-  id           BigInt      @id @default(autoincrement())
-  seller       String      @db.VarChar(64)
-  buyer        String?     @db.VarChar(64)
-  tick         String      @db.VarChar(16)
-  amount       BigInt
-  status       Status      @default(PENDING)
-  chainStatus  ChainStatus @default(PENDING) @map("chain_status")
-  failReason   String?     @map("fail_reason")
-  totalPrice   BigInt      @map("total_price")
-  serviceFee   BigInt      @default(0) @map("service_fee")
-  realPayPrice BigInt      @default(0) @map("real_pay_price")
-  gasFee       BigInt      @default(0) @map("gas_fee")
-  txHash       String?     @map("tx_hash")
-  listingAt    DateTime?   @map("listing_at")
-  soldAt       DateTime?   @map("sold_at")
-  canceledAt   DateTime?   @map("canceled_at")
-  createdAt    DateTime    @default(now()) @map("created_at")
-  updatedAt    DateTime    @default(now()) @updatedAt @map("updated_at")
+  id                BigInt      @id @default(autoincrement())
+  seller            String      @db.VarChar(64)
+  buyer             String?     @db.VarChar(64)
+  tick              String      @db.VarChar(16)
+  amount            BigInt
+  status            Status      @default(PENDING)
+  chainStatus       ChainStatus @default(PENDING) @map("chain_status")
+  failReason        String?     @map("fail_reason")
+  totalPrice        BigInt      @map("total_price")
+  buyServiceFee     BigInt      @default(0) @map("buy_service_fee")
+  buyRealPayPrice   BigInt      @default(0) @map("buy_real_pay_price")
+  sellServiceFee    BigInt      @default(0) @map("sell_service_fee")
+  sellRealPayPrice  BigInt      @default(0) @map("sell_real_pay_price")
+  buyHash           String?     @map("buy_hash")
+  sellHash          String?     @map("sell_hash")
+  tradeToSellerHash String?     @map("trade_to_seller_hash")
+  tradeToBuyerHash  String?     @map("trade_to_buyer_hash")
+  listingAt         DateTime?   @map("listing_at")
+  soldAt            DateTime?   @map("sold_at")
+  canceledAt        DateTime?   @map("canceled_at")
+  createdAt         DateTime    @map("created_at")
+  updatedAt         DateTime    @map("updated_at")
 
-  @@index([txHash])
   @@index([seller])
+  @@index([buyer])
   @@map("order")
 }

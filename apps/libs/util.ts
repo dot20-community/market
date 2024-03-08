@@ -5,16 +5,22 @@ import { decodeAddress, encodeAddress } from '@polkadot/util-crypto';
 import { Decimal } from 'decimal.js';
 
 let POLKADOT_DECIMALS: number;
-const decimalsPow = () => (new Decimal(10)).pow(POLKADOT_DECIMALS)
+const decimalsPow = () => new Decimal(10).pow(POLKADOT_DECIMALS);
 
 export function setPolkadotDecimals(decimals: number | string) {
-  POLKADOT_DECIMALS = typeof decimals === 'string' ? parseInt(decimals) : decimals
+  POLKADOT_DECIMALS =
+    typeof decimals === 'string' ? parseInt(decimals) : decimals;
+}
+
+let POLKADOT_ENDPOINT: string;
+export function setPolkadotEndpoint(endpoint: string) {
+  POLKADOT_ENDPOINT = endpoint;
 }
 
 let api: ApiPromise;
 export async function getApi(): Promise<ApiPromise> {
   if (!api) {
-    const provider = new WsProvider(import.meta.env.VITE_POLKADOT_ENDPOINT);
+    const provider = new WsProvider(POLKADOT_ENDPOINT);
     api = await ApiPromise.create({ provider });
   }
   return api;
@@ -33,50 +39,47 @@ export function fmtAddress(address: string): string {
  * 转换planck到dot
  */
 export function planck2Dot(balance: number | u128 | Decimal): Decimal {
-  return new Decimal(balance.toString()).div(decimalsPow())
+  return new Decimal(balance.toString()).div(decimalsPow());
 }
 
 /**
  * 转换dot到planck
  */
 export function dot2Planck(dot: number | u128 | Decimal): Decimal {
-  return new Decimal(dot.toString()).mul(decimalsPow())
+  return new Decimal(dot.toString()).mul(decimalsPow());
 }
 
 /**
  * 链上科学计数法转换成planck
  */
 export function str2Planck(value: string): Decimal {
-  return new Decimal(value.replace(/,/g, ''))
+  return new Decimal(value.replace(/,/g, ''));
 }
 
 export function buildInscribeTransfer(tick: string, amt: number) {
-  return `{"p":"dot-20","op":"transfer","tick":"${tick}","amt":${amt}}`
+  return `{"p":"dot-20","op":"transfer","tick":"${tick}","amt":${amt}}`;
 }
 
-export type InscribeTransfer = {
+export type Transfer = {
   from: string;
   to: string;
-  transfer: Decimal;
+  value: Decimal;
+};
+
+export type InscribeTransfer = {
   inscribeTick: string;
   inscribeAmt: number;
-}
+} & Transfer;
 
 /**
  * 解析铭文转账记录
  */
 export function parseInscribeTransfer(ex: Extrinsic): InscribeTransfer | null {
-  if (
-    ex.method.method !== 'batchAll' ||
-    ex.method.section !== 'utility'
-  ) {
+  if (ex.method.method !== 'batchAll' || ex.method.section !== 'utility') {
     return null;
   }
   const methodJson = ex.method.toHuman() as any;
-  if (
-    !methodJson?.args?.calls ||
-    methodJson.args.calls.length !== 2
-  ) {
+  if (!methodJson?.args?.calls || methodJson.args.calls.length !== 2) {
     return null;
   }
 
@@ -120,8 +123,29 @@ export function parseInscribeTransfer(ex: Extrinsic): InscribeTransfer | null {
   return {
     from: fmtAddress(ex.signer.toString()),
     to: fmtAddress(call0.args.dest.Id),
-    transfer: str2Planck(call0.args.value),
+    value: str2Planck(call0.args.value),
     inscribeTick: content.tick,
     inscribeAmt: content.amt,
+  };
+}
+
+/**
+ * 解析普通转账记录
+ */
+export function parseTransfer(ex: Extrinsic): Transfer | null {
+  const method = ex.method;
+
+  if (
+    method.section !== 'balances' &&
+    method.method !== 'transfer' &&
+    method.args.length !== 2
+  ) {
+    return null;
   }
+
+  return {
+    from: fmtAddress(ex.signer.toString()),
+    to: fmtAddress(method.args[0].toString()),
+    value: planck2Dot(method.args[1] as u128),
+  };
 }

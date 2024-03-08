@@ -30,7 +30,15 @@ export type ErrorCode =
   /**
    * 调用第三方API失败
    */
-  | 'API_FAILED';
+  | 'API_FAILED'
+  /**
+   * 订单不存在
+   */
+  | 'ORDER_NOT_FOUND'
+  /**
+   * 订单已被锁定
+   */
+  | 'ORDER_LOCKED';
 
 export class BizError extends Error {
   code: ErrorCode;

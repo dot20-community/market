@@ -1,7 +1,8 @@
-import { ApiPromise, WsProvider } from '@polkadot/api';
+import { ApiPromise } from '@polkadot/api';
 import { PrismaClient } from '@prisma/client';
 import { TRPCError, inferAsyncReturnType } from '@trpc/server';
 import { CreateFastifyContextOptions } from '@trpc/server/adapters/fastify';
+import { getApi } from 'apps/libs/util';
 import { verify } from 'jsonwebtoken';
 import { authConfig } from '../configs/auth.config';
 import { ServerOptions } from './server';
@@ -41,14 +42,11 @@ export type Context = inferAsyncReturnType<typeof createContext> & {
 export async function createContextProxy(
   opts: ServerOptions,
 ): Promise<({ req, res }: CreateFastifyContextOptions) => Promise<Context>> {
-  const wsProvider = new WsProvider(opts.polkadotEndpoint);
-  const api = await ApiPromise.create({ provider: wsProvider });
-
   return async function (args: CreateFastifyContextOptions) {
     return {
       ...(await createContext(args)),
       opts,
-      api,
+      api: await getApi(),
     };
   };
 }

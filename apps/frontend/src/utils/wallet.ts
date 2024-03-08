@@ -85,6 +85,36 @@ export class Wallet {
     }
   }
 
+  /**
+   * 签署DOT转账
+   * @param from
+   * @param to
+   * @param dotAmt
+   * @returns
+   */
+  async signTransfer(
+    from: string,
+    to: string,
+    dotAmt: Decimal,
+  ): Promise<string> {
+    const injected = await this.request(from);
+    const transfer = this.api.tx.balances.transferKeepAlive(
+      to,
+      dotAmt.toFixed(),
+    );
+    try {
+      const signedTransfer = await transfer.signAsync(from, {
+        signer: injected.signer,
+      });
+      return signedTransfer.toHex();
+    } catch (e) {
+      if (e instanceof Error && e.message === 'Rejected by user') {
+        throw new BizError({ code: 'USER_REJECTED' });
+      }
+      throw e;
+    }
+  }
+
   setAccountsFromJSON(accountsJSON: string) {
     this.accounts = JSON.parse(accountsJSON);
   }
