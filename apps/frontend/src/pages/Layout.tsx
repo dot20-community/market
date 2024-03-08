@@ -12,10 +12,10 @@ import {
   NavbarItem,
 } from '@nextui-org/react';
 import type { InjectedAccountWithMeta } from '@polkadot/extension-inject/types';
-import { trpc } from '@utils/trpc';
+// eslint-disable-next-line @nx/enforce-module-boundaries
+import { fmtAddress } from 'apps/libs/util';
 import { useEffect, useState } from 'react';
 import { Link as Linkto, Outlet } from 'react-router-dom';
-import { dot2Planck } from '../../../libs/util';
 import { Wallet } from '../utils/wallet';
 
 export function Layout() {
@@ -23,7 +23,7 @@ export function Layout() {
   const [accounts, setAccounts] = useState<InjectedAccountWithMeta[]>([]);
   const [selectedAccountIndex, setSelectedAccountIndex] = useState(0);
 
-  const sell = trpc.order.sell.useMutation();
+  // const sell = trpc.order.sell.useMutation();
   const wallet = new Wallet();
 
   useEffect(() => {
@@ -35,6 +35,10 @@ export function Layout() {
     if (accountsStr) {
       wallet.setAccountsFromJSON(accountsStr);
       setAccounts(wallet.accounts);
+    }
+    const selectedAccountIndexStr = localStorage.getItem("selectedAccountIndex");
+    if (selectedAccountIndexStr) {
+      setSelectedAccountIndex(parseInt(selectedAccountIndexStr))
     }
   }
 
@@ -48,29 +52,29 @@ export function Layout() {
       );
       setAccounts(wallet.accounts);
 
-      // 总价 2 DOT
-      const totalPrice = dot2Planck(2);
-      // 服务费 2 * 0.02
-      const serviceFee = totalPrice
-        .mul(import.meta.env.VITE_SERVER_FEE_RATE)
-        .ceil();
-      // 总共应付 总价 + 服务费
-      const totalPayPrice = totalPrice.add(serviceFee);
-      const signedExtrinsic = await wallet.signTransferInscribe(
-        wallet.accounts[0].address,
-        '157iXyCn5QhjWmLHyChcBvmGmPoKxKbiTXGhP2E3q1H9ZuMd',
-        totalPayPrice,
-        'DOTA',
-        10000,
-      );
+      // // 总价 2 DOT
+      // const totalPrice = dot2Planck(2);
+      // // 服务费 2 * 0.02
+      // const serviceFee = totalPrice
+      //   .mul(import.meta.env.VITE_SERVER_FEE_RATE)
+      //   .ceil();
+      // // 总共应付 总价 + 服务费
+      // const totalPayPrice = totalPrice.add(serviceFee);
+      // const signedExtrinsic = await wallet.signTransferInscribe(
+      //   wallet.accounts[0].address,
+      //   '157iXyCn5QhjWmLHyChcBvmGmPoKxKbiTXGhP2E3q1H9ZuMd',
+      //   totalPayPrice,
+      //   'DOTA',
+      //   10000,
+      // );
 
-      const resp = await sell.mutateAsync({
-        seller: wallet.accounts[0].address,
-        totalPrice: totalPrice.toFixed(),
-        serviceFee: serviceFee.toFixed(),
-        signedExtrinsic: signedExtrinsic,
-      });
-      console.log('Create order response:', resp);
+      // const resp = await sell.mutateAsync({
+      //   seller: wallet.accounts[0].address,
+      //   totalPrice: totalPrice.toFixed(),
+      //   serviceFee: serviceFee.toFixed(),
+      //   signedExtrinsic: signedExtrinsic,
+      // });
+      // console.log('Create order response:', resp);
     } catch (e) {
       console.error('Error:', e);
       throw e;
@@ -78,6 +82,12 @@ export function Layout() {
       setConnectLoading(false);
     }
   }
+
+  let currentAddress = ""
+  if (accounts[selectedAccountIndex]) {
+    currentAddress = fmtAddress(accounts[selectedAccountIndex].address)
+  }
+
   return (
     <div>
       <Navbar position="static" isBordered className="bg-background/70">
@@ -111,12 +121,8 @@ export function Layout() {
                     color="primary"
                     radius="full"
                   >
-                    {`Account${selectedAccountIndex + 1} [${accounts[
-                      selectedAccountIndex
-                    ].address.substring(0, 6)}...${accounts[
-                      selectedAccountIndex
-                    ].address.substring(
-                      accounts[selectedAccountIndex].address.length - 6,
+                    {`Account${selectedAccountIndex + 1} [${currentAddress.substring(0, 6)}...${currentAddress.substring(
+                      currentAddress.length - 6,
                     )}]`}
                   </Button>
                 </DropdownTrigger>
@@ -127,8 +133,10 @@ export function Layout() {
                   disallowEmptySelection
                   selectionMode="single"
                   onSelectionChange={(keys) => {
+                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                    // @ts-ignore
                     const currentKey = keys['currentKey'] as string;
-                    if (currentKey == 'disconnect') {
+                    if (currentKey === 'disconnect') {
                       localStorage.setItem('DotWalletAccounts', '');
                       setAccounts([]);
                     } else {
@@ -137,16 +145,17 @@ export function Layout() {
                   }}
                 >
                   {[
-                    ...accounts.map((account, index) => (
-                      <DropdownItem color="primary" key={index}>{`Account${
+                    ...accounts.map((account, index) => {
+                      const address = fmtAddress(account.address)
+                      return <DropdownItem color="primary" key={index}>{`Account${
                         index + 1
-                      } [${account.address.substring(
+                      } [${address.substring(
                         0,
                         6,
-                      )}...${account.address.substring(
-                        account.address.length - 6,
+                      )}...${address.substring(
+                        address.length - 6,
                       )}]`}</DropdownItem>
-                    )),
+                    }),
                     <DropdownItem color="primary" key="disconnect">
                       Disconnect
                     </DropdownItem>,

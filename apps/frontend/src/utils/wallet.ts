@@ -6,8 +6,12 @@ import {
   web3Enable,
   web3FromSource,
 } from '@polkadot/extension-dapp';
-import type { InjectedAccountWithMeta, InjectedExtension } from '@polkadot/extension-inject/types';
-import { buildInscribeTransfer } from 'apps/libs/util';
+import type {
+  InjectedAccountWithMeta,
+  InjectedExtension,
+} from '@polkadot/extension-inject/types';
+// eslint-disable-next-line @nx/enforce-module-boundaries
+import { buildInscribeTransfer, fmtAddress } from 'apps/libs/util';
 import { Decimal } from 'decimal.js';
 import { BizError } from '../../../libs/error';
 
@@ -65,7 +69,9 @@ export class Wallet {
   ): Promise<string> {
     const injected = await this.request(from);
     const tx1 = this.api.tx.balances.transferKeepAlive(to, dotAmt.toFixed());
-    const tx2 = this.api.tx.system.remarkWithEvent(buildInscribeTransfer(inscribeTick, inscribeAmt));
+    const tx2 = this.api.tx.system.remarkWithEvent(
+      buildInscribeTransfer(inscribeTick, inscribeAmt),
+    );
     const transfer = this.api.tx.utility.batchAll([tx1, tx2]);
     try {
       const signedTransfer = await transfer.signAsync(from, {
@@ -104,5 +110,22 @@ export class Wallet {
     }
     const provider = new WsProvider(this.endpoint);
     this.api = await ApiPromise.create({ provider });
+  }
+}
+
+/**
+ * 从localstorage获取当前选中的的账号address
+ */
+export function getCurrentAccountAddress() {
+  const accountsStr = localStorage.getItem('DotWalletAccounts');
+  if (!accountsStr) {
+    return '';
+  }
+  const accounts = JSON.parse(accountsStr) as InjectedAccountWithMeta[];
+  const selectedAccountIndexStr = localStorage.getItem('selectedAccountIndex');
+  if (!selectedAccountIndexStr) {
+    return accounts[0].address;
+  } else {
+    return fmtAddress(accounts[parseInt(selectedAccountIndexStr)].address);
   }
 }
