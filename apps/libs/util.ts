@@ -1,7 +1,24 @@
+import { ApiPromise, WsProvider } from '@polkadot/api';
 import { u128 } from '@polkadot/types';
 import { Extrinsic } from '@polkadot/types/interfaces';
 import { decodeAddress, encodeAddress } from '@polkadot/util-crypto';
 import { Decimal } from 'decimal.js';
+
+let POLKADOT_DECIMALS: number;
+const decimalsPow = () => (new Decimal(10)).pow(POLKADOT_DECIMALS)
+
+export function setPolkadotDecimals(decimals: number | string) {
+  POLKADOT_DECIMALS = typeof decimals === 'string' ? parseInt(decimals) : decimals
+}
+
+let api: ApiPromise;
+export async function getApi(): Promise<ApiPromise> {
+  if (!api) {
+    const provider = new WsProvider(import.meta.env.VITE_POLKADOT_ENDPOINT);
+    api = await ApiPromise.create({ provider });
+  }
+  return api;
+}
 
 /**
  * 格式化成波卡主网钱包地址
@@ -10,13 +27,6 @@ import { Decimal } from 'decimal.js';
  */
 export function fmtAddress(address: string): string {
   return encodeAddress(decodeAddress(address), 0);
-}
-
-let POLKADOT_DECIMALS: number;
-const decimalsPow = () => (new Decimal(10)).pow(POLKADOT_DECIMALS)
-
-export function setPolkadotDecimals(decimals: number | string) {
-  POLKADOT_DECIMALS = typeof decimals === 'string' ? parseInt(decimals) : decimals
 }
 
 /**

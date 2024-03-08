@@ -13,10 +13,10 @@ import {
 } from '@nextui-org/react';
 import type { InjectedAccountWithMeta } from '@polkadot/extension-inject/types';
 // eslint-disable-next-line @nx/enforce-module-boundaries
-import { fmtAddress } from 'apps/libs/util';
+import { fmtAddress, planck2Dot } from 'apps/libs/util';
 import { useEffect, useState } from 'react';
 import { Link as Linkto, Outlet } from 'react-router-dom';
-import { Wallet } from '../utils/wallet';
+import { Wallet, getGas } from '../utils/wallet';
 
 export function Layout() {
   const [connectLoading, setConnectLoading] = useState(false);
@@ -36,9 +36,11 @@ export function Layout() {
       wallet.setAccountsFromJSON(accountsStr);
       setAccounts(wallet.accounts);
     }
-    const selectedAccountIndexStr = localStorage.getItem("selectedAccountIndex");
+    const selectedAccountIndexStr = localStorage.getItem(
+      'selectedAccountIndex',
+    );
     if (selectedAccountIndexStr) {
-      setSelectedAccountIndex(parseInt(selectedAccountIndexStr))
+      setSelectedAccountIndex(parseInt(selectedAccountIndexStr));
     }
   }
 
@@ -52,6 +54,13 @@ export function Layout() {
       );
       setAccounts(wallet.accounts);
 
+      console.log(
+        'getBalance',
+        planck2Dot(
+          await wallet.getBalance(wallet.accounts[0].address),
+        ).toFixed(),
+      );
+      console.log('getGas', planck2Dot(await getGas()).toFixed());
       // // 总价 2 DOT
       // const totalPrice = dot2Planck(2);
       // // 服务费 2 * 0.02
@@ -83,9 +92,9 @@ export function Layout() {
     }
   }
 
-  let currentAddress = ""
+  let currentAddress = '';
   if (accounts[selectedAccountIndex]) {
-    currentAddress = fmtAddress(accounts[selectedAccountIndex].address)
+    currentAddress = fmtAddress(accounts[selectedAccountIndex].address);
   }
 
   return (
@@ -121,7 +130,12 @@ export function Layout() {
                     color="primary"
                     radius="full"
                   >
-                    {`Account${selectedAccountIndex + 1} [${currentAddress.substring(0, 6)}...${currentAddress.substring(
+                    {`Account${
+                      selectedAccountIndex + 1
+                    } [${currentAddress.substring(
+                      0,
+                      6,
+                    )}...${currentAddress.substring(
                       currentAddress.length - 6,
                     )}]`}
                   </Button>
@@ -146,15 +160,14 @@ export function Layout() {
                 >
                   {[
                     ...accounts.map((account, index) => {
-                      const address = fmtAddress(account.address)
-                      return <DropdownItem color="primary" key={index}>{`Account${
-                        index + 1
-                      } [${address.substring(
-                        0,
-                        6,
-                      )}...${address.substring(
-                        address.length - 6,
-                      )}]`}</DropdownItem>
+                      const address = fmtAddress(account.address);
+                      return (
+                        <DropdownItem color="primary" key={index}>{`Account${
+                          index + 1
+                        } [${address.substring(0, 6)}...${address.substring(
+                          address.length - 6,
+                        )}]`}</DropdownItem>
+                      );
                     }),
                     <DropdownItem color="primary" key="disconnect">
                       Disconnect

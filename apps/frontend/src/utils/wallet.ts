@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
-import { ApiPromise, WsProvider } from '@polkadot/api';
 import {
   web3Accounts,
   web3Enable,
@@ -11,18 +10,15 @@ import type {
   InjectedExtension,
 } from '@polkadot/extension-inject/types';
 // eslint-disable-next-line @nx/enforce-module-boundaries
-import { buildInscribeTransfer, fmtAddress } from 'apps/libs/util';
+import { u128 } from '@polkadot/types';
+import { buildInscribeTransfer, fmtAddress, getApi } from 'apps/libs/util';
 import { Decimal } from 'decimal.js';
 import { BizError } from '../../../libs/error';
 
 export class Wallet {
-  endpoint!: string;
   accounts!: InjectedAccountWithMeta[];
 
-  api!: ApiPromise;
-
-  constructor(endpoint?: string) {
-    this.endpoint = endpoint ?? import.meta.env.VITE_POLKADOT_ENDPOINT;
+  constructor() {
   }
 
   /**
@@ -41,14 +37,15 @@ export class Wallet {
   }
 
   /**
-   * 查询账户余额
+   * 查询账户余额(单位: planck)
    * @param address
    */
-  async getBalance(address: string): Promise<Decimal> {
-    await this.connect();
+  async getBalance(address: string): Promise<u128> {
+    const api = await getApi();
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment
-    const result = (await this.api.query.system.account(address)) as any;
-    return new Decimal(result.data.free.toString());
+    const result = (await api.query.system.account(address)) as any;
+    return result.data.free.toBn() as u128;
   }
 
   /**
@@ -67,12 +64,14 @@ export class Wallet {
     inscribeTick: string,
     inscribeAmt: number,
   ): Promise<string> {
+    const api = await getApi();
+
     const injected = await this.request(from);
-    const tx1 = this.api.tx.balances.transferKeepAlive(to, dotAmt.toFixed());
-    const tx2 = this.api.tx.system.remarkWithEvent(
+    const tx1 = api.tx.balances.transferKeepAlive(to, dotAmt.toFixed());
+    const tx2 = api.tx.system.remarkWithEvent(
       buildInscribeTransfer(inscribeTick, inscribeAmt),
     );
-    const transfer = this.api.tx.utility.batchAll([tx1, tx2]);
+    const transfer = api.tx.utility.batchAll([tx1, tx2]);
     try {
       const signedTransfer = await transfer.signAsync(from, {
         signer: injected.signer,
@@ -91,8 +90,6 @@ export class Wallet {
   }
 
   private async request(from: string): Promise<InjectedExtension> {
-    await this.connect();
-
     const account = this.accounts.find((account) => account.address === from);
     if (!account) {
       throw new BizError({ code: 'NO_ACCOUNT' });
@@ -101,16 +98,23 @@ export class Wallet {
     return await web3FromSource(account.meta.source);
   }
 
-  private async connect() {
-    if (this.api) {
-      if (this.api.isConnected) {
-        return;
-      }
-      await this.api.disconnect();
-    }
-    const provider = new WsProvider(this.endpoint);
-    this.api = await ApiPromise.create({ provider });
-  }
+}
+
+/**
+ * 查询当前gas费用(单位: planck)
+ */
+export async function getGas(): Promise<u128> {
+  const api = await getApi();
+
+  const testAddress = import.meta.env.VITE_MARKET_ACCOUNT;
+  const tx1 = api.tx.balances.transferKeepAlive(testAddress, 0);
+  const tx2 = api.tx.system.remarkWithEvent(
+    buildInscribeTransfer("DOTA", 5000),
+  );
+  const transfer = api.tx.utility.batchAll([tx1, tx2]);
+  // Estimate the gas fee
+  const paymentInfo = await transfer.paymentInfo(testAddress);
+  return paymentInfo.partialFee.toBn() as u128;
 }
 
 /**
