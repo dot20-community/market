@@ -1,5 +1,6 @@
-import { Card, CardBody, CardFooter, CardHeader, Divider, Tab, Tabs } from "@nextui-org/react";
+import { Link, Tab, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, Tabs } from "@nextui-org/react";
 import { assertError, trpc } from '@utils/trpc';
+import { ListCard } from "../components/Card/ListCard";
 
 export function Market() {
 
@@ -14,12 +15,6 @@ export function Market() {
       account: '157iXyCn5QhjWmLHyChcBvmGmPoKxKbiTXGhP2E3q1H9ZuMd',
     });
     console.log('accountTickList', accountTickList);
-    // 查询账号指定铭文余额
-    const accountTick = await client.account.tick.query({
-      tick: 'DOTA',
-      account: '157iXyCn5QhjWmLHyChcBvmGmPoKxKbiTXGhP2E3q1H9ZuMd',
-    });
-    console.log('accountTick', accountTick);
 
     // 错误处理
     try {
@@ -43,36 +38,46 @@ export function Market() {
     <div className="flex w-full justify-center mt-10">
       <div className="flex w-4/5 flex-col">
         <Tabs aria-label="Options">
-          <Tab key="Listed" title="Listed">
-            <div className="mt-5">
-              <Card className="max-w-[200px]">
-                <CardHeader className="flex">
-                  <div className="w-full text-small">DOTA</div>
-                </CardHeader>
-                <Divider/>
-                <CardBody>
-                  <p>Make beautiful websites regardless of your design experience.</p>
-                </CardBody>
-                <Divider/>
-                <CardFooter>
-                  asdf
-                </CardFooter>
-              </Card>
+          <Tab key="Listed"  title="Listed">
+            <div className="flex items-center gap-4 flex-wrap">
+              <ListCard/>
+              <ListCard/>
+              <ListCard/>
+              <ListCard/>
+              <ListCard/>
+              <ListCard/>
+              <ListCard/>
+              <ListCard/>
             </div>
           </Tab>
           <Tab key="Orders" title="Orders">
-            <Card>
-              <CardBody>
-                Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
-              </CardBody>
-            </Card>
+          <Table aria-label="Example static collection table">
+            <TableHeader>
+              <TableColumn>Date Time</TableColumn>
+              <TableColumn>Method</TableColumn>
+              <TableColumn>Amount</TableColumn>
+              <TableColumn>Unit Price</TableColumn>
+              <TableColumn>Total Value</TableColumn>
+              <TableColumn>Buyer</TableColumn>
+              <TableColumn>Seller</TableColumn>
+              <TableColumn>Hash</TableColumn>
+            </TableHeader>
+            <TableBody>
+              <TableRow key="1">
+                <TableCell>2024-03-08 07:47:35</TableCell>
+                <TableCell>Sale</TableCell>
+                <TableCell>10,000</TableCell>
+                <TableCell>$0.002</TableCell>
+                <TableCell>$20.00</TableCell>
+                <TableCell><Link isExternal showAnchorIcon href="https://dota.fyi/inscribe/">12v7gK...CLxtmU</Link></TableCell>
+                <TableCell><Link isExternal showAnchorIcon href="https://dota.fyi/inscribe/">12v7gK...CLxtmU</Link></TableCell>
+                <TableCell><Link isExternal showAnchorIcon href="https://dota.fyi/inscribe/" /></TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
           </Tab>
           <Tab key="My List" title="My List">
-            <Card>
-              <CardBody>
-                Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-              </CardBody>
-            </Card>
+            <ListCard/>
           </Tab>
         </Tabs>
       </div>
