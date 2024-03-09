@@ -1,4 +1,4 @@
-import { Button, Card, CardBody, CardFooter, CardHeader, Divider, Image, Link } from "@nextui-org/react";
+import { Button, Card, CardBody, CardFooter, CardHeader, Divider, Image } from "@nextui-org/react";
 import { FC } from "react";
 
 interface Order {
@@ -9,12 +9,11 @@ interface Order {
   totalPrice: number
 }
 
-export interface ListCardContext {
-  onOpenBuyModal: () => void
+export interface MyListCardContext {
   order: Order
 }
 
-export const ListCard: FC<ListCardContext> = ({ onOpenBuyModal, order }) => {
+export const MyListCard: FC<MyListCardContext> = ({ order }) => {
   const dotPrice = 10
   const unitPrice = order.totalPrice/order.amount
   const unitValue = unitPrice * dotPrice
@@ -27,7 +26,7 @@ export const ListCard: FC<ListCardContext> = ({ onOpenBuyModal, order }) => {
           <div>
             <div className="text-xs">DOTA</div>
             <div className="text-2xl mt-2 flex w-[200px] justify-center">{order.amount}</div>
-            <div className="text-xs text-primary mt-2 flex w-[200px] justify-center">${unitValue.toFixed(5)}/DOTA</div>
+            <div className="text-xs text-primary mt-2 flex w-[200px] justify-center">${unitValue}/DOTA</div>
           </div>
         </CardHeader>
         <Divider/>
@@ -40,11 +39,7 @@ export const ListCard: FC<ListCardContext> = ({ onOpenBuyModal, order }) => {
         <Divider/>
         <CardFooter>
           <div>
-            <div className="w-[200px] text-sm flex justify-between">
-              <div>Seller</div>
-              <Link className="text-xs" href="">12v7gK...CLxtmU</Link>
-            </div>
-            <Button className="w-[200px] mt-3" color="primary" onPress={onOpenBuyModal}>Buy</Button>
+            <Button className="w-[200px] mt-3" color="primary">Cancel</Button>
           </div>
         </CardFooter>
       </Card>
