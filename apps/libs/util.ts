@@ -60,16 +60,21 @@ export function buildInscribeTransfer(tick: string, amt: number) {
   return `{"p":"dot-20","op":"transfer","tick":"${tick}","amt":${amt}}`;
 }
 
-export type Transfer = {
-  from: string;
+export type TransferCall = {
   to: string;
   value: Decimal;
 };
 
 export type InscribeTransfer = {
+  from: string;
   inscribeTick: string;
   inscribeAmt: number;
-} & Transfer;
+} & TransferCall;
+
+export type BatchTransfer = {
+  from: string;
+  list: TransferCall[];
+};
 
 /**
  * 解析铭文转账记录
@@ -84,13 +89,8 @@ export function parseInscribeTransfer(ex: Extrinsic): InscribeTransfer | null {
   }
 
   const call0 = methodJson.args.calls[0];
-  if (
-    call0?.method !== 'transferKeepAlive' ||
-    call0?.section !== 'balances' ||
-    !call0?.args?.dest?.Id ||
-    call0.args.dest.Id.length < 40 ||
-    !call0?.args?.value
-  ) {
+  const call0Transfer = verifyIsTransferKeepAlive(call0);
+  if (!call0Transfer) {
     return null;
   }
 
@@ -121,31 +121,59 @@ export function parseInscribeTransfer(ex: Extrinsic): InscribeTransfer | null {
   }
 
   return {
+    ...call0Transfer,
     from: fmtAddress(ex.signer.toString()),
-    to: fmtAddress(call0.args.dest.Id),
-    value: str2Planck(call0.args.value),
     inscribeTick: content.tick,
     inscribeAmt: content.amt,
   };
 }
 
 /**
- * 解析普通转账记录
+ * 解析转账记录
  */
-export function parseTransfer(ex: Extrinsic): Transfer | null {
-  const method = ex.method;
+export function parseBatchTransfer(ex: Extrinsic): BatchTransfer | null {
+  if (!verifyIsBatchUtil(ex)) {
+    return null;
+  }
+  const methodJson = ex.method.toHuman() as any;
+  if (!methodJson?.args?.calls || methodJson.args.calls.length !== 2) {
+    return null;
+  }
 
-  if (
-    method.section !== 'balances' &&
-    method.method !== 'transfer' &&
-    method.args.length !== 2
-  ) {
+  const call0 = methodJson.args.calls[0];
+  const call0Transfer = verifyIsTransferKeepAlive(call0);
+  if (!call0Transfer) {
+    return null;
+  }
+  const call1 = methodJson.args.calls[1];
+  const call1Transfer = verifyIsTransferKeepAlive(call1);
+  if (!call1Transfer) {
     return null;
   }
 
   return {
     from: fmtAddress(ex.signer.toString()),
-    to: fmtAddress(method.args[0].toString()),
-    value: planck2Dot(method.args[1] as u128),
+    list: [call0Transfer, call1Transfer],
+  };
+}
+
+function verifyIsBatchUtil(ex: Extrinsic): boolean {
+  return ex.method.method === 'batchAll' && ex.method.section === 'utility';
+}
+
+function verifyIsTransferKeepAlive(call: any): TransferCall | null {
+  if (
+    call?.method !== 'transferKeepAlive' ||
+    call?.section !== 'balances' ||
+    !call?.args?.dest?.Id ||
+    call.args.dest.Id.length < 40 ||
+    !call?.args?.value
+  ) {
+    return null;
+  }
+
+  return {
+    to: fmtAddress(call.args.dest.Id),
+    value: planck2Dot(call.args.value),
   };
 }

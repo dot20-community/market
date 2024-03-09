@@ -2,10 +2,11 @@ import { Order, Status } from '@prisma/client';
 import { BizError } from 'apps/libs/error';
 import {
   dot2Planck,
+  parseBatchTransfer,
   parseInscribeTransfer,
-  parseTransfer,
 } from 'apps/libs/util';
 import Decimal from 'decimal.js';
+import { LRUCache } from 'lru-cache';
 import { PageReq, PageRes, noAuthProcedure, router } from '../server/trpc';
 import { submitAndWaitExtrinsic } from '../util/dapp';
 
@@ -102,13 +103,28 @@ export type BuyRes = {
   hash: string;
 };
 
+const cache = new LRUCache<string, any>({
+  ttl: 1000 * 60 * 60, // 1小时
+  ttlAutopurge: true,
+});
+
 export const orderRouter = router({
   /**
    * 获取dot价格(单位：美元)
    */
-  price: noAuthProcedure.query(async ({ ctx }): Promise<number> => {
-    // TODO 调用第三方接口
-    return 10.5;
+  dotPrice: noAuthProcedure.query(async ({ ctx }): Promise<number> => {
+    const key = 'dotPrice';
+    const cachedPrice = cache.get(key);
+    if (cachedPrice) {
+      return cachedPrice;
+    }
+    const resp = await fetch(
+      'https://api.coingecko.com/api/v3/simple/price?ids=polkadot&vs_currencies=usd',
+    );
+    const data = await resp.json();
+    const price = data?.polkadot?.usd ?? 10;
+    cache.set(key, price);
+    return price;
   }),
   /**
    * 卖单
@@ -158,12 +174,6 @@ export const orderRouter = router({
         );
       }
 
-      // 提交上链
-      const errMsg = await submitAndWaitExtrinsic(ctx.api, extrinsic as any);
-      if (errMsg) {
-        throw BizError.of('TRANSFER_FAILED', errMsg);
-      }
-
       const now = new Date();
       // 存储到数据库
       const order = await ctx.prisma.order.create({
@@ -175,8 +185,36 @@ export const orderRouter = router({
           buyHash: extrinsic.hash.toString(),
           tick: inscribeTransfer.inscribeTick,
           amount: inscribeTransfer.inscribeAmt,
-          chainStatus: 'SELL_BLOCK_CONFIRMED',
           createdAt: now,
+          updatedAt: now,
+        },
+      });
+
+      // 提交上链
+      const errMsg = await submitAndWaitExtrinsic(ctx.api, extrinsic as any);
+      if (errMsg) {
+        // 更新订单状态为FAILED
+        await ctx.prisma.order.update({
+          where: {
+            id: order.id,
+          },
+          data: {
+            status: 'FAILED',
+            chainStatus: 'SELL_BLOCK_FAILED',
+            failReason: errMsg,
+            updatedAt: now,
+          },
+        });
+        throw BizError.of('TRANSFER_FAILED', errMsg);
+      }
+
+      // 更新订单子状态为区块已确认
+      await ctx.prisma.order.update({
+        where: {
+          id: order.id,
+        },
+        data: {
+          chainStatus: 'SELL_BLOCK_CONFIRMED',
           updatedAt: now,
         },
       });
@@ -208,6 +246,7 @@ export const orderRouter = router({
       const list = await ctx.prisma.order.findMany({
         take: input.limit + 1, // get an extra item at the end which we'll use as next cursor
         where: {
+          seller: input.seller ? { equals: input.seller } : undefined,
           status: {
             in: input.statues,
           },
@@ -245,28 +284,47 @@ export const orderRouter = router({
         throw BizError.of('ORDER_NOT_FOUND');
       }
       // 校验是否为合法的转账交易
-      const transfer = parseTransfer(extrinsic as any);
-      if (!transfer) {
+      const batchTransfer = parseBatchTransfer(extrinsic as any);
+      if (!batchTransfer) {
         throw BizError.of('INVALID_TRANSACTION', 'Invalid extrinsic format');
       }
-      // 检查是否转账给平台地址
-      if (transfer.to !== ctx.opts.marketAccount) {
+      // 检查是否转账给卖家地址
+      const transferToSeller = batchTransfer.list.filter(
+        (transfer) => transfer.to === order.seller,
+      )[0];
+      if (!transferToSeller) {
         throw BizError.of(
           'INVALID_TRANSACTION',
-          `Invalid receiver address: expect ${ctx.opts.marketAccount} but got ${transfer.to}`,
+          `Invalid receiver address: not found seller address ${order.seller}`,
+        );
+      }
+      // 检查是否转账给平台地址
+      const transferToMarket = batchTransfer.list.filter(
+        (transfer) => transfer.to === ctx.opts.marketAccount,
+      )[0];
+      if (!transferToMarket) {
+        throw BizError.of(
+          'INVALID_TRANSACTION',
+          `Invalid receiver address: not found seller address ${ctx.opts.marketAccount}`,
         );
       }
       // 检查转账金额是否符合
-      const totalPriceDecimal = new Decimal(order.totalPrice.toString());
-      const serviceFeeDecimal = totalPriceDecimal
+      const needTotalPriceDecimal = new Decimal(order.totalPrice.toString());
+      const needServiceFeeDecimal = needTotalPriceDecimal
         .mul(new Decimal(ctx.opts.serverFeeRate))
         .ceil();
-      const needPayPrice = totalPriceDecimal.add(serviceFeeDecimal);
-      const realTransferPrice = transfer.value;
-      if (realTransferPrice < needPayPrice) {
+      const realTotalPriceDecimal = transferToSeller.value;
+      const realServiceFeeDecimal = transferToMarket.value;
+      if (realTotalPriceDecimal < needTotalPriceDecimal) {
         throw BizError.of(
           'INVALID_TRANSACTION',
-          `Invalid transfer amount: expect at least ${needPayPrice} Planck but got ${realTransferPrice}`,
+          `Invalid total price transfer amount: expect at least ${needTotalPriceDecimal} Planck but got ${realTotalPriceDecimal}`,
+        );
+      }
+      if (realServiceFeeDecimal < needServiceFeeDecimal) {
+        throw BizError.of(
+          'INVALID_TRANSACTION',
+          `Invalid service fee transfer amount: expect at least ${needServiceFeeDecimal} Planck but got ${realServiceFeeDecimal}`,
         );
       }
 
@@ -289,13 +347,12 @@ export const orderRouter = router({
       // 提交上链
       const errMsg = await submitAndWaitExtrinsic(ctx.api, extrinsic as any);
       if (errMsg) {
-        // 重新更新订单状态为PENDING
         await ctx.prisma.order.update({
           where: {
             id: input.id,
           },
           data: {
-            status: 'PENDING',
+            status: 'FAILED',
             chainStatus: 'BUY_BLOCK_FAILED',
             updatedAt: new Date(),
           },

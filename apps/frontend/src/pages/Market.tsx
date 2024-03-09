@@ -1,4 +1,5 @@
 import {
+  Button,
   Link,
   Tab,
   Table,
@@ -44,6 +45,8 @@ export function Market() {
   }
 
   async function orderList() {
+    console.log(await client.order.dotPrice.query());
+
     const list = await client.order.list.query({
       limit: 15,
     });
@@ -60,6 +63,7 @@ export function Market() {
   return (
     <div className="flex w-full justify-center mt-10">
       <div className="flex w-4/5 flex-col">
+        <Button onClick={orderList}>Test</Button>
         <Tabs aria-label="Options">
           <Tab key="Listed" title="Listed">
             <div className="flex items-center gap-4 flex-wrap">

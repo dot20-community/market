@@ -1,9 +1,10 @@
 import { serverConfig } from './configs/server.config';
 import { createServer } from './server/server';
+import { buyInscribeCheck, sellInscribeCheck } from './service/trade';
 
 createServer(serverConfig).then((server) => server.start());
 
-/* (async function () {
+(async function () {
   async function sellInscribeCheckTask() {
     while (true) {
       try {
@@ -30,4 +31,3 @@ createServer(serverConfig).then((server) => server.start());
 
   Promise.all([sellInscribeCheckTask(), buyInscribeCheckTask()]);
 })();
- */

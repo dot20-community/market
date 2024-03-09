@@ -1,4 +1,3 @@
-import { getApi } from 'apps/libs/util';
 import { serverConfig } from '../configs/server.config';
 import { prisma } from '../server/context';
 
@@ -16,7 +15,7 @@ async function transactionStatus(hash: string): Promise<number> {
 /**
  * 处理卖家挂单，上链成功后，铭文状态确认
  */
-export async function sellInscribeTransferCheck() {
+export async function sellInscribeCheck() {
   const needCheckOrderList = await prisma.order.findMany({
     where: {
       status: 'PENDING',
@@ -52,40 +51,13 @@ export async function sellInscribeTransferCheck() {
 }
 
 /**
- * 处理买家支付完，转账dot到买家的链上状态确认
+ * 处理买家支付完，上链成功后，转铭文到买家状态确认
  */
-export async function buyTransferCheck() {
+export async function buyInscribeCheck() {
   const needCheckOrderList = await prisma.order.findMany({
     where: {
       status: 'LOCKED',
       chainStatus: 'BUY_BLOCK_CONFIRMED',
-    },
-    orderBy: {
-      id: 'asc',
-    },
-  });
-
-  if (needCheckOrderList.length) {
-    return;
-  }
-
-  const api = await getApi();
-  for (const order of needCheckOrderList) {
-    const transfer = api.tx.balances.transferKeepAlive(
-      order.seller,
-      order.totalPrice,
-    );
-  }
-}
-
-/**
- * 处理买家支付完，转铭文到买家的铭文状态确认
- */
-export async function buyInscribeTransferCheck() {
-  const needCheckOrderList = await prisma.order.findMany({
-    where: {
-      status: 'LOCKED',
-      chainStatus: 'TRADE_TO_BUYER_BLOCK_CONFIRMED',
     },
     orderBy: {
       id: 'asc',
@@ -107,6 +79,7 @@ export async function buyInscribeTransferCheck() {
         },
         data: {
           status: 'SOLD',
+          chainStatus: 'BUY_INSCRIBE_CONFIRMED',
           soldAt: now,
           updatedAt: now,
         },

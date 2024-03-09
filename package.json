@@ -43,6 +43,7 @@
     "fastify": "^4.24.3",
     "framer-motion": "^11.0.8",
     "jsonwebtoken": "^9.0.2",
+    "lru-cache": "^10.2.0",
     "pino": "^8.19.0",
     "pino-pretty": "^10.2.3",
     "react": "18.2.0",

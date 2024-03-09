@@ -22,16 +22,13 @@ enum Status {
 enum ChainStatus {
   PENDING // 挂单中
   SELL_BLOCK_CONFIRMED // 卖单区块已确认
+  SELL_BLOCK_FAILED // 卖单区块确认失败
   SELL_INSCRIBE_CONFIRMED // 卖单铭文索引确认成功
   SELL_INSCRIBE_FAILED // 卖单铭文索引确认失败
   BUY_BLOCK_CONFIRMED // 买单区块已确认
   BUY_BLOCK_FAILED // 买单区块确认失败
-  TRADE_TO_SELLER_BLOCK_CONFIRMED // 交易成功后转账给卖家的区块已确认
-  TRADE_TO_SELLER_BLOCK_FAILED // 交易成功后转账给卖家的区块确认失败
-  TRADE_TO_BUYER_BLOCK_CONFIRMED // 交易成功后转账给买家的区块已确认
-  TRADE_TO_BUYER_BLOCK_FAILED // 交易成功后转账给买家的区块确认失败
-  TRADE_TO_BUYER_INSCRIBE_CONFIRMED // 交易成功后转账给买家的铭文索引确认成功
-  TRADE_TO_BUYER_INSCRIBE_FAILED // 交易成功后转账给买家的铭文索引确认失败
+  BUY_INSCRIBE_CONFIRMED // 买单铭文索引确认成功
+  BUY_INSCRIBE_FAILED // 买单铭文索引确认失败
 }
 
 model Order {

@@ -18,8 +18,7 @@ import { BizError } from '../../../libs/error';
 export class Wallet {
   accounts!: InjectedAccountWithMeta[];
 
-  constructor() {
-  }
+  constructor() {}
 
   /**
    * 连接钱包并获取账户授权
@@ -51,29 +50,29 @@ export class Wallet {
   /**
    * 签署铭文转账
    *
-   * @param from 发送方地址
-   * @param to 接收方地址
+   * @param seller 发送方地址
+   * @param marker 市场方地址
    * @param dotAmt 转账的 DOT 数量
    * @param inscribeTick 转账的铭文名称
    * @param inscribeAmt 转账的的铭文数量
    */
   async signTransferInscribe(
-    from: string,
-    to: string,
+    seller: string,
+    marker: string,
     dotAmt: Decimal,
     inscribeTick: string,
     inscribeAmt: number,
   ): Promise<string> {
     const api = await getApi();
 
-    const injected = await this.request(from);
-    const tx1 = api.tx.balances.transferKeepAlive(to, dotAmt.toFixed());
+    const injected = await this.request(seller);
+    const tx1 = api.tx.balances.transferKeepAlive(marker, dotAmt.toFixed());
     const tx2 = api.tx.system.remarkWithEvent(
       buildInscribeTransfer(inscribeTick, inscribeAmt),
     );
     const transfer = api.tx.utility.batchAll([tx1, tx2]);
     try {
-      const signedTransfer = await transfer.signAsync(from, {
+      const signedTransfer = await transfer.signAsync(seller, {
         signer: injected.signer,
       });
       return signedTransfer.toHex();
@@ -87,23 +86,30 @@ export class Wallet {
 
   /**
    * 签署DOT转账
-   * @param from
-   * @param to
-   * @param dotAmt
+   * @param buyer  买方地址
+   * @param seller  卖方地址
+   * @param marker  市场方地址
+   * @param dotAmt  转账的 DOT 数量
+   * @param serviceFee 转账手续费
    * @returns
    */
   async signTransfer(
-    from: string,
-    to: string,
+    buyer: string,
+    seller: string,
+    marker: string,
     dotAmt: Decimal,
+    serviceFee: Decimal,
   ): Promise<string> {
-    const injected = await this.request(from);
-    const transfer = this.api.tx.balances.transferKeepAlive(
-      to,
-      dotAmt.toFixed(),
-    );
+    const api = await getApi();
+
+    const injected = await this.request(buyer);
+    // 转账给卖方
+    const tx1 = api.tx.balances.transferKeepAlive(seller, dotAmt.toFixed());
+    // 转账手续费给平台
+    const tx2 = api.tx.balances.transferKeepAlive(marker, serviceFee.toFixed());
+    const transfer = api.tx.utility.batchAll([tx1, tx2]);
     try {
-      const signedTransfer = await transfer.signAsync(from, {
+      const signedTransfer = await transfer.signAsync(buyer, {
         signer: injected.signer,
       });
       return signedTransfer.toHex();
@@ -127,7 +133,6 @@ export class Wallet {
 
     return await web3FromSource(account.meta.source);
   }
-
 }
 
 /**
@@ -139,7 +144,7 @@ export async function getGas(): Promise<u128> {
   const testAddress = import.meta.env.VITE_MARKET_ACCOUNT;
   const tx1 = api.tx.balances.transferKeepAlive(testAddress, 0);
   const tx2 = api.tx.system.remarkWithEvent(
-    buildInscribeTransfer("DOTA", 5000),
+    buildInscribeTransfer('DOTA', 5000),
   );
   const transfer = api.tx.utility.batchAll([tx1, tx2]);
   // Estimate the gas fee
