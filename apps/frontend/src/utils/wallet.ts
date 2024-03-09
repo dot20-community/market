@@ -66,11 +66,13 @@ export class Wallet {
     const api = await getApi();
 
     const injected = await this.request(seller);
-    const tx1 = api.tx.balances.transferKeepAlive(marker, dotAmt.toFixed());
-    const tx2 = api.tx.system.remarkWithEvent(
-      buildInscribeTransfer(inscribeTick, inscribeAmt),
+    const transfer = buildInscribeTransfer(
+      api,
+      inscribeTick,
+      inscribeAmt,
+      marker,
+      dotAmt,
     );
-    const transfer = api.tx.utility.batchAll([tx1, tx2]);
     try {
       const signedTransfer = await transfer.signAsync(seller, {
         signer: injected.signer,
@@ -142,11 +144,7 @@ export async function getGas(): Promise<u128> {
   const api = await getApi();
 
   const testAddress = import.meta.env.VITE_MARKET_ACCOUNT;
-  const tx1 = api.tx.balances.transferKeepAlive(testAddress, 0);
-  const tx2 = api.tx.system.remarkWithEvent(
-    buildInscribeTransfer('DOTA', 5000),
-  );
-  const transfer = api.tx.utility.batchAll([tx1, tx2]);
+  const transfer = buildInscribeTransfer(api, 'DOTA', 5000, testAddress);
   // Estimate the gas fee
   const paymentInfo = await transfer.paymentInfo(testAddress);
   return paymentInfo.partialFee.toBn() as u128;

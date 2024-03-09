@@ -1,4 +1,5 @@
 import { ApiPromise, WsProvider } from '@polkadot/api';
+import { SubmittableExtrinsic } from '@polkadot/api/types';
 import { u128 } from '@polkadot/types';
 import { Extrinsic } from '@polkadot/types/interfaces';
 import { decodeAddress, encodeAddress } from '@polkadot/util-crypto';
@@ -56,8 +57,25 @@ export function str2Planck(value: string): Decimal {
   return new Decimal(value.replace(/,/g, ''));
 }
 
-export function buildInscribeTransfer(tick: string, amt: number) {
+export function buildInscribeTransferRemark(tick: string, amt: number): string {
   return `{"p":"dot-20","op":"transfer","tick":"${tick}","amt":${amt}}`;
+}
+
+export function buildInscribeTransfer(
+  api: ApiPromise,
+  tick: string,
+  amt: number,
+  to: string,
+  dotAmt?: Decimal,
+): SubmittableExtrinsic<'promise'> {
+  const tx1 = api.tx.balances.transferKeepAlive(
+    to,
+    dotAmt ? dotAmt.toFixed() : 0,
+  );
+  const tx2 = api.tx.system.remarkWithEvent(
+    buildInscribeTransferRemark(tick, amt),
+  );
+  return api.tx.utility.batchAll([tx1, tx2]);
 }
 
 export type TransferCall = {
@@ -116,7 +134,7 @@ export function parseInscribeTransfer(ex: Extrinsic): InscribeTransfer | null {
     return null;
   }
 
-  if (remark !== buildInscribeTransfer(content.tick, content.amt)) {
+  if (remark !== buildInscribeTransferRemark(content.tick, content.amt)) {
     return null;
   }
 
@@ -174,6 +192,6 @@ function verifyIsTransferKeepAlive(call: any): TransferCall | null {
 
   return {
     to: fmtAddress(call.args.dest.Id),
-    value: planck2Dot(call.args.value),
+    value: str2Planck(call.args.value),
   };
 }

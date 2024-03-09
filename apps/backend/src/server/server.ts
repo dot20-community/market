@@ -17,6 +17,7 @@ export interface ServerOptions {
   prefix?: string;
   environment: 'development' | 'production' | 'test' | 'local';
   dotaApiUrl: string;
+  marketAccountMnemonic: string;
   marketAccount: string;
   polkadotEndpoint: string;
   polkadotDecimals: number;

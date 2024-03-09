@@ -13,7 +13,8 @@ import {
 } from '@nextui-org/react';
 import type { InjectedAccountWithMeta } from '@polkadot/extension-inject/types';
 // eslint-disable-next-line @nx/enforce-module-boundaries
-import { fmtAddress, planck2Dot } from 'apps/libs/util';
+import { trpc } from '@utils/trpc';
+import { dot2Planck, fmtAddress, planck2Dot } from 'apps/libs/util';
 import { useEffect, useState } from 'react';
 import { Link as Linkto, Outlet } from 'react-router-dom';
 import { Wallet, getGas } from '../utils/wallet';
@@ -23,7 +24,7 @@ export function Layout() {
   const [accounts, setAccounts] = useState<InjectedAccountWithMeta[]>([]);
   const [selectedAccountIndex, setSelectedAccountIndex] = useState(0);
 
-  // const sell = trpc.order.sell.useMutation();
+  const sell = trpc.order.sell.useMutation();
   const wallet = new Wallet();
 
   useEffect(() => {
@@ -61,29 +62,29 @@ export function Layout() {
         ).toFixed(),
       );
       console.log('getGas', planck2Dot(await getGas()).toFixed());
-      // // 总价 2 DOT
-      // const totalPrice = dot2Planck(2);
-      // // 服务费 2 * 0.02
-      // const serviceFee = totalPrice
-      //   .mul(import.meta.env.VITE_SERVER_FEE_RATE)
-      //   .ceil();
-      // // 总共应付 总价 + 服务费
-      // const totalPayPrice = totalPrice.add(serviceFee);
-      // const signedExtrinsic = await wallet.signTransferInscribe(
-      //   wallet.accounts[0].address,
-      //   '157iXyCn5QhjWmLHyChcBvmGmPoKxKbiTXGhP2E3q1H9ZuMd',
-      //   totalPayPrice,
-      //   'DOTA',
-      //   10000,
-      // );
+      // 总价 2 DOT
+      const totalPrice = dot2Planck(2);
+      // 服务费 2 * 0.02
+      const serviceFee = totalPrice
+        .mul(import.meta.env.VITE_SERVER_FEE_RATE)
+        .ceil();
+      // 总共应付 总价 + 服务费
+      const totalPayPrice = totalPrice.add(serviceFee);
+      const signedExtrinsic = await wallet.signTransferInscribe(
+        wallet.accounts[0].address,
+        '12eUnt8hcwtmcVgShgm4YuRYcH448tgj9qMDJ5r9tTJisdpe',
+        totalPayPrice,
+        'DOTA',
+        10000,
+      );
 
-      // const resp = await sell.mutateAsync({
-      //   seller: wallet.accounts[0].address,
-      //   totalPrice: totalPrice.toFixed(),
-      //   serviceFee: serviceFee.toFixed(),
-      //   signedExtrinsic: signedExtrinsic,
-      // });
-      // console.log('Create order response:', resp);
+      const resp = await sell.mutateAsync({
+        seller: wallet.accounts[0].address,
+        totalPrice: totalPrice.toFixed(),
+        serviceFee: serviceFee.toFixed(),
+        signedExtrinsic: signedExtrinsic,
+      });
+      console.log('Create order response:', resp);
     } catch (e) {
       console.error('Error:', e);
       throw e;

@@ -12,6 +12,7 @@ datasource db {
 
 enum Status {
   PENDING
+  CANCELING
   CANCELED
   LISTING
   LOCKED
@@ -25,35 +26,41 @@ enum ChainStatus {
   SELL_BLOCK_FAILED // 卖单区块确认失败
   SELL_INSCRIBE_CONFIRMED // 卖单铭文索引确认成功
   SELL_INSCRIBE_FAILED // 卖单铭文索引确认失败
+  CANCEL_BLOCK_CONFIRMED // 取消挂单区块已确认
+  CANCEL_BLOCK_FAILED // 取消挂单区块确认失败
+  CANCEL_INSCRIBE_CONFIRMED // 取消挂单铭文索引确认成功
+  CANCEL_INSCRIBE_FAILED // 取消挂单铭文索引确认失败
   BUY_BLOCK_CONFIRMED // 买单区块已确认
   BUY_BLOCK_FAILED // 买单区块确认失败
-  BUY_INSCRIBE_CONFIRMED // 买单铭文索引确认成功
-  BUY_INSCRIBE_FAILED // 买单铭文索引确认失败
+  TRADE_BLOCK_CONFIRMED // 交易成功转账铭文给买家的区块已确认
+  TRADE_BLOCK_FAILED // 交易成功转账铭文给买家的区块确认失败
+  TRADE_INSCRIBE_CONFIRMED // 交易成功转账铭文给买家的铭文索引确认成功
+  TRADE_INSCRIBE_FAILED // 交易成功转账铭文给买家的铭文索引确认失败
 }
 
 model Order {
-  id                BigInt      @id @default(autoincrement())
-  seller            String      @db.VarChar(64)
-  buyer             String?     @db.VarChar(64)
-  tick              String      @db.VarChar(16)
-  amount            BigInt
-  status            Status      @default(PENDING)
-  chainStatus       ChainStatus @default(PENDING) @map("chain_status")
-  failReason        String?     @map("fail_reason")
-  totalPrice        BigInt      @map("total_price")
-  buyServiceFee     BigInt      @default(0) @map("buy_service_fee")
-  buyRealPayPrice   BigInt      @default(0) @map("buy_real_pay_price")
-  sellServiceFee    BigInt      @default(0) @map("sell_service_fee")
-  sellRealPayPrice  BigInt      @default(0) @map("sell_real_pay_price")
-  buyHash           String?     @map("buy_hash")
-  sellHash          String?     @map("sell_hash")
-  tradeToSellerHash String?     @map("trade_to_seller_hash")
-  tradeToBuyerHash  String?     @map("trade_to_buyer_hash")
-  listingAt         DateTime?   @map("listing_at")
-  soldAt            DateTime?   @map("sold_at")
-  canceledAt        DateTime?   @map("canceled_at")
-  createdAt         DateTime    @map("created_at")
-  updatedAt         DateTime    @map("updated_at")
+  id             BigInt      @id @default(autoincrement())
+  seller         String      @db.VarChar(64)
+  buyer          String?     @db.VarChar(64)
+  tick           String      @db.VarChar(16)
+  amount         BigInt
+  status         Status      @default(PENDING)
+  chainStatus    ChainStatus @default(PENDING) @map("chain_status")
+  failReason     String?     @map("fail_reason")
+  totalPrice     BigInt      @map("total_price")
+  buyServiceFee  BigInt      @default(0) @map("buy_service_fee")
+  buyPayPrice    BigInt      @default(0) @map("bu_pay_price")
+  sellServiceFee BigInt      @default(0) @map("sell_service_fee")
+  sellPayPrice   BigInt      @default(0) @map("sell_pay_price")
+  sellHash       String      @map("sell_hash") // 卖单区块哈希
+  buyHash        String?     @map("buy_hash") // 买单区块哈希
+  tradeHash      String?     @map("trade_hash") // 交易成功转账铭文给买家的哈希
+  cancelHash     String?     @map("cancel_hash") // 取消挂单转账铭文给卖家的哈希
+  listingAt      DateTime?   @map("listing_at")
+  soldAt         DateTime?   @map("sold_at")
+  canceledAt     DateTime?   @map("canceled_at")
+  createdAt      DateTime    @map("created_at")
+  updatedAt      DateTime    @map("updated_at")
 
   @@index([seller])
   @@index([buyer])

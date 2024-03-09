@@ -1,6 +1,7 @@
 import { Order, Status } from '@prisma/client';
 import { BizError } from 'apps/libs/error';
 import {
+  buildInscribeTransfer,
   dot2Planck,
   parseBatchTransfer,
   parseInscribeTransfer,
@@ -8,7 +9,7 @@ import {
 import Decimal from 'decimal.js';
 import { LRUCache } from 'lru-cache';
 import { PageReq, PageRes, noAuthProcedure, router } from '../server/trpc';
-import { submitAndWaitExtrinsic } from '../util/dapp';
+import { signExtrinsic, submitSignedExtrinsicAndWait } from '../util/dapp';
 
 /**
  * 卖单请求参数
@@ -35,6 +36,24 @@ export type SellReq = {
  * 卖单响应参数
  */
 export type SellRes = {
+  /**
+   * 订单ID
+   */
+  id: bigint;
+  /**
+   * 交易哈希
+   */
+  hash: string;
+};
+
+/**
+ * 取消卖单请求参数
+ */
+export type CancelReq = number;
+/**
+ * 取消卖单响应参数
+ */
+export type CancelRes = {
   /**
    * 订单ID
    */
@@ -132,7 +151,7 @@ export const orderRouter = router({
   sell: noAuthProcedure
     .input((input) => input as SellReq)
     .mutation(async ({ input, ctx }): Promise<SellRes> => {
-      const extrinsic = ctx.api.createType('Extrinsic', input.signedExtrinsic);
+      const extrinsic = ctx.api.tx(input.signedExtrinsic);
       const totalPriceDecimal = new Decimal(input.totalPrice);
       const serviceFeeDecimal = new Decimal(input.serviceFee);
       // 解析铭文转账数据
@@ -180,9 +199,9 @@ export const orderRouter = router({
         data: {
           seller: input.seller,
           totalPrice: BigInt(totalPriceDecimal.toFixed()),
-          buyServiceFee: BigInt(serviceFeeDecimal.toFixed()),
-          buyRealPayPrice: BigInt(realTransferPrice.toFixed()),
-          buyHash: extrinsic.hash.toString(),
+          sellServiceFee: BigInt(serviceFeeDecimal.toFixed()),
+          sellPayPrice: BigInt(realTransferPrice.toFixed()),
+          sellHash: extrinsic.hash.toString(),
           tick: inscribeTransfer.inscribeTick,
           amount: inscribeTransfer.inscribeAmt,
           createdAt: now,
@@ -191,7 +210,10 @@ export const orderRouter = router({
       });
 
       // 提交上链
-      const errMsg = await submitAndWaitExtrinsic(ctx.api, extrinsic as any);
+      const errMsg = await submitSignedExtrinsicAndWait(
+        ctx.api,
+        extrinsic as any,
+      );
       if (errMsg) {
         // 更新订单状态为FAILED
         await ctx.prisma.order.update({
@@ -221,6 +243,81 @@ export const orderRouter = router({
 
       return { id: order.id, hash: extrinsic.hash.toHex() };
     }),
+  /**
+   * 取消卖单
+   */
+  cancel: noAuthProcedure
+    .input((input) => input as CancelReq)
+    .mutation(async ({ input, ctx }): Promise<CancelRes> => {
+      const order = await ctx.prisma.order.findUnique({
+        where: {
+          id: input,
+        },
+      });
+      if (!order) {
+        throw BizError.of('ORDER_NOT_FOUND');
+      }
+
+      // 生成铭文交易数据
+      const extrinsic = await signExtrinsic(
+        buildInscribeTransfer(
+          ctx.api,
+          order.tick,
+          Number(order.amount),
+          order.seller,
+        ),
+        ctx.opts.marketAccountMnemonic,
+      );
+
+      // 更新订单状态为已取消，只有在挂单中的订单才能取消
+      const result = await ctx.prisma.order.updateMany({
+        where: {
+          id: input,
+          status: 'LISTING',
+          cancelHash: extrinsic.hash.toString(),
+        },
+        data: {
+          status: 'CANCELING',
+          updatedAt: new Date(),
+        },
+      });
+      if (result.count === 0) {
+        throw BizError.of('ORDER_STATUS_ERROR', 'status is not LISTING');
+      }
+
+      const errMsg = await submitSignedExtrinsicAndWait(ctx.api, extrinsic);
+      if (errMsg) {
+        await ctx.prisma.order.update({
+          where: {
+            id: input,
+          },
+          data: {
+            status: 'FAILED',
+            chainStatus: 'CANCEL_BLOCK_FAILED',
+            failReason: errMsg,
+            updatedAt: new Date(),
+          },
+        });
+        throw BizError.of('TRANSFER_FAILED', errMsg);
+      }
+
+      // 更新订单子状态为区块已确认
+      await ctx.prisma.order.update({
+        where: {
+          id: input,
+        },
+        data: {
+          chainStatus: 'CANCEL_BLOCK_CONFIRMED',
+          updatedAt: new Date(),
+        },
+      });
+
+      return {
+        id: order.id,
+        hash: extrinsic.hash.toString(),
+      };
+    }),
+
   /**
    * 查询订单信息
    */
@@ -336,16 +433,20 @@ export const orderRouter = router({
         },
         data: {
           status: 'LOCKED',
+          buyHash: extrinsic.hash.toString(),
           buyer: input.buyer,
           updatedAt: new Date(),
         },
       });
       if (result.count === 0) {
-        throw BizError.of('ORDER_LOCKED');
+        throw BizError.of('ORDER_STATUS_ERROR', 'status is not PENDING');
       }
 
       // 提交上链
-      const errMsg = await submitAndWaitExtrinsic(ctx.api, extrinsic as any);
+      const errMsg = await submitSignedExtrinsicAndWait(
+        ctx.api,
+        extrinsic as any,
+      );
       if (errMsg) {
         await ctx.prisma.order.update({
           where: {
@@ -354,11 +455,23 @@ export const orderRouter = router({
           data: {
             status: 'FAILED',
             chainStatus: 'BUY_BLOCK_FAILED',
+            failReason: errMsg,
             updatedAt: new Date(),
           },
         });
         throw BizError.of('TRANSFER_FAILED', errMsg);
       }
+
+      // 构造铭文转账交易数据
+      const tradeExtrinsic = await signExtrinsic(
+        buildInscribeTransfer(
+          ctx.api,
+          order.tick,
+          Number(order.amount),
+          order.seller,
+        ),
+        ctx.opts.marketAccountMnemonic,
+      );
 
       // 更新订单子状态为区块确认
       await ctx.prisma.order.update({
@@ -367,6 +480,37 @@ export const orderRouter = router({
         },
         data: {
           chainStatus: 'BUY_BLOCK_CONFIRMED',
+          tradeHash: tradeExtrinsic.hash.toString(),
+          updatedAt: new Date(),
+        },
+      });
+
+      const tradeErrMsg = await submitSignedExtrinsicAndWait(
+        ctx.api,
+        tradeExtrinsic,
+      );
+      if (tradeErrMsg) {
+        await ctx.prisma.order.update({
+          where: {
+            id: input.id,
+          },
+          data: {
+            status: 'FAILED',
+            chainStatus: 'TRADE_BLOCK_FAILED',
+            failReason: tradeErrMsg,
+            updatedAt: new Date(),
+          },
+        });
+        throw BizError.of('TRANSFER_FAILED', tradeErrMsg);
+      }
+
+      // 更新订单子状态为区块确认
+      await ctx.prisma.order.update({
+        where: {
+          id: input.id,
+        },
+        data: {
+          chainStatus: 'TRADE_BLOCK_CONFIRMED',
           updatedAt: new Date(),
         },
       });

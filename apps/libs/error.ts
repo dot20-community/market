@@ -36,9 +36,9 @@ export type ErrorCode =
    */
   | 'ORDER_NOT_FOUND'
   /**
-   * 订单已被锁定
+   * 订单状态异常
    */
-  | 'ORDER_LOCKED';
+  | 'ORDER_STATUS_ERROR';
 
 export class BizError extends Error {
   code: ErrorCode;

@@ -1,6 +1,10 @@
 import { serverConfig } from './configs/server.config';
 import { createServer } from './server/server';
-import { buyInscribeCheck, sellInscribeCheck } from './service/trade';
+import {
+  buyInscribeCheck,
+  sellCancelInscribeCheck,
+  sellInscribeCheck,
+} from './service/trade';
 
 createServer(serverConfig).then((server) => server.start());
 
@@ -11,6 +15,18 @@ createServer(serverConfig).then((server) => server.start());
         await sellInscribeCheck();
       } catch (e) {
         console.error('sellInscribeCheckTask error', e);
+      } finally {
+        await new Promise((resolve) => setTimeout(resolve, 5000));
+      }
+    }
+  }
+
+  async function sellCancelInscribeCheckTask() {
+    while (true) {
+      try {
+        await sellCancelInscribeCheck();
+      } catch (e) {
+        console.error('sellCancelInscribeCheckTask error', e);
       } finally {
         await new Promise((resolve) => setTimeout(resolve, 5000));
       }
@@ -29,5 +45,9 @@ createServer(serverConfig).then((server) => server.start());
     }
   }
 
-  Promise.all([sellInscribeCheckTask(), buyInscribeCheckTask()]);
+  Promise.all([
+    sellInscribeCheckTask(),
+    sellCancelInscribeCheckTask(),
+    buyInscribeCheckTask(),
+  ]);
 })();
