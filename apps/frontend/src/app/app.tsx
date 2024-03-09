@@ -1,40 +1,46 @@
-import { QueryClientProvider } from '@tanstack/react-query';
+import { useGlobalStateStore } from '@GlobalState';
 import { trpc } from '@utils/trpc';
-import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
-import { ToastContainer } from 'react-toastify';
+import { getGas } from '@utils/wallet';
+import { planck2Dot } from 'apps/libs/util';
+import { useEffect } from 'react';
+import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 import 'react-toastify/dist/ReactToastify.css';
 import { Account } from '../pages/Account';
 import { Home } from '../pages/Home';
 import { Layout } from '../pages/Layout';
 import { Market } from '../pages/Market';
 import { NoMatch } from '../pages/NoMatch';
-import { useQueryTrpcClient } from './useQueryClient';
+
+console.log('init app');
 
 export function App() {
-  const { queryClient, trpcClient } = useQueryTrpcClient();
+  const { client } = trpc.useUtils();
+  const { setDotPrice, setGasFee } = useGlobalStateStore();
+
+  useEffect(() => {
+    const fetchDotPrice = async () => {
+      const dotPrice = await client.order.dotPrice.query();
+      setDotPrice(dotPrice);
+    };
+    const fetchGasFee = async () => {
+      const gas = await getGas();
+      setGasFee(planck2Dot(gas).toNumber());
+    };
+
+    Promise.all([fetchDotPrice(), fetchGasFee()]);
+  }, []);
 
   return (
-    <trpc.Provider client={trpcClient} queryClient={queryClient}>
-      <ToastContainer
-        position="bottom-right"
-        autoClose={3000}
-        theme="colored"
-        hideProgressBar
-        closeOnClick
-      />
-      <QueryClientProvider client={queryClient}>
-        <Router>
-          <Routes>
-            <Route path="/" element={<Layout />}>
-              <Route index element={<Home />} />
-              <Route path="account" element={<Account />} />
-              <Route path="market" element={<Market />} />
-              <Route path="*" element={<NoMatch />} />
-            </Route>
-          </Routes>
-        </Router>
-      </QueryClientProvider>
-    </trpc.Provider>
+    <Router>
+      <Routes>
+        <Route path="/" element={<Layout />}>
+          <Route index element={<Home />} />
+          <Route path="account" element={<Account />} />
+          <Route path="market" element={<Market />} />
+          <Route path="*" element={<NoMatch />} />
+        </Route>
+      </Routes>
+    </Router>
   );
 }
 

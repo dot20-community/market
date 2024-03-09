@@ -1,21 +1,27 @@
 import { create } from 'zustand';
 
-export type User = {
-  username: string;
-  role: string;
-  avatarUrl: string;
-};
+console.log('init GlobalState');
 
 export type GlobalState = {
-  user?: User;
-
-  signIn: (user: User) => void;
-  signOut: () => void;
+  dotPrice: number;
+  gasFee: number;
+  setDotPrice: (dotPrice: number) => void;
+  setGasFee: (gasFee: number) => void;
 };
 
-export const useGlobalStateStore = create<GlobalState>((set) => ({
-  user: undefined,
+const defaultState = {
+  dotPrice: 10,
+  gasFee: 0.02,
+};
 
-  signIn: (user: User) => set((prevState) => ({ ...prevState, user })),
-  signOut: () => set((prevState) => ({ ...prevState, user: undefined })),
-}));
+export const useGlobalStateStore = create<GlobalState>((set) => {
+  return {
+    ...defaultState,
+    setDotPrice: (dotPrice: number) => {
+      set({ dotPrice });
+    },
+    setGasFee: (gasFee: number) => {
+      set({ gasFee });
+    },
+  };
+});

@@ -1,8 +1,8 @@
 import { NextUIProvider } from '@nextui-org/react';
+import { setPolkadotDecimals, setPolkadotEndpoint } from 'apps/libs/util';
 import { StrictMode } from 'react';
 import * as ReactDOM from 'react-dom/client';
-import { setPolkadotDecimals, setPolkadotEndpoint } from '../../libs/util';
-import App from './app/app';
+import { Root } from './app/root';
 import './styles.css';
 
 setPolkadotDecimals(import.meta.env.VITE_POLKADOT_DECIMALS);
@@ -15,7 +15,7 @@ const root = ReactDOM.createRoot(
 root.render(
   <StrictMode>
     <NextUIProvider>
-      <App />
+      <Root />
     </NextUIProvider>
   </StrictMode>,
 );

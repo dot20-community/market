@@ -32,7 +32,10 @@ export class Wallet {
     if (allAccounts.length === 0) {
       throw new BizError({ code: 'NO_ACCOUNT' });
     }
-    this.accounts = allAccounts;
+    this.accounts = allAccounts.map((account) => ({
+      ...account,
+      address: fmtAddress(account.address),
+    }));
   }
 
   /**
@@ -128,6 +131,7 @@ export class Wallet {
   }
 
   private async request(from: string): Promise<InjectedExtension> {
+    console.log('request', this.accounts, from);
     const account = this.accounts.find((account) => account.address === from);
     if (!account) {
       throw new BizError({ code: 'NO_ACCOUNT' });
@@ -136,6 +140,8 @@ export class Wallet {
     return await web3FromSource(account.meta.source);
   }
 }
+
+export const wallet = new Wallet();
 
 /**
  * 查询当前gas费用(单位: planck)
@@ -163,6 +169,6 @@ export function getCurrentAccountAddress() {
   if (!selectedAccountIndexStr) {
     return accounts[0].address;
   } else {
-    return fmtAddress(accounts[parseInt(selectedAccountIndexStr)].address);
+    return accounts[parseInt(selectedAccountIndexStr)].address;
   }
 }

@@ -49,7 +49,7 @@ model Order {
   failReason     String?     @map("fail_reason")
   totalPrice     BigInt      @map("total_price")
   buyServiceFee  BigInt      @default(0) @map("buy_service_fee")
-  buyPayPrice    BigInt      @default(0) @map("bu_pay_price")
+  buyPayPrice    BigInt      @default(0) @map("buy_pay_price")
   sellServiceFee BigInt      @default(0) @map("sell_service_fee")
   sellPayPrice   BigInt      @default(0) @map("sell_pay_price")
   sellHash       String      @map("sell_hash") // 卖单区块哈希

@@ -21,6 +21,7 @@ export function setPolkadotEndpoint(endpoint: string) {
 let api: ApiPromise;
 export async function getApi(): Promise<ApiPromise> {
   if (!api) {
+    console.log('Connecting to Polkadot API:', POLKADOT_ENDPOINT);
     const provider = new WsProvider(POLKADOT_ENDPOINT);
     api = await ApiPromise.create({ provider });
   }
@@ -55,6 +56,15 @@ export function dot2Planck(dot: number | u128 | Decimal): Decimal {
  */
 export function str2Planck(value: string): Decimal {
   return new Decimal(value.replace(/,/g, ''));
+}
+
+/**
+ * 校验是否为数值类型
+ * @param value
+ * @returns
+ */
+export function isNumber(value: string) {
+  return /^-?\d+\.?\d*$/.test(value);
 }
 
 export function buildInscribeTransferRemark(tick: string, amt: number): string {
