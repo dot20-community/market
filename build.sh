@@ -6,7 +6,7 @@ set -e
 if [ "$1" = "frontend" ]; then
   echo "Building the frontend"
   cat <<EOF >.env
-VITE_APP_URL="http://43.153.221.249:3000/trpc"
+VITE_APP_URL="https://api.dot-20.xyz/trpc"
 VITE_MARKET_ACCOUNT="12eUnt8hcwtmcVgShgm4YuRYcH448tgj9qMDJ5r9tTJisdpe"
 VITE_POLKADOT_ENDPOINT="wss://westend-rpc.polkadot.io"
 VITE_POLKADOT_DECIMALS=12
