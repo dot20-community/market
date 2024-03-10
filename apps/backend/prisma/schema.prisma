@@ -64,5 +64,5 @@ model Order {
 
   @@index([seller])
   @@index([buyer])
-  @@map("order")
+  @@map("orders")
 }

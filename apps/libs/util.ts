@@ -70,7 +70,7 @@ export function isNumber(value: string) {
 }
 
 export function buildInscribeTransferRemark(tick: string, amt: number): string {
-  return `{"p":"dot-20","op":"transfer","tick":"${tick.toUpperCase()}","amt":${amt}}`;
+  return `{"p":"dot-20","op":"transfer","tick":"${tick}","amt":${amt}}`;
 }
 
 export function buildInscribeTransfer(
@@ -85,7 +85,7 @@ export function buildInscribeTransfer(
     dotAmt ? dotAmt.toFixed() : 0,
   );
   const tx2 = api.tx.system.remarkWithEvent(
-    buildInscribeTransferRemark(tick, amt),
+    buildInscribeTransferRemark(tick.toUpperCase(), amt),
   );
   return api.tx.utility.batchAll([tx1, tx2]);
 }
@@ -206,4 +206,10 @@ function verifyIsTransferKeepAlive(call: any): TransferCall | null {
     to: fmtAddress(call.args.dest.Id),
     value: str2Planck(call.args.value),
   };
+}
+
+export function toCamelCase(str: string) {
+  return str.replace(/([-_][a-z])/g, group =>
+    group.toUpperCase().replace('-', '').replace('_', '')
+  );
 }

@@ -1,5 +1,7 @@
 import { useGlobalStateStore } from '@GlobalState';
 import {
+  Card,
+  CardBody,
   Chip,
   Link,
   Tab,
@@ -21,6 +23,7 @@ import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroller';
 import { ListCard } from '../components/Card/ListCard';
+import { MyListCard } from '../components/Card/MyListCard';
 import { BuyModal } from '../components/Modal/BuyModal';
 
 const account = getCurrentAccountAddress();
@@ -34,6 +37,7 @@ export function Market() {
     onOpenChange: onOpenChangeBuyModal,
   } = useDisclosure();
   const [buyModalOrderInfo, setBuyModalOrderInfo] = useState<Order>({} as any);
+
   const [listedOrderList, setListedOrderList] = useState<ListRes>({
     list: [],
   });
@@ -56,8 +60,8 @@ export function Market() {
       limit: 15,
       excludeSeller: account,
       statues: ['LISTING', 'LOCKED'],
+      orderBy: 'price_asc',
     });
-    console.log(resp, listedOrderList);
     setListedOrderList((list) => {
       return {
         ...resp,
@@ -67,11 +71,13 @@ export function Market() {
       };
     });
   }
+
   async function fetchOrderList() {
     const resp = await client.order.list.query({
       cursor: orderList.next,
       limit: 15,
       statues: ['SOLD'],
+      orderBy: 'update_desc',
     });
     setOrderList((list) => {
       return {
@@ -88,6 +94,7 @@ export function Market() {
       cursor: myOrderList.next,
       limit: 15,
       seller: account,
+      orderBy: 'create_desc',
     });
     setMyOrderList((list) => {
       return {
@@ -123,15 +130,23 @@ export function Market() {
                 loadMore={fetchListedOrderList}
                 hasMore={!!listedOrderList.next}
               >
-                <div className="flex items-center gap-4 flex-wrap">
-                  {listedOrderList.list.map((order) => (
-                    <ListCard
-                      key={order.id}
-                      order={order}
-                      onOpenBuyModal={() => onOpenBuyModalWithData(order)}
-                    />
-                  ))}
-                </div>
+                {listedOrderList.list.length ? (
+                  <div className="flex items-center gap-4 flex-wrap">
+                    {listedOrderList.list.map((order) => (
+                      <ListCard
+                        key={order.id}
+                        order={order}
+                        onOpenBuyModal={() => onOpenBuyModalWithData(order)}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <Card className="w-full text-foreground-400 align-middle text-center">
+                    <CardBody className="flex items-center justify-center h-64">
+                      <p>No Result</p>
+                    </CardBody>
+                  </Card>
+                )}
               </InfiniteScroll>
             </Tab>
             <Tab key="Orders" title="Orders">
@@ -150,7 +165,7 @@ export function Market() {
                     <TableColumn>Seller</TableColumn>
                     <TableColumn>Hash</TableColumn>
                   </TableHeader>
-                  <TableBody>
+                  <TableBody emptyContent={'No Result'}>
                     {orderList.list.map((order) => (
                       <TableRow key={order.id}>
                         <TableCell>
@@ -192,7 +207,7 @@ export function Market() {
                             isBlock
                             showAnchorIcon
                             target="_blank"
-                            href={`https://polkadot.subscan.io/extrinsic/${order.buyHash}`}
+                            href={`https://polkadot.subscan.io/extrinsic/${order.tradeHash}`}
                             color="primary"
                           />
                         </TableCell>
@@ -207,7 +222,20 @@ export function Market() {
                 loadMore={fetchMyOrderList}
                 hasMore={!!myOrderList.next}
               >
-                <Table aria-label="collection table">
+                {myOrderList.list.length ? (
+                  <div className="flex items-center gap-4 flex-wrap">
+                    {myOrderList.list.map((order) => (
+                      <MyListCard key={order.id} order={order} />
+                    ))}
+                  </div>
+                ) : (
+                  <Card className="w-full text-foreground-400 align-middle text-center">
+                    <CardBody className="flex items-center justify-center h-64">
+                      <p>No Result</p>
+                    </CardBody>
+                  </Card>
+                )}
+                {/* <Table aria-label="collection table">
                   <TableHeader>
                     <TableColumn>Date Time</TableColumn>
                     <TableColumn>Amount</TableColumn>
@@ -216,7 +244,7 @@ export function Market() {
                     <TableColumn>Status</TableColumn>
                     <TableColumn>Hash</TableColumn>
                   </TableHeader>
-                  <TableBody>
+                  <TableBody emptyContent={'No Result'}>
                     {myOrderList.list.map((order) => (
                       <TableRow key={order.id}>
                         <TableCell>
@@ -245,7 +273,7 @@ export function Market() {
                       </TableRow>
                     ))}
                   </TableBody>
-                </Table>
+                </Table> */}
               </InfiniteScroll>
             </Tab>
           </Tabs>

@@ -54,6 +54,7 @@ export type PageReq = {
 };
 
 export type PageRes<T> = {
+  total?: number;
   list: T[];
   prev?: string;
   next?: string;

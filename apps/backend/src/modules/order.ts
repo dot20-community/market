@@ -6,6 +6,7 @@ import {
   fmtAddress,
   parseBatchTransfer,
   parseInscribeTransfer,
+  toCamelCase
 } from 'apps/libs/util';
 import Decimal from 'decimal.js';
 import { LRUCache } from 'lru-cache';
@@ -47,7 +48,7 @@ export type SellRes = {
 /**
  * 取消卖单请求参数
  */
-export type CancelReq = number;
+export type CancelReq = bigint;
 /**
  * 取消卖单响应参数
  */
@@ -87,6 +88,10 @@ export type ListReq = PageReq & {
    * 订单状态列表过滤条件，为空时查询所有状态
    */
   statues?: Status[];
+  /**
+   * 排序方式
+   */
+  orderBy?: 'price_asc' | 'price_desc' | 'create_asc' | 'create_desc' | 'update_asc' | 'update_desc';
 };
 /**
  * 查询订单列表响应参数
@@ -153,7 +158,6 @@ export const orderRouter = router({
       const totalPriceDecimal = new Decimal(input.totalPrice);
       // 解析铭文转账数据
       const inscribeTransfer = parseInscribeTransfer(extrinsic as any);
-      console.log("inscribeTransfer", JSON.stringify(inscribeTransfer))
       if (!inscribeTransfer) {
         throw BizError.of('INVALID_TRANSACTION', 'Invalid extrinsic format');
       }
@@ -281,10 +285,10 @@ export const orderRouter = router({
         where: {
           id: input,
           status: 'LISTING',
-          cancelHash: extrinsic.hash.toString(),
         },
         data: {
           status: 'CANCELING',
+          cancelHash: extrinsic.hash.toString(),
           updatedAt: new Date(),
         },
       });
@@ -347,27 +351,67 @@ export const orderRouter = router({
   list: noAuthProcedure
     .input((input) => input as ListReq)
     .query(async ({ input, ctx }): Promise<ListRes> => {
-      const list = await ctx.prisma.order.findMany({
-        take: input.limit + 1, // get an extra item at the end which we'll use as next cursor
-        where: {
-          seller: {
-            equals: input.seller,
-            not: input.excludeSeller,
-          },
-          status: {
-            in: input.statues,
-          },
-        },
-        cursor: input.cursor ? { id: BigInt(input.cursor) } : undefined,
-        orderBy: {
-          id: 'desc',
-        },
-      });
 
-      const nextCursor =
-        list.length > input.limit ? list.pop()?.id.toString() : undefined;
-      const prevCursor = list.length > 0 ? list[0].id.toString() : undefined;
+      let whereSql = " 1=1";
+      let values = [];
+      if (input.seller) {
+        values.push(input.seller)
+        whereSql += ` AND seller = ?`
+      }
+      if (input.excludeSeller) {
+        values.push(input.excludeSeller)
+        whereSql += ` AND seller != ?`
+      }
+      if (input.statues) {
+        values.push(...input.statues)
+        whereSql += ` AND status in (${input.statues.map(() => '?').join(',')})`
+      }
+      // 页码参数计算，从1开始
+      const page = input.cursor ? parseInt(input.cursor) : 1;
+      const total = await ctx.prisma.$queryRawUnsafe<number>(`
+      select count(*) from orders where ${whereSql}
+        `, ...values)
+      let list = total === 0 ? [] : await (async function () {
+        // 排序方式
+        let orderBySql = ''
+        if (input.orderBy === 'price_asc') {
+          orderBySql = '(total_price/amount) asc, id desc'
+        } else if (input.orderBy === 'price_desc') {
+          orderBySql = '(total_price/amount) desc, id desc'
+        } else if (input.orderBy === 'create_asc') {
+          orderBySql = 'id asc'
+        } else if (input.orderBy === 'create_desc') {
+          orderBySql = 'id desc'
+        } else if (input.orderBy === 'update_asc') {
+          orderBySql = 'updated_at asc, id desc'
+        } else if (input.orderBy === 'update_desc') {
+          orderBySql = 'updated_at desc, id desc'
+        } else {
+          orderBySql = 'id desc'
+        }
+        values.push((page - 1) * input.limit)
+        values.push(input.limit - 1)
+        return await ctx.prisma.$queryRawUnsafe<Order[]>(`
+     select * from orders where ${whereSql} order by ${orderBySql} limit ?,?
+       `, ...values)
+      })()
+
+      const totalPage = Math.ceil(total / input.limit);
+      const nextCursor = page < totalPage ? (page + 1).toString() : undefined;
+      const prevCursor = page > 1 ? (page - 1).toString() : undefined;
+
+      if (list.length) {
+        // 下划线转驼峰
+        list = list.map((item: any) => {
+          const newItem: any = {};
+          for (const key in item) {
+            newItem[toCamelCase(key)] = item[key];
+          }
+          return newItem;
+        }) as any;
+      }
       return {
+        total,
         list,
         prev: prevCursor,
         next: nextCursor,
