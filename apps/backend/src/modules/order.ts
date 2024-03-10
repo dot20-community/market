@@ -172,7 +172,7 @@ export const orderRouter = router({
       }
       // 校验是否满足最小交易金额
       const minSellTotalPriceDecimal = dot2Planck(ctx.opts.minSellTotalPrice);
-      if (totalPriceDecimal < minSellTotalPriceDecimal) {
+      if (totalPriceDecimal.lt(minSellTotalPriceDecimal)) {
         throw BizError.of(
           'INVALID_TRANSACTION',
           `Invalid total price: at least ${minSellTotalPriceDecimal} Planck but got ${totalPriceDecimal}`,
@@ -188,7 +188,7 @@ export const orderRouter = router({
       // 检查手续费否足够
       const needPayPrice = totalPriceDecimal.mul(ctx.opts.serverFeeRate);
       const realPayPrice = inscribeTransfer.value;
-      if (realPayPrice < needPayPrice) {
+      if (realPayPrice.lt(needPayPrice)) {
         throw BizError.of(
           'INVALID_TRANSACTION',
           `Insufficient service fee: expect at least ${needPayPrice} Planck but got ${realPayPrice}`,
@@ -470,13 +470,13 @@ export const orderRouter = router({
         .ceil();
       const realTotalPriceDecimal = transferToSeller.value;
       const realServiceFeeDecimal = transferToMarket.value;
-      if (realTotalPriceDecimal < needTotalPriceDecimal) {
+      if (realTotalPriceDecimal.lt(needTotalPriceDecimal)) {
         throw BizError.of(
           'INVALID_TRANSACTION',
           `Invalid total price transfer amount: expect at least ${needTotalPriceDecimal} Planck but got ${realTotalPriceDecimal}`,
         );
       }
-      if (realServiceFeeDecimal < needServiceFeeDecimal) {
+      if (realServiceFeeDecimal.lt(needServiceFeeDecimal)) {
         throw BizError.of(
           'INVALID_TRANSACTION',
           `Invalid service fee transfer amount: expect at least ${needServiceFeeDecimal} Planck but got ${realServiceFeeDecimal}`,
