@@ -5,7 +5,7 @@ set -e
 # If $1 is frontend, then build the frontend
 if [ "$1" = "frontend" ]; then
   echo "Building the frontend"
-  cat <<EOF
+  cat <<EOF >.env
 VITE_APP_URL="http://43.153.221.249:3000/trpc"
 VITE_MARKET_ACCOUNT="12eUnt8hcwtmcVgShgm4YuRYcH448tgj9qMDJ5r9tTJisdpe"
 VITE_POLKADOT_ENDPOINT="wss://westend-rpc.polkadot.io"
