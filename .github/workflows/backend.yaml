@@ -1,0 +1,38 @@
+name: Backend Deployment
+env:
+  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "apps/backend/**"
+      - "apps/libs/**"
+      - "package.json"
+      - "pnpm-lock.yaml"
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "20.x"
+      - name: Install PNPM
+        run: npm install --global pnpm
+      - name: Install npm dependencies
+        run: pnpm install
+      - name: Run build task
+        run: pnpm build:backend
+      - name: Deploy to Server
+        uses: easingthemes/ssh-deploy@main
+        with:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          ARGS: "-rlgoDzvc -i --delete"
+          REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
+          REMOTE_USER: "root"
+          TARGET: "/root/server/code"
+          EXCLUDE: "/node_modules/"
+          SCRIPT_AFTER: "pm2 restart all"
