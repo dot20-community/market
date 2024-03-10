@@ -33,6 +33,8 @@ jobs:
           ARGS: "-rlgoDzvc -i --delete"
           REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
           REMOTE_USER: "root"
-          TARGET: "/root/server/code"
+          TARGET: "/root/server"
           EXCLUDE: "/node_modules/"
-          SCRIPT_AFTER: "pm2 restart all"
+          SCRIPT_AFTER: |
+            cp .env.example .env
+            pm2 restart all
