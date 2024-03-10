@@ -11,6 +11,7 @@ import type {
 } from '@polkadot/extension-inject/types';
 // eslint-disable-next-line @nx/enforce-module-boundaries
 import { u128 } from '@polkadot/types';
+import { BN } from '@polkadot/util';
 import { buildInscribeTransfer, fmtAddress, getApi } from 'apps/libs/util';
 import { Decimal } from 'decimal.js';
 import { BizError } from '../../../libs/error';
@@ -43,6 +44,9 @@ export class Wallet {
    * @param address
    */
   async getBalance(address: string): Promise<u128> {
+    if (!address) {
+      return new BN(0) as u128;
+    }
     const api = await getApi();
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment
