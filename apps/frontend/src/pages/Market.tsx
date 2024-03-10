@@ -11,20 +11,18 @@ import {
   Tabs,
   useDisclosure,
 } from '@nextui-org/react';
+import { Order } from '@prisma/client';
 import { assertError, trpc } from '@utils/trpc';
+import { getCurrentAccountAddress } from '@utils/wallet';
+import { ListRes } from 'apps/backend/src/modules/order';
 import { useEffect, useState } from 'react';
 import { PiLightningLight } from 'react-icons/pi';
+import InfiniteScroll from 'react-infinite-scroller';
 import { ListCard } from '../components/Card/ListCard';
 import { MyListCard } from '../components/Card/MyListCard';
 import { BuyModal, BuyModalOrderInfo } from '../components/Modal/BuyModal';
 
-interface Order {
-  id: bigint;
-  seller: string;
-  amount: number;
-  status: string;
-  totalPrice: number;
-}
+const account = getCurrentAccountAddress();
 
 export function Market() {
   const { client } = trpc.useUtils();
@@ -37,11 +35,27 @@ export function Market() {
     {} as any,
   );
   const [orderList, setOrderList] = useState<Order[]>([]);
-  const [myOrderList, setMyOrderList] = useState<Order[]>([]);
+  const [myOrderList, setMyOrderList] = useState<ListRes>({
+    total: 0,
+    list: [],
+  });
+
+  async function fetchMyOrderList() {
+    const resp = await client.order.list.query({
+      cursor: myOrderList.next,
+      limit: 15,
+      seller: account,
+    });
+    setMyOrderList((list) => {
+      return {
+        ...resp,
+        list: list.list.concat(resp.list),
+      };
+    });
+  }
 
   useEffect(() => {
-    orderListFake().then((list) => setOrderList(list));
-    orderListFake().then((list) => setMyOrderList(list));
+    fetchMyOrderList();
   }, []);
 
   async function test() {
@@ -85,32 +99,6 @@ export function Market() {
       });
       console.log('nextList', nextList);
     }
-  }
-  async function orderListFake() {
-    const orders: Order[] = [
-      {
-        id: 1n,
-        seller: '115DdbwbaY9W9gDn9ctuuUsMvTqR8P4FB9Nb3xRaQCgcGdr5x',
-        amount: 20000,
-        status: 'LISTING',
-        totalPrice: 10,
-      },
-      {
-        id: 2n,
-        seller: '115DdbwbaY9W9gDn9ctuuUsMvTqR8P4FB9Nb3xRaQCgcGdr5x',
-        amount: 30000,
-        status: 'LISTING',
-        totalPrice: 50,
-      },
-      {
-        id: 3n,
-        seller: '115DdbwbaY9W9gDn9ctuuUsMvTqR8P4FB9Nb3xRaQCgcGdr5x',
-        amount: 40000,
-        status: 'LISTING',
-        totalPrice: 60,
-      },
-    ];
-    return orders;
   }
 
   function onOpenBuyModalWithData(order: Order) {
@@ -194,11 +182,21 @@ export function Market() {
               </Table>
             </Tab>
             <Tab key="My List" title="My List">
-              <div className="flex items-center gap-4 flex-wrap">
-                {myOrderList.map((order) => (
-                  <MyListCard order={order} />
-                ))}
-              </div>
+              <InfiniteScroll
+                loadMore={fetchMyOrderList}
+                hasMore={!myOrderList.list.length || !!myOrderList.next}
+                loader={
+                  <div className="loader" key={0}>
+                    Loading ...
+                  </div>
+                }
+              >
+                <div className="flex items-center gap-4 flex-wrap">
+                  {myOrderList.list.map((order) => (
+                    <MyListCard order={order} />
+                  ))}
+                </div>
+              </InfiniteScroll>
             </Tab>
           </Tabs>
         </div>

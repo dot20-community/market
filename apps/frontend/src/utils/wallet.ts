@@ -11,7 +11,7 @@ import type {
 } from '@polkadot/extension-inject/types';
 // eslint-disable-next-line @nx/enforce-module-boundaries
 import { u128 } from '@polkadot/types';
-import { buildInscribeTransfer, fmtAddress, getApi } from 'apps/libs/util';
+import { buildInscribeTransfer, fmtAddress, getApi, planck2Dot } from 'apps/libs/util';
 import { Decimal } from 'decimal.js';
 import { BizError } from '../../../libs/error';
 
@@ -172,3 +172,19 @@ export function getCurrentAccountAddress() {
     return accounts[parseInt(selectedAccountIndexStr)].address;
   }
 }
+
+export function fmtDecimal(value: Decimal) {
+  if (value.dp() > 4) {
+    return value.toFixed(4);
+  }
+  return value.toFixed();
+};
+
+export function fmtDot(dotPlanck: Decimal) {
+  const dotAmt = planck2Dot(dotPlanck);
+  return fmtDecimal(dotAmt);
+};
+
+export function toUsd(dotPlanck: Decimal, price: number) {
+  return '$' + fmtDecimal(planck2Dot(dotPlanck).mul(price));
+};

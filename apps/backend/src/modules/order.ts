@@ -365,7 +365,6 @@ export const orderRouter = router({
         list.length > input.limit ? list.pop()?.id.toString() : undefined;
       const prevCursor = list.length > 0 ? list[0].id.toString() : undefined;
       return {
-        total: list.length,
         list,
         prev: prevCursor,
         next: nextCursor,

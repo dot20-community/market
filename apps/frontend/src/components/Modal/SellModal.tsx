@@ -10,8 +10,8 @@ import {
   ModalHeader,
 } from '@nextui-org/react';
 import { assertError, trpc } from '@utils/trpc';
-import { getCurrentAccountAddress, wallet } from '@utils/wallet';
-import { dot2Planck, planck2Dot } from 'apps/libs/util';
+import { fmtDot, getCurrentAccountAddress, toUsd, wallet } from '@utils/wallet';
+import { dot2Planck } from 'apps/libs/util';
 import Decimal from 'decimal.js';
 import { FC, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -74,22 +74,6 @@ export const SellModal: FC<SellModalContext> = ({
     if (value < minTotalPrice) {
       return `Total price at least ${minTotalPrice} DOT`;
     }
-  };
-
-  const fmtDecimal = (value: Decimal) => {
-    if (value.dp() > 4) {
-      return value.toFixed(4);
-    }
-    return value.toFixed();
-  };
-
-  const fmtDot = (dotPlanck: Decimal) => {
-    const dotAmt = planck2Dot(dotPlanck);
-    return fmtDecimal(dotAmt);
-  };
-
-  const toUsd = (dotPlanck: Decimal) => {
-    return '$' + fmtDecimal(planck2Dot(dotPlanck).mul(globalState.dotPrice));
   };
 
   // 铭文单价
@@ -197,14 +181,16 @@ export const SellModal: FC<SellModalContext> = ({
               <div className="flex justify-between mt-4">
                 <span>Unit Price</span>
                 <span>
-                  {fmtDot(unitPricePlanck)} DOT ≈ {toUsd(unitPricePlanck)}
+                  {fmtDot(unitPricePlanck)} DOT ≈{' '}
+                  {toUsd(unitPricePlanck, globalState.dotPrice)}
                 </span>
               </div>
 
               <div className="flex justify-between">
                 <span>Total Price</span>
                 <span>
-                  {fmtDot(totalPricePlanck)} DOT ≈ {toUsd(totalPricePlanck)}
+                  {fmtDot(totalPricePlanck)} DOT ≈{' '}
+                  {toUsd(totalPricePlanck, globalState.dotPrice)}
                 </span>
               </div>
               <div className="flex justify-between">
@@ -214,20 +200,23 @@ export const SellModal: FC<SellModalContext> = ({
                     .toFixed()}%)`}
                 </span>
                 <span>
-                  {fmtDot(serviceFeePlanck)} DOT ≈ {toUsd(serviceFeePlanck)}
+                  {fmtDot(serviceFeePlanck)} DOT ≈{' '}
+                  {toUsd(serviceFeePlanck, globalState.dotPrice)}
                 </span>
               </div>
               <div className="flex justify-between">
                 <span>Gas Fee</span>
                 <span>
-                  {fmtDot(gasFeePlanck)} DOT ≈ {toUsd(gasFeePlanck)}
+                  {fmtDot(gasFeePlanck)} DOT ≈{' '}
+                  {toUsd(gasFeePlanck, globalState.dotPrice)}
                 </span>
               </div>
               <Divider className="my-4" />
               <div className="flex justify-between font-bold">
                 <span>Pay Price</span>
                 <span>
-                  {fmtDot(payPricePlanck)} DOT ≈ {toUsd(payPricePlanck)}
+                  {fmtDot(payPricePlanck)} DOT ≈{' '}
+                  {toUsd(payPricePlanck, globalState.dotPrice)}
                 </span>
               </div>
               <div className="flex justify-end text-small">
