@@ -37,7 +37,5 @@ jobs:
           TARGET: "/root/server"
           EXCLUDE: "/node_modules/"
           SCRIPT_AFTER: |
-            whoami
-            ls -al
-            cp .env.example .env
+            cp server/.env.example server/.env
             pm2 restart all
