@@ -47,7 +47,7 @@ export type TickBalanceRes = {
   balance: bigint;
 };
 
-async function getAccountTickList(
+export async function getAccountTickList(
   host: string,
   account: string,
 ): Promise<TickListRes> {
@@ -62,6 +62,18 @@ async function getAccountTickList(
     balance: BigInt(parseInt(item.available)),
   }));
 }
+
+export async function getAccountTick(
+  host: string,
+  account: string,
+  tick: string,
+): Promise<TickBalanceRes> {
+  const list = await getAccountTickList(host, account);
+  const item = list.find((item) => item.tick.toLocaleLowerCase() === tick.toLocaleLowerCase());
+  return {
+    balance: item?.balance ?? 0n,
+  };
+};
 
 export const accountRouter = router({
   /**
@@ -78,10 +90,6 @@ export const accountRouter = router({
   tick: noAuthProcedure
     .input((input) => input as TickBalanceReq)
     .query(async ({ input, ctx }): Promise<TickBalanceRes> => {
-      const list = await getAccountTickList(ctx.opts.dotaApiUrl, input.account);
-      const item = list.find((item) => item.tick === input.tick);
-      return {
-        balance: item?.balance ?? 0n,
-      };
+      return await getAccountTick(ctx.opts.dotaApiUrl, input.account, input.tick);
     }),
 });

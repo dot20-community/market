@@ -1,6 +1,7 @@
 import { useGlobalStateStore } from '@GlobalState';
 import {
   Button,
+  Divider,
   Input,
   Modal,
   ModalBody,
@@ -8,11 +9,13 @@ import {
   ModalFooter,
   ModalHeader,
 } from '@nextui-org/react';
-import { trpc } from '@utils/trpc';
+import { assertError, trpc } from '@utils/trpc';
 import { getCurrentAccountAddress, wallet } from '@utils/wallet';
-import { dot2Planck, isNumber } from 'apps/libs/util';
+import { dot2Planck, planck2Dot } from 'apps/libs/util';
 import Decimal from 'decimal.js';
-import React, { FC, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { toast } from 'react-toastify';
 
 export interface SellModalContext {
   isOpen: boolean;
@@ -20,123 +23,135 @@ export interface SellModalContext {
   tick: string;
 }
 
+type FormType = {
+  amount: number;
+  totalPrice: number;
+};
+
+const account = getCurrentAccountAddress();
+const marker = import.meta.env.VITE_MARKET_ACCOUNT;
+const minTotalPrice = parseFloat(import.meta.env.VITE_MIN_SELL_TOTAL_PRICE);
+const serviceFeeRate = new Decimal(import.meta.env.VITE_SERVER_FEE_RATE);
+
 export const SellModal: FC<SellModalContext> = ({
   isOpen,
   onOpenChange,
   tick,
 }) => {
   const globalState = useGlobalStateStore((state) => state);
-  const [isSubmit, setIsSubmit] = useState(false);
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm<FormType>();
   const [confirmLoading, setConfirmLoading] = useState(false);
-  const [amount, setAmount] = useState('');
-  const [totalPrice, setTotalPrice] = useState('');
-  const account = getCurrentAccountAddress();
-  const marker = import.meta.env.VITE_MARKET_ACCOUNT;
+  const { amount, totalPrice } = watch();
   const dotaBalance = trpc.account.tick.useQuery({ account, tick });
+  const [balance, setBalance] = useState<Decimal>(new Decimal(0));
+  const [balanceValidMsg, setBalanceValidMsg] = useState<string | undefined>();
+  const sell = trpc.order.sell.useMutation();
 
-  const serviceFeeRate = new Decimal(import.meta.env.VITE_SERVER_FEE_RATE);
-  const numberValid = (value: string) => {
-    const parse = parseFloat(value);
-    return isNaN(parse);
+  useEffect(() => {
+    wallet.getBalance(account).then((balance) => {
+      setBalance(new Decimal(balance.toString()));
+    });
+  }, []);
+
+  const amountValid = (value: number): string | undefined => {
+    if (!value || value.toString().includes('.')) {
+      return 'Amount must be a positive integer';
+    }
+    if ((dotaBalance?.data?.balance ?? 0) < value) {
+      return 'Amount exceeds the available balance';
+    }
   };
 
-  const isInvalidAmount = React.useMemo(() => {
-    return isSubmit && numberValid(amount);
-  }, [isSubmit, amount]);
-  const isInvalidTotalPrice = React.useMemo(() => {
-    return isSubmit && numberValid(totalPrice);
-  }, [isSubmit, totalPrice]);
-
-  const changeAmount = (value: string) => {
-    const newValue = parseInt(value);
-    if (isNaN(newValue)) {
-      setAmount('');
-      return;
+  const totalPriceValid = (value: number): string | undefined => {
+    if (!value) {
+      return 'Total price must be a number';
     }
-
-    const maxAmount = dotaBalance?.data?.balance ?? 0;
-    if (maxAmount !== 0 && newValue > maxAmount) {
-      setAmount(maxAmount.toString());
-      return;
+    if (value < minTotalPrice) {
+      return `Total price at least ${minTotalPrice} DOT`;
     }
-
-    setAmount(newValue.toString());
   };
 
-  const changeTotalPrice = (value: string) => {
-    if (!isNumber(value)) {
-      setTotalPrice('');
-      return;
+  const fmtDecimal = (value: Decimal) => {
+    if (value.dp() > 4) {
+      return value.toFixed(4);
     }
-
-    const newValue = parseFloat(value);
-
-    // 如果低于最小交易金额，则修正为最小交易金额
-    const minTotalPrice = import.meta.env.VITE_MIN_SELL_TOTAL_PRICE;
-    if (newValue < parseFloat(minTotalPrice)) {
-      setTotalPrice(minTotalPrice);
-      return;
-    }
-
-    setTotalPrice(newValue.toString());
+    return value.toFixed();
   };
 
-  const fmtDecimal = (dotAmt: Decimal) => {
-    if (dotAmt.dp() > 4) {
-      return dotAmt.toFixed(4);
-    }
-    return dotAmt.toFixed();
+  const fmtDot = (dotPlanck: Decimal) => {
+    const dotAmt = planck2Dot(dotPlanck);
+    return fmtDecimal(dotAmt);
   };
 
-  const toUsd = (dotAmt: Decimal) => {
-    return '$' + fmtDecimal(dotAmt.mul(globalState.dotPrice));
+  const toUsd = (dotPlanck: Decimal) => {
+    return '$' + fmtDecimal(planck2Dot(dotPlanck).mul(globalState.dotPrice));
   };
 
   // 铭文单价
-  let unitPriceDec = new Decimal(0);
+  let unitPricePlanck = new Decimal(0);
   // 总价格
-  let totalPriceDec = new Decimal(0);
-  // 手续费
-  let serviceFeeDec = new Decimal(0);
+  let totalPricePlanck = new Decimal(0);
+  // 服务费
+  let serviceFeePlanck = new Decimal(0);
   // gas费
-  let gasFeeDec = new Decimal(globalState.gasFee);
-  // 需支付价格
-  let payPriceDec = new Decimal(0);
+  let gasFeePlanck = dot2Planck(globalState.gasFee);
+  // 实际需支付价格(服务费+gas费)
+  let payPricePlanck = new Decimal(0);
   if (amount && totalPrice) {
     const amountDec = new Decimal(amount);
-    totalPriceDec = new Decimal(totalPrice);
-    unitPriceDec = totalPriceDec.div(amountDec);
-    serviceFeeDec = totalPriceDec.mul(serviceFeeRate);
-    payPriceDec = totalPriceDec.add(serviceFeeDec);
+    totalPricePlanck = dot2Planck(totalPrice);
+    unitPricePlanck = totalPricePlanck.div(amountDec);
+    serviceFeePlanck = totalPricePlanck.mul(serviceFeeRate);
+    payPricePlanck = serviceFeePlanck.add(gasFeePlanck);
   }
 
-  async function onConfirm() {
-    setIsSubmit(true);
+  useEffect(() => {
+    setBalanceValidMsg(
+      balance.lt(serviceFeePlanck) ? 'Insufficient Balance' : undefined,
+    );
+  }, [balance, totalPrice]);
 
-    if (isInvalidAmount || isInvalidTotalPrice) {
-      return;
-    }
-
+  async function onConfirm(data: FormType, onClose: () => void) {
     setConfirmLoading(true);
     try {
       await wallet.open();
-      await wallet.signTransferInscribe(
+      const signedExtrinsic = await wallet.signTransferInscribe(
         account,
         marker,
-        dot2Planck(payPriceDec),
+        serviceFeePlanck,
         tick,
-        parseInt(amount),
+        data.amount,
       );
+      await sell.mutateAsync({
+        seller: account,
+        totalPrice: totalPricePlanck.toFixed(),
+        signedExtrinsic,
+      });
+      onClose();
     } catch (e) {
-      alert(e);
-      console.error('Error:', e);
+      const error = assertError(e);
+      if (error.code === 'USER_REJECTED') {
+        toast.warn('User rejected');
+        return;
+      }
+      toast.error(error.code);
     } finally {
       setConfirmLoading(false);
     }
   }
 
   return (
-    <Modal isOpen={isOpen} onOpenChange={onOpenChange} placement="top-center">
+    <Modal
+      isOpen={isOpen}
+      onOpenChange={onOpenChange}
+      isDismissable={false}
+      placement="top-center"
+    >
       <ModalContent>
         {(onClose) => (
           <>
@@ -145,54 +160,51 @@ export const SellModal: FC<SellModalContext> = ({
             </ModalHeader>
             <ModalBody>
               <Input
+                {...register('amount', {
+                  valueAsNumber: true,
+                  validate: { amountValid },
+                })}
                 autoFocus
                 isRequired
                 label="List Amount"
-                placeholder="0"
                 variant="bordered"
-                value={amount}
-                onValueChange={changeAmount}
-                isInvalid={isInvalidAmount}
-                errorMessage={
-                  isInvalidAmount ? 'Please enter a valid number' : ''
-                }
+                isInvalid={!!errors.amount}
+                errorMessage={errors.amount?.message?.toString()}
               />
-              <div className="flex justify-end">
-                <span className="text-primary">Available Balance</span>
-                <span className="ml-2">{`${dotaBalance.data?.balance?.toLocaleString()} ${tick}`}</span>
+              <div className="flex justify-end text-small">
+                <span className="text-primary">Available {tick}</span>
+                <span className="ml-2 italic">
+                  {dotaBalance.data?.balance?.toLocaleString()}
+                </span>
               </div>
               <Input
-                label="Total Price"
+                {...register('totalPrice', {
+                  valueAsNumber: true,
+                  validate: { totalPriceValid },
+                })}
                 isRequired
-                placeholder="0"
+                label="Total Price"
                 variant="bordered"
-                value={totalPrice}
-                onValueChange={changeTotalPrice}
-                isInvalid={isInvalidTotalPrice}
-                errorMessage={
-                  isInvalidTotalPrice
-                    ? `Please enter a number greater than ${
-                        import.meta.env.VITE_MIN_SELL_TOTAL_PRICE
-                      }`
-                    : ''
-                }
+                isInvalid={!!errors.totalPrice}
+                errorMessage={errors.totalPrice?.message?.toString()}
                 endContent={
                   <div className="pointer-events-none flex items-center">
                     <span className="text-default-400 text-small">DOT</span>
                   </div>
                 }
               />
+
               <div className="flex justify-between mt-4">
                 <span>Unit Price</span>
                 <span>
-                  {fmtDecimal(unitPriceDec)} DOT ≈ {toUsd(unitPriceDec)}
+                  {fmtDot(unitPricePlanck)} DOT ≈ {toUsd(unitPricePlanck)}
                 </span>
               </div>
 
               <div className="flex justify-between">
                 <span>Total Price</span>
                 <span>
-                  {fmtDecimal(totalPriceDec)} DOT ≈ {toUsd(totalPriceDec)}
+                  {fmtDot(totalPricePlanck)} DOT ≈ {toUsd(totalPricePlanck)}
                 </span>
               </div>
               <div className="flex justify-between">
@@ -202,29 +214,35 @@ export const SellModal: FC<SellModalContext> = ({
                     .toFixed()}%)`}
                 </span>
                 <span>
-                  {fmtDecimal(serviceFeeDec)} DOT ≈ {toUsd(serviceFeeDec)}
+                  {fmtDot(serviceFeePlanck)} DOT ≈ {toUsd(serviceFeePlanck)}
                 </span>
               </div>
               <div className="flex justify-between">
                 <span>Gas Fee</span>
                 <span>
-                  {fmtDecimal(gasFeeDec)} DOT ≈ {toUsd(gasFeeDec)}
+                  {fmtDot(gasFeePlanck)} DOT ≈ {toUsd(gasFeePlanck)}
                 </span>
               </div>
-              <div className="flex justify-between">
+              <Divider className="my-4" />
+              <div className="flex justify-between font-bold">
                 <span>Pay Price</span>
                 <span>
-                  {fmtDecimal(payPriceDec)} DOT ≈ {toUsd(payPriceDec)}
+                  {fmtDot(payPricePlanck)} DOT ≈ {toUsd(payPricePlanck)}
                 </span>
+              </div>
+              <div className="flex justify-end text-small">
+                <span className="text-primary">Available DOT</span>
+                <span className="ml-2 italic">{fmtDot(balance)}</span>
               </div>
             </ModalBody>
             <ModalFooter>
               <Button
-                color="primary"
-                spinner={confirmLoading}
-                onClick={onConfirm}
+                isLoading={confirmLoading}
+                color={balanceValidMsg ? 'default' : 'primary'}
+                disabled={!!balanceValidMsg}
+                onClick={handleSubmit((data) => onConfirm(data, onClose))}
               >
-                Confirm
+                {balanceValidMsg || 'Confirm'}
               </Button>
             </ModalFooter>
           </>

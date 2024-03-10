@@ -41,14 +41,16 @@ export function fmtAddress(address: string): string {
  * 转换planck到dot
  */
 export function planck2Dot(balance: number | u128 | Decimal): Decimal {
-  return new Decimal(balance.toString()).div(decimalsPow());
+  const value = balance instanceof Decimal ? balance : new Decimal(balance.toString());
+  return value.div(decimalsPow());
 }
 
 /**
  * 转换dot到planck
  */
 export function dot2Planck(dot: number | u128 | Decimal): Decimal {
-  return new Decimal(dot.toString()).mul(decimalsPow());
+  const value = dot instanceof Decimal ? dot : new Decimal(dot.toString());
+  return value.mul(decimalsPow());
 }
 
 /**

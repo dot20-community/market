@@ -18,7 +18,7 @@ import { BizError } from '../../../libs/error';
 export class Wallet {
   accounts!: InjectedAccountWithMeta[];
 
-  constructor() {}
+  constructor() { }
 
   /**
    * 连接钱包并获取账户授权

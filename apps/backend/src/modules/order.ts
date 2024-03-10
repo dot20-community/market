@@ -3,6 +3,7 @@ import { BizError } from 'apps/libs/error';
 import {
   buildInscribeTransfer,
   dot2Planck,
+  fmtAddress,
   parseBatchTransfer,
   parseInscribeTransfer,
 } from 'apps/libs/util';
@@ -10,6 +11,7 @@ import Decimal from 'decimal.js';
 import { LRUCache } from 'lru-cache';
 import { PageReq, PageRes, noAuthProcedure, router } from '../server/trpc';
 import { signExtrinsic, submitSignedExtrinsicAndWait } from '../util/dapp';
+import { getAccountTick } from './account';
 
 /**
  * 卖单请求参数
@@ -23,10 +25,6 @@ export type SellReq = {
    * 铭文出售总价
    */
   totalPrice: string;
-  /**
-   * 服务费
-   */
-  serviceFee: string;
   /**
    * 签名交易数据
    */
@@ -153,19 +151,19 @@ export const orderRouter = router({
     .mutation(async ({ input, ctx }): Promise<SellRes> => {
       const extrinsic = ctx.api.tx(input.signedExtrinsic);
       const totalPriceDecimal = new Decimal(input.totalPrice);
-      const serviceFeeDecimal = new Decimal(input.serviceFee);
       // 解析铭文转账数据
       const inscribeTransfer = parseInscribeTransfer(extrinsic as any);
+      console.log("inscribeTransfer", JSON.stringify(inscribeTransfer))
       if (!inscribeTransfer) {
         throw BizError.of('INVALID_TRANSACTION', 'Invalid extrinsic format');
       }
       // 校验卖家地址是否与签名地址一致
-      if (input.seller !== extrinsic.signer.toString()) {
+      const signer = fmtAddress(extrinsic.signer.toString())
+      if (input.seller !== signer) {
         throw BizError.of(
           'INVALID_TRANSACTION',
-          `Invalid seller: expect ${
-            input.seller
-          } but got ${extrinsic.signer.toString()}`,
+          `Invalid seller: expect ${input.seller
+          } but got ${signer}`,
         );
       }
       // 校验是否满足最小交易金额
@@ -183,13 +181,22 @@ export const orderRouter = router({
           `Invalid receiver address: expect ${ctx.opts.marketAccount} but got ${inscribeTransfer.to}`,
         );
       }
-      // 检查转账金额是否符合
-      const needPayPrice = totalPriceDecimal.add(serviceFeeDecimal);
-      const realTransferPrice = inscribeTransfer.value;
-      if (realTransferPrice < needPayPrice) {
+      // 检查手续费否足够
+      const needPayPrice = totalPriceDecimal.mul(ctx.opts.serverFeeRate);
+      const realPayPrice = inscribeTransfer.value;
+      if (realPayPrice < needPayPrice) {
         throw BizError.of(
           'INVALID_TRANSACTION',
-          `Invalid transfer amount: expect at least ${needPayPrice} Planck but got ${realTransferPrice}`,
+          `Insufficient service fee: expect at least ${needPayPrice} Planck but got ${realPayPrice}`,
+        );
+      }
+      // 校验用户铭文数量是否足够
+      const accountTick = await getAccountTick(ctx.opts.dotaApiUrl, input.seller, inscribeTransfer.inscribeTick);
+      console.log(accountTick, 'accountTick')
+      if (accountTick.balance < inscribeTransfer.inscribeAmt) {
+        throw BizError.of(
+          'INVALID_TRANSACTION',
+          `Insufficient inscribe amount: expect at least ${inscribeTransfer.inscribeAmt} but got ${accountTick.balance}`
         );
       }
 
@@ -199,8 +206,8 @@ export const orderRouter = router({
         data: {
           seller: input.seller,
           totalPrice: BigInt(totalPriceDecimal.toFixed()),
-          sellServiceFee: BigInt(serviceFeeDecimal.toFixed()),
-          sellPayPrice: BigInt(realTransferPrice.toFixed()),
+          sellServiceFee: BigInt(needPayPrice.toFixed()),
+          sellPayPrice: BigInt(realPayPrice.toFixed()),
           sellHash: extrinsic.hash.toString(),
           tick: inscribeTransfer.inscribeTick,
           amount: inscribeTransfer.inscribeAmt,
