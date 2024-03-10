@@ -26,6 +26,7 @@ import { ListCard } from '../components/Card/ListCard';
 import { MyListCard } from '../components/Card/MyListCard';
 import { BuyModal } from '../components/Modal/BuyModal';
 
+const polkadotScan = import.meta.env.VITE_POLKADOT_SCAN;
 const account = getCurrentAccountAddress();
 
 export function Market() {
@@ -187,7 +188,7 @@ export function Market() {
                         <TableCell>
                           <Link
                             target="_blank"
-                            href={`https://polkadot.subscan.io/account/${order.buyer}`}
+                            href={`${polkadotScan}/account/${order.buyer}`}
                             color="primary"
                           >
                             {desensitizeAddress(order.buyer!!)}
@@ -196,7 +197,7 @@ export function Market() {
                         <TableCell>
                           <Link
                             target="_blank"
-                            href={`https://polkadot.subscan.io/account/${order.seller}`}
+                            href={`${polkadotScan}/account/${order.seller}`}
                             color="primary"
                           >
                             {desensitizeAddress(order.seller)}
@@ -207,7 +208,7 @@ export function Market() {
                             isBlock
                             showAnchorIcon
                             target="_blank"
-                            href={`https://polkadot.subscan.io/extrinsic/${order.tradeHash}`}
+                            href={`${polkadotScan}/extrinsic/${order.tradeHash}`}
                             color="primary"
                           />
                         </TableCell>
@@ -266,7 +267,7 @@ export function Market() {
                             isBlock
                             showAnchorIcon
                             target="_blank"
-                            href={`https://polkadot.subscan.io/extrinsic/${order.sellHash}`}
+                            href={`${polkadotScan}/extrinsic/${order.sellHash}`}
                             color="primary"
                           ></Link>
                         </TableCell>

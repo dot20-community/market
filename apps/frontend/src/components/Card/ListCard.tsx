@@ -14,6 +14,8 @@ import { calcUnitPrice, fmtDot, toUsd } from '@utils/calc';
 import { desensitizeAddress } from '@utils/wallet';
 import { FC } from 'react';
 
+const polkadotScan = import.meta.env.VITE_POLKADOT_SCAN;
+
 export interface ListCardContext {
   onOpenBuyModal: () => void;
   order: Order;
@@ -62,7 +64,7 @@ export const ListCard: FC<ListCardContext> = ({ onOpenBuyModal, order }) => {
               <div>Seller</div>
               <Link
                 className="text-xs"
-                href={`https://polkadot.subscan.io/account/${order.seller}`}
+                href={`${polkadotScan}/account/${order.seller}`}
                 target="_blank"
               >
                 {desensitizeAddress(order.seller)}
