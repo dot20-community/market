@@ -1,4 +1,6 @@
 import { BizError } from 'apps/libs/error';
+import { serverConfig } from '../configs/server.config';
+import { ServerOptions } from '../server/server';
 import { noAuthProcedure, router } from '../server/trpc';
 
 /**
@@ -57,11 +59,33 @@ export async function getAccountTickList(
     throw BizError.of('ERROR', data?.error);
   }
 
-  return data.balance.map((item: any) => ({
+  const result = data.balance.map((item: any) => ({
     tick: item.tick,
     balance: BigInt(parseInt(item.available)),
   }));
+
+  console.log(account, result, serverConfig.mockDot20Amount)
+  return mockTickList(account, result, serverConfig);
 }
+
+function mockTickList(account: string, realData: TickListRes, opts: ServerOptions): TickListRes {
+  const mockTickData = opts.mockDot20Amount.split(',').map((item) => {
+    const [account, tick, balance] = item.split(':');
+    return {
+      account,
+      tick,
+      balance: BigInt(balance),
+    };
+  }).filter((item) => item.account === account);
+
+  // 合并真实数据和模拟数据，真实数据优先
+  const result = mockTickData.filter((mockItem) => {
+    const realItem = realData.find((realItem) => realItem.tick === mockItem.tick);
+    return !realItem;
+  });
+  return realData.concat(result);
+}
+
 
 export async function getAccountTick(
   host: string,
@@ -82,7 +106,7 @@ export const accountRouter = router({
   tickList: noAuthProcedure
     .input((input) => input as TickListReq)
     .query(async ({ input, ctx }): Promise<TickListRes> => {
-      return getAccountTickList(ctx.opts.dotaApiUrl, input.account);
+      return await getAccountTickList(ctx.opts.dotaApiUrl, input.account);
     }),
   /**
    * 查询账号指定铭文余额

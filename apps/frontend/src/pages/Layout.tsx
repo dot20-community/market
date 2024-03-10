@@ -14,10 +14,10 @@ import {
 import type { InjectedAccountWithMeta } from '@polkadot/extension-inject/types';
 // eslint-disable-next-line @nx/enforce-module-boundaries
 import { trpc } from '@utils/trpc';
-import { dot2Planck, fmtAddress, planck2Dot } from 'apps/libs/util';
+import { fmtAddress } from 'apps/libs/util';
 import { useEffect, useState } from 'react';
 import { Link as Linkto, Outlet } from 'react-router-dom';
-import { Wallet, getGas } from '../utils/wallet';
+import { Wallet, desensitizeAddress } from '../utils/wallet';
 
 export function Layout() {
   const [connectLoading, setConnectLoading] = useState(false);
@@ -54,37 +54,6 @@ export function Layout() {
         JSON.stringify(wallet.accounts),
       );
       setAccounts(wallet.accounts);
-
-      console.log(
-        'getBalance',
-        planck2Dot(
-          await wallet.getBalance(wallet.accounts[0].address),
-        ).toFixed(),
-      );
-      console.log('getGas', planck2Dot(await getGas()).toFixed());
-      // 总价 2 DOT
-      const totalPrice = dot2Planck(2);
-      // 服务费 2 * 0.02
-      const serviceFee = totalPrice
-        .mul(import.meta.env.VITE_SERVER_FEE_RATE)
-        .ceil();
-      // 总共应付 总价 + 服务费
-      const totalPayPrice = totalPrice.add(serviceFee);
-      const signedExtrinsic = await wallet.signTransferInscribe(
-        wallet.accounts[0].address,
-        '12eUnt8hcwtmcVgShgm4YuRYcH448tgj9qMDJ5r9tTJisdpe',
-        totalPayPrice,
-        'DOTA',
-        10000,
-      );
-
-      const resp = await sell.mutateAsync({
-        seller: wallet.accounts[0].address,
-        totalPrice: totalPrice.toFixed(),
-        serviceFee: serviceFee.toFixed(),
-        signedExtrinsic: signedExtrinsic,
-      });
-      console.log('Create order response:', resp);
     } catch (e) {
       console.error('Error:', e);
       throw e;
@@ -131,13 +100,8 @@ export function Layout() {
                     color="primary"
                     radius="full"
                   >
-                    {`Account${
-                      selectedAccountIndex + 1
-                    } [${currentAddress.substring(
-                      0,
-                      6,
-                    )}...${currentAddress.substring(
-                      currentAddress.length - 6,
+                    {`Account${selectedAccountIndex + 1} [${desensitizeAddress(
+                      currentAddress,
                     )}]`}
                   </Button>
                 </DropdownTrigger>
@@ -147,6 +111,7 @@ export function Layout() {
                   color="primary"
                   disallowEmptySelection
                   selectionMode="single"
+                  selectedKeys={[selectedAccountIndex.toString()]}
                   onSelectionChange={(keys) => {
                     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                     // @ts-ignore
@@ -155,8 +120,10 @@ export function Layout() {
                       localStorage.setItem('DotWalletAccounts', '');
                       setAccounts([]);
                     } else {
+                      localStorage.setItem('selectedAccountIndex', currentKey);
                       setSelectedAccountIndex(parseInt(currentKey));
                     }
+                    window.location.reload();
                   }}
                 >
                   {[
@@ -167,11 +134,8 @@ export function Layout() {
                           color="primary"
                           key={index}
                           showDivider={index == accounts.length - 1}
-                        >{`Account${index + 1} [${address.substring(
-                          0,
-                          6,
-                        )}...${address.substring(
-                          address.length - 6,
+                        >{`Account${index + 1} [${desensitizeAddress(
+                          address,
                         )}]`}</DropdownItem>
                       );
                     }),

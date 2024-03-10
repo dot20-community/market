@@ -9,8 +9,9 @@ import {
   ModalFooter,
   ModalHeader,
 } from '@nextui-org/react';
+import { calcUnitPrice, fmtDot, toUsd } from '@utils/calc';
 import { assertError, trpc } from '@utils/trpc';
-import { fmtDot, getCurrentAccountAddress, toUsd, wallet } from '@utils/wallet';
+import { getCurrentAccountAddress, wallet } from '@utils/wallet';
 import { dot2Planck } from 'apps/libs/util';
 import Decimal from 'decimal.js';
 import { FC, useEffect, useState } from 'react';
@@ -89,7 +90,7 @@ export const SellModal: FC<SellModalContext> = ({
   if (amount && totalPrice) {
     const amountDec = new Decimal(amount);
     totalPricePlanck = dot2Planck(totalPrice);
-    unitPricePlanck = totalPricePlanck.div(amountDec);
+    unitPricePlanck = calcUnitPrice(totalPricePlanck, amountDec);
     serviceFeePlanck = totalPricePlanck.mul(serviceFeeRate);
     payPricePlanck = serviceFeePlanck.add(gasFeePlanck);
   }
@@ -118,6 +119,7 @@ export const SellModal: FC<SellModalContext> = ({
       });
       onClose();
     } catch (e) {
+      console.error(e);
       const error = assertError(e);
       if (error.code === 'USER_REJECTED') {
         toast.warn('User rejected');

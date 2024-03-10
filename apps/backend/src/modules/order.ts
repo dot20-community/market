@@ -80,6 +80,10 @@ export type ListReq = PageReq & {
    */
   seller?: string;
   /**
+   * 要排除的卖家地址过滤条件
+   */
+  excludeSeller?: string;
+  /**
    * 订单状态列表过滤条件，为空时查询所有状态
    */
   statues?: Status[];
@@ -96,11 +100,7 @@ export type BuyReq = {
   /**
    * 订单ID
    */
-  id: number;
-  /**
-   * 买家地址
-   */
-  buyer: string;
+  id: bigint;
   /**
    * 签名交易数据
    */
@@ -113,7 +113,7 @@ export type BuyRes = {
   /**
    * 订单ID
    */
-  id: number;
+  id: bigint;
   /**
    * 交易哈希
    */
@@ -350,7 +350,10 @@ export const orderRouter = router({
       const list = await ctx.prisma.order.findMany({
         take: input.limit + 1, // get an extra item at the end which we'll use as next cursor
         where: {
-          seller: input.seller ? { equals: input.seller } : undefined,
+          seller: {
+            equals: input.seller,
+            not: input.excludeSeller,
+          },
           status: {
             in: input.statues,
           },
@@ -376,7 +379,7 @@ export const orderRouter = router({
   buy: noAuthProcedure
     .input((input) => input as BuyReq)
     .mutation(async ({ input, ctx }): Promise<BuyRes> => {
-      const extrinsic = ctx.api.createType('Extrinsic', input.signedExtrinsic);
+      const extrinsic = ctx.api.tx(input.signedExtrinsic);
       // 查询订单信息
       const order = await ctx.prisma.order.findUnique({
         where: {
@@ -385,6 +388,11 @@ export const orderRouter = router({
       });
       if (!order) {
         throw BizError.of('ORDER_NOT_FOUND');
+      }
+      // 买家和卖家不能是同一个地址
+      const buyer = fmtAddress(extrinsic.signer.toString());
+      if (order.seller === buyer) {
+        throw BizError.of('INVALID_TRANSACTION', 'seller and buyer cannot be the same address');
       }
       // 校验是否为合法的转账交易
       const batchTransfer = parseBatchTransfer(extrinsic as any);
@@ -435,20 +443,19 @@ export const orderRouter = router({
       const result = await ctx.prisma.order.updateMany({
         where: {
           id: input.id,
-          status: 'PENDING',
+          status: 'LISTING',
         },
         data: {
           status: 'LOCKED',
           buyHash: extrinsic.hash.toString(),
-          buyer: input.buyer,
+          buyer: buyer,
           updatedAt: new Date(),
         },
       });
       if (result.count === 0) {
-        throw BizError.of('ORDER_STATUS_ERROR', 'status is not PENDING');
+        throw BizError.of('ORDER_STATUS_ERROR', 'status is not LISTING');
       }
 
-      // 提交上链
       const errMsg = await submitSignedExtrinsicAndWait(
         ctx.api,
         extrinsic as any,
@@ -491,6 +498,7 @@ export const orderRouter = router({
         },
       });
 
+      // 市场账户转账铭文给买家
       const tradeErrMsg = await submitSignedExtrinsicAndWait(
         ctx.api,
         tradeExtrinsic,

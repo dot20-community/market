@@ -44,6 +44,9 @@ dependencies:
   bcryptjs:
     specifier: ^2.4.3
     version: registry.npmmirror.com/bcryptjs@2.4.3
+  dayjs:
+    specifier: ^1.11.10
+    version: registry.npmmirror.com/dayjs@1.11.10
   decimal.js:
     specifier: ^10.4.3
     version: registry.npmmirror.com/decimal.js@10.4.3
@@ -9792,6 +9795,12 @@ packages:
     resolution: {integrity: sha512-2P0p0pFGzHS5EMnhdxQi7aJN+iMheud0UhG4dlE1DLAlvL8JHjJJTX/CSm4JXwV0Ka5nGk3zC5mcb5bUQUxxMA==, registry: http://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/dateformat/-/dateformat-4.6.3.tgz}
     name: dateformat
     version: 4.6.3
+    dev: false
+
+  registry.npmmirror.com/dayjs@1.11.10:
+    resolution: {integrity: sha512-vjAczensTgRcqDERK0SR2XMwsF/tSvnvlv6VcF2GIhg6Sx4yOIt/irsr1RDJsKiIyBzJDpCoXiWWq28MqH2cnQ==, registry: http://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/dayjs/-/dayjs-1.11.10.tgz}
+    name: dayjs
+    version: 1.11.10
     dev: false
 
   registry.npmmirror.com/debug@3.2.7:

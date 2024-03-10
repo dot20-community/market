@@ -9,8 +9,7 @@ import {
   Image,
 } from '@nextui-org/react';
 import { Order, Status } from '@prisma/client';
-import { fmtDot, toUsd } from '@utils/wallet';
-import Decimal from 'decimal.js';
+import { calcUnitPrice, fmtDot, toUsd } from '@utils/calc';
 import { FC } from 'react';
 
 export interface MyListCardContext {
@@ -20,13 +19,8 @@ export interface MyListCardContext {
 export const MyListCard: FC<MyListCardContext> = ({ order }) => {
   const globalState = useGlobalStateStore();
 
-  const totalPricePlanck = new Decimal(order.totalPrice.toString());
-  const unitPricePlanck = totalPricePlanck.div(
-    new Decimal(order.amount.toString()),
-  );
-
   function isListing(status: Status) {
-    return order.status === 'LISTING';
+    return status === 'LISTING';
   }
 
   return (
@@ -39,7 +33,10 @@ export const MyListCard: FC<MyListCardContext> = ({ order }) => {
               {order.amount.toString()}
             </div>
             <div className="text-xs text-primary mt-2 flex w-[200px] justify-center">
-              {toUsd(unitPricePlanck, globalState.dotPrice)}
+              {toUsd(
+                calcUnitPrice(order.totalPrice, order.amount),
+                globalState.dotPrice,
+              )}
             </div>
           </div>
         </CardHeader>
@@ -48,10 +45,10 @@ export const MyListCard: FC<MyListCardContext> = ({ order }) => {
           <div className="w-full flex justify-between">
             <div className="flex">
               <Image className="w-4 mt-1" src="/dot_logo.png" />
-              <div className="ml-1">{fmtDot(totalPricePlanck)}</div>
+              <div className="ml-1">{fmtDot(order.totalPrice)}</div>
             </div>
             <div className="text-xs mt-1">
-              {toUsd(totalPricePlanck, globalState.dotPrice)}
+              {toUsd(order.totalPrice, globalState.dotPrice)}
             </div>
           </div>
         </CardBody>

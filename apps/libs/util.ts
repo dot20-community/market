@@ -70,7 +70,7 @@ export function isNumber(value: string) {
 }
 
 export function buildInscribeTransferRemark(tick: string, amt: number): string {
-  return `{"p":"dot-20","op":"transfer","tick":"${tick}","amt":${amt}}`;
+  return `{"p":"dot-20","op":"transfer","tick":"${tick.toUpperCase()}","amt":${amt}}`;
 }
 
 export function buildInscribeTransfer(

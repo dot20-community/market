@@ -35,6 +35,7 @@
     "@trpc/react-query": "^10.43.0",
     "@trpc/server": "^10.43.0",
     "bcryptjs": "^2.4.3",
+    "dayjs": "^1.11.10",
     "decimal.js": "^10.4.3",
     "dotenv": "^16.4.5",
     "env-var": "^7.4.1",

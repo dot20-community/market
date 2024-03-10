@@ -1,122 +1,166 @@
-import { Button, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader } from "@nextui-org/react";
-import { FC, useEffect, useState } from "react";
-
-export interface BuyModalOrderInfo {
-  id: bigint
-  amount: number
-  price: number
-}
+import { useGlobalStateStore } from '@GlobalState';
+import {
+  Button,
+  Divider,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+} from '@nextui-org/react';
+import { Order } from '@prisma/client';
+import { calcUnitPrice, fmtDot, toDecimal, toUsd } from '@utils/calc';
+import { assertError, trpc } from '@utils/trpc';
+import { getCurrentAccountAddress, wallet } from '@utils/wallet';
+import { dot2Planck } from 'apps/libs/util';
+import Decimal from 'decimal.js';
+import { FC, useEffect, useState } from 'react';
+import { toast } from 'react-toastify';
 
 export interface BuyModalContext {
-  isOpen: boolean
-  onOpenChange: () => void
-  orderInfo: BuyModalOrderInfo
+  isOpen: boolean;
+  onOpenChange: () => void;
+  order: Order;
 }
 
-async function getDotPrice() {
-  const resp = await fetch("https://data-api.binance.vision/api/v3/ticker/price?symbol=DOTUSDT")
-  const data = await resp.json()
-  if (resp.status >= 300) {
-    throw new Error(data.message || "server error")
-  }
-  return parseFloat(data.price)
-}
+const account = getCurrentAccountAddress();
+const marker = import.meta.env.VITE_MARKET_ACCOUNT;
+const serviceFeeRate = new Decimal(import.meta.env.VITE_SERVER_FEE_RATE);
 
-async function getDotBalance() {
-  return 1000
-}
+export const BuyModal: FC<BuyModalContext> = ({
+  order,
+  isOpen,
+  onOpenChange,
+}) => {
+  if (!isOpen) return null;
 
-export const BuyModal: FC<BuyModalContext> = ({ isOpen, orderInfo, onOpenChange }) => {
-  const [dotPrice, setDotPrice] = useState(10);
-  const [dotBalance, setDotBalance] = useState(0);
+  const globalState = useGlobalStateStore();
+  const [confirmLoading, setConfirmLoading] = useState(false);
+  const [balance, setBalance] = useState<Decimal>(new Decimal(0));
+  const [balanceValidMsg, setBalanceValidMsg] = useState<string | undefined>();
+  const buy = trpc.order.buy.useMutation();
 
   useEffect(() => {
-    getDotPrice().then(price => setDotPrice(price))
-    getDotBalance().then(balance => setDotBalance(balance))
+    wallet.getBalance(account).then((balance) => {
+      setBalance(new Decimal(balance.toString()));
+    });
   }, []);
 
-  function onConfirm() {
-    console.log("onConfirm")
-  }
+  const totalPricePlanck = toDecimal(order.totalPrice);
+  const unitPricePlanck = calcUnitPrice(order.totalPrice, order.amount);
+  const serviceFeePlanck = totalPricePlanck.mul(serviceFeeRate);
+  const gasFeePlanck = dot2Planck(globalState.gasFee);
+  // 实际需支付价格(总价+ 服务费+gas费)
+  const payPricePlanck = totalPricePlanck
+    .add(serviceFeePlanck)
+    .add(gasFeePlanck);
 
-  let unitPrice = 0
-  let unitValue = 0
-  let totalValue = 0
-  let serviceFee = 0
-  let serviceFeeValue = 0
-  let netWorkFee = 0.19
-  let netWorkFeeValue = netWorkFee * dotPrice
+  useEffect(() => {
+    setBalanceValidMsg(
+      balance.lt(serviceFeePlanck) ? 'Insufficient Balance' : undefined,
+    );
+  }, [balance]);
 
-  if (orderInfo.amount && orderInfo.price) {
-    if (orderInfo.amount > 0 && orderInfo.price > 0) {
-      unitPrice = orderInfo.price/orderInfo.amount
-      unitValue = unitPrice * dotPrice
-      totalValue = orderInfo.price * dotPrice
-      serviceFee = orderInfo.price * 0.02
-      serviceFeeValue = serviceFee * dotPrice
+  async function handleConfirm(onClose: () => void) {
+    setConfirmLoading(true);
+    try {
+      await wallet.open();
+      const signedExtrinsic = await wallet.signTransfer(
+        account,
+        order.seller,
+        marker,
+        totalPricePlanck,
+        serviceFeePlanck,
+      );
+      await buy.mutateAsync({
+        id: order.id,
+        signedExtrinsic,
+      });
+      onClose();
+    } catch (e) {
+      console.error(e);
+      const error = assertError(e);
+      if (error.code === 'USER_REJECTED') {
+        toast.warn('User rejected');
+        return;
+      }
+      toast.error(error.code);
+    } finally {
+      setConfirmLoading(false);
     }
   }
 
-  let totalPay = orderInfo.price + serviceFee + netWorkFee
-  let totalPayValue = totalPay * dotPrice
   return (
-    <Modal 
-      isOpen={isOpen} 
-      onOpenChange={onOpenChange}
-      placement="top-center"
-    >
+    <Modal isOpen={isOpen} onOpenChange={onOpenChange} placement="top-center">
       <ModalContent>
         {(onClose) => (
           <>
-            <ModalHeader className="flex flex-col gap-1 text-primary">Purchase Confirmation</ModalHeader>
+            <ModalHeader className="flex flex-col gap-1 text-primary">
+              Purchase Confirmation
+            </ModalHeader>
             <ModalBody>
               <div className="flex justify-between mt-4">
                 <span>DOTA</span>
-                <span>{orderInfo.amount}</span>
+                <span>{order.amount.toString()}</span>
               </div>
               <div className="flex justify-between mt-4">
                 <span>Unit Value</span>
-                {unitValue ? <span>{unitPrice.toFixed(3)} DOT ≈ ${unitValue.toFixed(2)}</span> : <span/>}
+                <span>
+                  {fmtDot(unitPricePlanck)} DOT ≈{' '}
+                  {toUsd(unitPricePlanck, globalState.dotPrice)}
+                </span>
               </div>
               <div className="flex justify-between">
                 <span>Total Value</span>
-                {totalValue ? <span>{orderInfo.price.toFixed(3)} DOT ≈ ${totalValue.toFixed(2)}</span>: <span/>}
+                <span>
+                  {fmtDot(order.totalPrice)} DOT ≈{' '}
+                  {toUsd(order.totalPrice, globalState.dotPrice)}
+                </span>
               </div>
               <div className="flex justify-between">
-                <span>Service Fee (2%)</span>
-                {serviceFeeValue ? <span>{serviceFee.toFixed(3)} DOT ≈ ${serviceFeeValue.toFixed(2)}</span>: <span/>}
+                <span>
+                  {`Service Fee (${serviceFeeRate
+                    .mul(new Decimal(100))
+                    .toFixed()}%)`}
+                </span>
+                <span>
+                  {fmtDot(serviceFeePlanck)} DOT ≈{' '}
+                  {toUsd(serviceFeePlanck, globalState.dotPrice)}
+                </span>
               </div>
               <div className="flex justify-between">
-                <span>Network Fee</span>
-                {netWorkFeeValue ? <span>{netWorkFee.toFixed(3)} DOT ≈ ${netWorkFeeValue.toFixed(2)}</span>: <span/>}
+                <span>Gas Fee</span>
+                <span>
+                  {fmtDot(gasFeePlanck)} DOT ≈{' '}
+                  {toUsd(gasFeePlanck, globalState.dotPrice)}
+                </span>
               </div>
-              <div className="flex justify-between mt-4">
-                <span className="font-bold">Total Pay</span>
-                {totalPayValue ? <span>{totalPay.toFixed(3)} DOT ≈ ${totalPayValue.toFixed(2)}</span>: <span/>}
+              <Divider className="my-4" />
+              <div className="flex justify-between font-bold">
+                <span>Pay Price</span>
+                <span>
+                  {fmtDot(payPricePlanck)} DOT ≈{' '}
+                  {toUsd(payPricePlanck, globalState.dotPrice)}
+                </span>
               </div>
-              <div className="flex justify-between">
-                <span>Available Balance</span>
-                <span>{dotBalance} Dot</span>
+              <div className="flex justify-end text-small">
+                <span className="text-primary">Available DOT</span>
+                <span className="ml-2 italic">{fmtDot(balance)}</span>
               </div>
             </ModalBody>
             <ModalFooter>
-              {dotBalance >= totalPay ? (
-                <Button color="primary" onPress={() => {
-                  onConfirm()
-                  onClose()
-                }}>
-                  Confirm
-                </Button>
-              ) : (
-                <Button isDisabled>
-                  Insufficient Balance
-                </Button>
-              )}
-              
+              <Button
+                isLoading={confirmLoading}
+                color={balanceValidMsg ? 'default' : 'primary'}
+                disabled={!!balanceValidMsg}
+                onClick={() => handleConfirm(onClose)}
+              >
+                {balanceValidMsg || 'Confirm'}
+              </Button>
             </ModalFooter>
           </>
         )}
       </ModalContent>
     </Modal>
-  )
-}
+  );
+};

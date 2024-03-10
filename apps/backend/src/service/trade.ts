@@ -98,7 +98,7 @@ export async function buyInscribeCheck() {
   const needCheckOrderList = await prisma.order.findMany({
     where: {
       status: 'LOCKED',
-      chainStatus: 'BUY_BLOCK_CONFIRMED',
+      chainStatus: 'TRADE_BLOCK_CONFIRMED',
     },
     orderBy: {
       id: 'asc',

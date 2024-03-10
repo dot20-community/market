@@ -23,6 +23,7 @@ export interface ServerOptions {
   polkadotDecimals: number;
   serverFeeRate: number;
   minSellTotalPrice: number;
+  mockDot20Amount: string;
 }
 
 export async function createServer(opts: ServerOptions) {

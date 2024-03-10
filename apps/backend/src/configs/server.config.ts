@@ -17,4 +17,5 @@ export const serverConfig: ServerOptions = {
   polkadotDecimals: get('VITE_POLKADOT_DECIMALS').required().asInt(),
   serverFeeRate: get('VITE_SERVER_FEE_RATE').required().asFloat(),
   minSellTotalPrice: get('VITE_MIN_SELL_TOTAL_PRICE').required().asFloat(),
+  mockDot20Amount: get('MOCK_DOT20_AMOUNT').required().asString(),
 };
