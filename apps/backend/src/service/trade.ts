@@ -125,7 +125,7 @@ export async function buyInscribeCheck() {
         api,
         order.tick,
         Number(order.amount),
-        order.seller,
+        order.buyer!!,
       ),
       serverConfig.marketAccountMnemonic,
     );

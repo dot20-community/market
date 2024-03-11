@@ -365,7 +365,11 @@ export function Market() {
                 {myOrderList.list.length ? (
                   <div className="flex items-center gap-4 flex-wrap">
                     {myOrderList.list.map((order) => (
-                      <MyListCard key={order.id} order={order} />
+                      <MyListCard
+                        key={order.id}
+                        order={order}
+                        onUpdate={clearList}
+                      />
                     ))}
                   </div>
                 ) : (

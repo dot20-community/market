@@ -16,7 +16,7 @@ import { toast } from 'react-toastify';
 
 const statusText: Record<Status, string | undefined> = {
   PENDING: 'Pending',
-  LISTING: 'Listing',
+  LISTING: undefined,
   CANCELING: 'Canceling',
   CANCELED: 'Canceled',
   LOCKED: 'Locked',
@@ -26,9 +26,10 @@ const statusText: Record<Status, string | undefined> = {
 
 export interface MyListCardContext {
   order: Order;
+  onUpdate: () => void;
 }
 
-export const MyListCard: FC<MyListCardContext> = ({ order }) => {
+export const MyListCard: FC<MyListCardContext> = ({ order, onUpdate }) => {
   const globalState = useGlobalStateStore();
   const [cancelLoading, setCancelLoading] = useState(false);
   const cancel = trpc.order.cancel.useMutation();
@@ -37,6 +38,7 @@ export const MyListCard: FC<MyListCardContext> = ({ order }) => {
     setCancelLoading(true);
     try {
       await cancel.mutateAsync(order.id);
+      onUpdate();
     } catch (e) {
       console.error(e);
       const err = assertError(e);
