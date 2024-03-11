@@ -130,7 +130,6 @@ export function Market() {
       tick: selectTick,
       cursor: orderList.next,
       limit: 15,
-      buyer: account,
       statues: account ? ['LOCKED', 'SOLD'] : ['SOLD'],
       orderBy: 'update_desc',
     });
