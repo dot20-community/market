@@ -13,35 +13,30 @@ import {
 } from '@nextui-org/react';
 import type { InjectedAccountWithMeta } from '@polkadot/extension-inject/types';
 // eslint-disable-next-line @nx/enforce-module-boundaries
-import { trpc } from '@utils/trpc';
+import { useGlobalStateStore } from '@GlobalState';
+import { assertError } from '@utils/trpc';
 import { fmtAddress } from 'apps/libs/util';
 import { useEffect, useState } from 'react';
+import { IoWalletOutline } from 'react-icons/io5';
+import { RiArrowDropDownLine, RiMoneyDollarCircleLine } from 'react-icons/ri';
 import { Link as Linkto, Outlet } from 'react-router-dom';
-import { Wallet, desensitizeAddress } from '../utils/wallet';
+import { toast } from 'react-toastify';
+import { desensitizeAddress, wallet } from '../utils/wallet';
 
 export function Layout() {
+  const { account, setAccount } = useGlobalStateStore();
   const [connectLoading, setConnectLoading] = useState(false);
   const [accounts, setAccounts] = useState<InjectedAccountWithMeta[]>([]);
-  const [selectedAccountIndex, setSelectedAccountIndex] = useState(0);
-
-  const sell = trpc.order.sell.useMutation();
-  const wallet = new Wallet();
 
   useEffect(() => {
     void loadAccounts();
   }, []);
 
   async function loadAccounts() {
-    const accountsStr = localStorage.getItem('DotWalletAccounts');
-    if (accountsStr) {
-      wallet.setAccountsFromJSON(accountsStr);
+    // 如果已经连接钱包，直接通过钱包扩展获取账户列表
+    if (account) {
+      await wallet.open();
       setAccounts(wallet.accounts);
-    }
-    const selectedAccountIndexStr = localStorage.getItem(
-      'selectedAccountIndex',
-    );
-    if (selectedAccountIndexStr) {
-      setSelectedAccountIndex(parseInt(selectedAccountIndexStr));
     }
   }
 
@@ -49,27 +44,33 @@ export function Layout() {
     setConnectLoading(true);
     try {
       await wallet.open();
-      localStorage.setItem(
-        'DotWalletAccounts',
-        JSON.stringify(wallet.accounts),
-      );
       setAccounts(wallet.accounts);
+      setAccount(wallet.accounts[0].address);
     } catch (e) {
-      console.error('Error:', e);
-      throw e;
+      console.error(e);
+      const err = assertError(e);
+      if (err.code === 'NO_EXTENSION') {
+        toast.warn('No wallet extension found');
+        return;
+      }
+      if (err.code === 'NO_ACCOUNT') {
+        toast.warn('Please select an account in the wallet');
+        return;
+      }
+      toast.error(err.code);
     } finally {
       setConnectLoading(false);
     }
   }
 
-  let currentAddress = '';
-  if (accounts[selectedAccountIndex]) {
-    currentAddress = fmtAddress(accounts[selectedAccountIndex].address);
-  }
-
   return (
     <div>
-      <Navbar position="static" isBordered className="bg-background/70">
+      <Navbar
+        position="static"
+        isBordered
+        className="bg-background/70 pl-2 pr-2"
+        maxWidth="full"
+      >
         <NavbarBrand>
           <Image src="/logo.svg" alt="logo" width={120} height={40} />
         </NavbarBrand>
@@ -91,18 +92,18 @@ export function Layout() {
         </NavbarContent>
         <NavbarContent justify="end">
           <NavbarItem>
-            {accounts.length > 0 ? (
+            {account ? (
               <Dropdown>
                 <DropdownTrigger>
                   <Button
+                    startContent={<IoWalletOutline size={24} />}
+                    endContent={<RiArrowDropDownLine size={24} />}
                     variant="shadow"
                     className="capitalize"
                     color="primary"
                     radius="full"
                   >
-                    {`Account${selectedAccountIndex + 1} [${desensitizeAddress(
-                      currentAddress,
-                    )}]`}
+                    {desensitizeAddress(account)}
                   </Button>
                 </DropdownTrigger>
                 <DropdownMenu
@@ -111,19 +112,17 @@ export function Layout() {
                   color="primary"
                   disallowEmptySelection
                   selectionMode="single"
-                  selectedKeys={[selectedAccountIndex.toString()]}
+                  selectedKeys={[account]}
                   onSelectionChange={(keys) => {
                     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                     // @ts-ignore
                     const currentKey = keys['currentKey'] as string;
                     if (currentKey === 'disconnect') {
-                      localStorage.setItem('DotWalletAccounts', '');
                       setAccounts([]);
+                      setAccount(undefined);
                     } else {
-                      localStorage.setItem('selectedAccountIndex', currentKey);
-                      setSelectedAccountIndex(parseInt(currentKey));
+                      setAccount(currentKey);
                     }
-                    window.location.reload();
                   }}
                 >
                   {[
@@ -132,7 +131,7 @@ export function Layout() {
                       return (
                         <DropdownItem
                           color="primary"
-                          key={index}
+                          key={address}
                           showDivider={index == accounts.length - 1}
                         >{`Account${index + 1} [${desensitizeAddress(
                           address,
@@ -160,25 +159,8 @@ export function Layout() {
           </NavbarItem>
           <NavbarItem>
             <Linkto to="/account">
-              <Button isIconOnly color="primary" aria-label="Like">
-                <svg
-                  width="25"
-                  height="25"
-                  viewBox="0 0 25 25"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <g id="currency-dollar-circle">
-                    <path
-                      id="Icon"
-                      d="M8.63159 15.1667C8.63159 16.4553 9.67626 17.5 10.9649 17.5H13.1316C14.5123 17.5 15.6316 16.3807 15.6316 15C15.6316 13.6193 14.5123 12.5 13.1316 12.5H11.1316C9.75088 12.5 8.63159 11.3807 8.63159 10C8.63159 8.61929 9.75088 7.5 11.1316 7.5H13.2983C14.5869 7.5 15.6316 8.54467 15.6316 9.83333M12.1316 6V7.5M12.1316 17.5V19M22.1316 12.5C22.1316 18.0228 17.6544 22.5 12.1316 22.5C6.60874 22.5 2.13159 18.0228 2.13159 12.5C2.13159 6.97715 6.60874 2.5 12.1316 2.5C17.6544 2.5 22.1316 6.97715 22.1316 12.5Z"
-                      stroke="white"
-                      stroke-width="2"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    />
-                  </g>
-                </svg>
+              <Button isIconOnly color="primary" aria-label="Balance">
+                <RiMoneyDollarCircleLine size={24} />
               </Button>
             </Linkto>
           </NavbarItem>

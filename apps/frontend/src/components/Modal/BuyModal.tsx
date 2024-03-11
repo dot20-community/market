@@ -11,7 +11,7 @@ import {
 import { Order } from '@prisma/client';
 import { calcUnitPrice, fmtDot, toDecimal, toUsd } from '@utils/calc';
 import { assertError, trpc } from '@utils/trpc';
-import { getCurrentAccountAddress, wallet } from '@utils/wallet';
+import { wallet } from '@utils/wallet';
 import { dot2Planck } from 'apps/libs/util';
 import Decimal from 'decimal.js';
 import { FC, useEffect, useState } from 'react';
@@ -23,7 +23,6 @@ export interface BuyModalContext {
   order: Order;
 }
 
-const account = getCurrentAccountAddress();
 const marker = import.meta.env.VITE_MARKET_ACCOUNT;
 const serviceFeeRate = new Decimal(import.meta.env.VITE_SERVER_FEE_RATE);
 
@@ -35,6 +34,7 @@ export const BuyModal: FC<BuyModalContext> = ({
   if (!isOpen) return null;
 
   const globalState = useGlobalStateStore();
+  const { account: account } = globalState;
   const [confirmLoading, setConfirmLoading] = useState(false);
   const [balance, setBalance] = useState<Decimal>(new Decimal(0));
   const [balanceValidMsg, setBalanceValidMsg] = useState<string | undefined>();
@@ -66,7 +66,7 @@ export const BuyModal: FC<BuyModalContext> = ({
     try {
       await wallet.open();
       const signedExtrinsic = await wallet.signTransfer(
-        account,
+        account!,
         order.seller,
         marker,
         totalPricePlanck,

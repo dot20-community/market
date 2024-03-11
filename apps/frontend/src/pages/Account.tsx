@@ -1,5 +1,7 @@
+import { useGlobalStateStore } from '@GlobalState';
 import {
   Button,
+  Chip,
   Table,
   TableBody,
   TableCell,
@@ -9,20 +11,23 @@ import {
   useDisclosure,
 } from '@nextui-org/react';
 import { trpc } from '@utils/trpc';
-import { getCurrentAccountAddress } from '@utils/wallet';
+import { TickListRes } from 'apps/backend/src/modules/account';
 import { useEffect, useState } from 'react';
 import { SellModal } from '../components/Modal/SellModal';
 
-const address = getCurrentAccountAddress();
-
 export function Account() {
-  const tickList = trpc.account.tickList.useQuery({ account: address });
+  const globalState = useGlobalStateStore();
+  const account = globalState.account ?? '';
+  const { client } = trpc.useUtils();
+  const [tickList, setTickList] = useState<TickListRes>([]);
   const [tick, setTick] = useState<string>('');
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
   useEffect(() => {
-    console.log('tickList', tickList);
-  }, [tickList]);
+    if (account) {
+      client.account.tickList.query({ account }).then(setTickList);
+    }
+  }, [account]);
 
   return (
     <div>
@@ -31,12 +36,14 @@ export function Account() {
           <TableHeader>
             <TableColumn>TOKEN</TableColumn>
             <TableColumn>BALANCE</TableColumn>
-            <TableColumn>OPTION</TableColumn>
+            <TableColumn>ACTION</TableColumn>
           </TableHeader>
-          <TableBody>
-            {(tickList.data || []).map((item) => (
-              <TableRow key="1">
-                <TableCell>{item.tick}</TableCell>
+          <TableBody emptyContent={account ? 'No Result' : 'Please Login'}>
+            {tickList.map((item) => (
+              <TableRow key={item.tick}>
+                <TableCell>
+                  <Chip>{item.tick}</Chip>
+                </TableCell>
                 <TableCell>{item.balance.toLocaleString()}</TableCell>
                 <TableCell>
                   <Button
@@ -46,7 +53,7 @@ export function Account() {
                     }}
                     color="primary"
                   >
-                    Sell
+                    Trade
                   </Button>
                 </TableCell>
               </TableRow>
@@ -54,7 +61,9 @@ export function Account() {
           </TableBody>
         </Table>
       </div>
-      <SellModal isOpen={isOpen} onOpenChange={onOpenChange} tick={tick} />
+      {account && (
+        <SellModal isOpen={isOpen} onOpenChange={onOpenChange} tick={tick} />
+      )}
     </div>
   );
 }

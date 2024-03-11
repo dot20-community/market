@@ -11,7 +11,7 @@ import {
 } from '@nextui-org/react';
 import { calcUnitPrice, fmtDot, toUsd } from '@utils/calc';
 import { assertError, trpc } from '@utils/trpc';
-import { getCurrentAccountAddress, wallet } from '@utils/wallet';
+import { wallet } from '@utils/wallet';
 import { dot2Planck } from 'apps/libs/util';
 import Decimal from 'decimal.js';
 import { FC, useEffect, useState } from 'react';
@@ -29,7 +29,6 @@ type FormType = {
   totalPrice: number;
 };
 
-const account = getCurrentAccountAddress();
 const marker = import.meta.env.VITE_MARKET_ACCOUNT;
 const minTotalPrice = parseFloat(import.meta.env.VITE_MIN_SELL_TOTAL_PRICE);
 const serviceFeeRate = new Decimal(import.meta.env.VITE_SERVER_FEE_RATE);
@@ -40,6 +39,7 @@ export const SellModal: FC<SellModalContext> = ({
   tick,
 }) => {
   const globalState = useGlobalStateStore((state) => state);
+  const account = globalState.account!!;
   const {
     register,
     handleSubmit,

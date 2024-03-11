@@ -11,8 +11,6 @@ import { Layout } from '../pages/Layout';
 import { Market } from '../pages/Market';
 import { NoMatch } from '../pages/NoMatch';
 
-console.log('init app');
-
 export function App() {
   const { client } = trpc.useUtils();
   const { setDotPrice, setGasFee } = useGlobalStateStore();

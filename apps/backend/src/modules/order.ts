@@ -6,7 +6,7 @@ import {
   fmtAddress,
   parseBatchTransfer,
   parseInscribeTransfer,
-  toCamelCase
+  toCamelCase,
 } from 'apps/libs/util';
 import Decimal from 'decimal.js';
 import { LRUCache } from 'lru-cache';
@@ -77,6 +77,10 @@ export type DetailRes = Order;
  */
 export type ListReq = PageReq & {
   /**
+   * 铭文币种名称
+   */
+  tick?: string;
+  /**
    * 卖家地址过滤条件
    */
   seller?: string;
@@ -91,7 +95,13 @@ export type ListReq = PageReq & {
   /**
    * 排序方式
    */
-  orderBy?: 'price_asc' | 'price_desc' | 'create_asc' | 'create_desc' | 'update_asc' | 'update_desc';
+  orderBy?:
+    | 'price_asc'
+    | 'price_desc'
+    | 'create_asc'
+    | 'create_desc'
+    | 'update_asc'
+    | 'update_desc';
 };
 /**
  * 查询订单列表响应参数
@@ -162,12 +172,11 @@ export const orderRouter = router({
         throw BizError.of('INVALID_TRANSACTION', 'Invalid extrinsic format');
       }
       // 校验卖家地址是否与签名地址一致
-      const signer = fmtAddress(extrinsic.signer.toString())
+      const signer = fmtAddress(extrinsic.signer.toString());
       if (input.seller !== signer) {
         throw BizError.of(
           'INVALID_TRANSACTION',
-          `Invalid seller: expect ${input.seller
-          } but got ${signer}`,
+          `Invalid seller: expect ${input.seller} but got ${signer}`,
         );
       }
       // 校验是否满足最小交易金额
@@ -195,12 +204,16 @@ export const orderRouter = router({
         );
       }
       // 校验用户铭文数量是否足够
-      const accountTick = await getAccountTick(ctx.opts.dotaApiUrl, input.seller, inscribeTransfer.inscribeTick);
-      console.log(accountTick, 'accountTick')
+      const accountTick = await getAccountTick(
+        ctx.opts.dotaApiUrl,
+        input.seller,
+        inscribeTransfer.inscribeTick,
+      );
+      console.log(accountTick, 'accountTick');
       if (accountTick.balance < inscribeTransfer.inscribeAmt) {
         throw BizError.of(
           'INVALID_TRANSACTION',
-          `Insufficient inscribe amount: expect at least ${inscribeTransfer.inscribeAmt} but got ${accountTick.balance}`
+          `Insufficient inscribe amount: expect at least ${inscribeTransfer.inscribeAmt} but got ${accountTick.balance}`,
         );
       }
 
@@ -351,50 +364,64 @@ export const orderRouter = router({
   list: noAuthProcedure
     .input((input) => input as ListReq)
     .query(async ({ input, ctx }): Promise<ListRes> => {
-
-      let whereSql = " 1=1";
+      let whereSql = ' 1=1';
       let values = [];
+      if (input.tick) {
+        values.push(input.tick.toLowerCase());
+        whereSql += ` AND tick = ?`;
+      }
       if (input.seller) {
-        values.push(input.seller)
-        whereSql += ` AND seller = ?`
+        values.push(input.seller);
+        whereSql += ` AND seller = ?`;
       }
       if (input.excludeSeller) {
-        values.push(input.excludeSeller)
-        whereSql += ` AND seller != ?`
+        values.push(input.excludeSeller);
+        whereSql += ` AND seller != ?`;
       }
       if (input.statues) {
-        values.push(...input.statues)
-        whereSql += ` AND status in (${input.statues.map(() => '?').join(',')})`
+        values.push(...input.statues);
+        whereSql += ` AND status in (${input.statues
+          .map(() => '?')
+          .join(',')})`;
       }
       // 页码参数计算，从1开始
       const page = input.cursor ? parseInt(input.cursor) : 1;
-      const total = await ctx.prisma.$queryRawUnsafe<number>(`
+      const total = await ctx.prisma.$queryRawUnsafe<number>(
+        `
       select count(*) from orders where ${whereSql}
-        `, ...values)
-      let list = total === 0 ? [] : await (async function () {
-        // 排序方式
-        let orderBySql = ''
-        if (input.orderBy === 'price_asc') {
-          orderBySql = '(total_price/amount) asc, id desc'
-        } else if (input.orderBy === 'price_desc') {
-          orderBySql = '(total_price/amount) desc, id desc'
-        } else if (input.orderBy === 'create_asc') {
-          orderBySql = 'id asc'
-        } else if (input.orderBy === 'create_desc') {
-          orderBySql = 'id desc'
-        } else if (input.orderBy === 'update_asc') {
-          orderBySql = 'updated_at asc, id desc'
-        } else if (input.orderBy === 'update_desc') {
-          orderBySql = 'updated_at desc, id desc'
-        } else {
-          orderBySql = 'id desc'
-        }
-        values.push((page - 1) * input.limit)
-        values.push(input.limit - 1)
-        return await ctx.prisma.$queryRawUnsafe<Order[]>(`
+        `,
+        ...values,
+      );
+      let list =
+        total === 0
+          ? []
+          : await (async function () {
+              // 排序方式
+              let orderBySql = '';
+              if (input.orderBy === 'price_asc') {
+                orderBySql = '(total_price/amount) asc, id desc';
+              } else if (input.orderBy === 'price_desc') {
+                orderBySql = '(total_price/amount) desc, id desc';
+              } else if (input.orderBy === 'create_asc') {
+                orderBySql = 'id asc';
+              } else if (input.orderBy === 'create_desc') {
+                orderBySql = 'id desc';
+              } else if (input.orderBy === 'update_asc') {
+                orderBySql = 'updated_at asc, id desc';
+              } else if (input.orderBy === 'update_desc') {
+                orderBySql = 'updated_at desc, id desc';
+              } else {
+                orderBySql = 'id desc';
+              }
+              values.push((page - 1) * input.limit);
+              values.push(input.limit - 1);
+              return await ctx.prisma.$queryRawUnsafe<Order[]>(
+                `
      select * from orders where ${whereSql} order by ${orderBySql} limit ?,?
-       `, ...values)
-      })()
+       `,
+                ...values,
+              );
+            })();
 
       const totalPage = Math.ceil(total / input.limit);
       const nextCursor = page < totalPage ? (page + 1).toString() : undefined;
@@ -436,7 +463,10 @@ export const orderRouter = router({
       // 买家和卖家不能是同一个地址
       const buyer = fmtAddress(extrinsic.signer.toString());
       if (order.seller === buyer) {
-        throw BizError.of('INVALID_TRANSACTION', 'seller and buyer cannot be the same address');
+        throw BizError.of(
+          'INVALID_TRANSACTION',
+          'seller and buyer cannot be the same address',
+        );
       }
       // 校验是否为合法的转账交易
       const batchTransfer = parseBatchTransfer(extrinsic as any);

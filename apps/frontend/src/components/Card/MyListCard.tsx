@@ -50,7 +50,7 @@ export const MyListCard: FC<MyListCardContext> = ({ order }) => {
     <Card className="w-[220px]">
       <CardHeader>
         <div>
-          <div className="text-xs">DOTA</div>
+          <div className="text-xs">{order.tick.toUpperCase()}</div>
           <div className="text-2xl mt-2 flex w-[200px] justify-center">
             {order.amount.toString()}
           </div>

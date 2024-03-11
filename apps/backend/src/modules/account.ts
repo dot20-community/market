@@ -64,28 +64,35 @@ export async function getAccountTickList(
     balance: BigInt(parseInt(item.available)),
   }));
 
-  console.log(account, result, serverConfig.mockDot20Amount)
   return mockTickList(account, result, serverConfig);
 }
 
-function mockTickList(account: string, realData: TickListRes, opts: ServerOptions): TickListRes {
-  const mockTickData = opts.mockDot20Amount.split(',').map((item) => {
-    const [account, tick, balance] = item.split(':');
-    return {
-      account,
-      tick,
-      balance: BigInt(balance),
-    };
-  }).filter((item) => item.account === account);
+function mockTickList(
+  account: string,
+  realData: TickListRes,
+  opts: ServerOptions,
+): TickListRes {
+  const mockTickData = opts.mockDot20Amount
+    .split(',')
+    .map((item) => {
+      const [account, tick, balance] = item.split(':');
+      return {
+        account,
+        tick,
+        balance: BigInt(balance),
+      };
+    })
+    .filter((item) => item.account === account);
 
   // 合并真实数据和模拟数据，真实数据优先
   const result = mockTickData.filter((mockItem) => {
-    const realItem = realData.find((realItem) => realItem.tick === mockItem.tick);
+    const realItem = realData.find(
+      (realItem) => realItem.tick === mockItem.tick,
+    );
     return !realItem;
   });
   return realData.concat(result);
 }
-
 
 export async function getAccountTick(
   host: string,
@@ -93,11 +100,13 @@ export async function getAccountTick(
   tick: string,
 ): Promise<TickBalanceRes> {
   const list = await getAccountTickList(host, account);
-  const item = list.find((item) => item.tick.toLocaleLowerCase() === tick.toLocaleLowerCase());
+  const item = list.find(
+    (item) => item.tick.toLocaleLowerCase() === tick.toLocaleLowerCase(),
+  );
   return {
     balance: item?.balance ?? 0n,
   };
-};
+}
 
 export const accountRouter = router({
   /**
@@ -114,6 +123,10 @@ export const accountRouter = router({
   tick: noAuthProcedure
     .input((input) => input as TickBalanceReq)
     .query(async ({ input, ctx }): Promise<TickBalanceRes> => {
-      return await getAccountTick(ctx.opts.dotaApiUrl, input.account, input.tick);
+      return await getAccountTick(
+        ctx.opts.dotaApiUrl,
+        input.account,
+        input.tick,
+      );
     }),
 });

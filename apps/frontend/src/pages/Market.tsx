@@ -1,8 +1,11 @@
 import { useGlobalStateStore } from '@GlobalState';
 import {
+  Button,
   Card,
   CardBody,
+  CardHeader,
   Chip,
+  Divider,
   Link,
   Tab,
   Table,
@@ -17,46 +20,75 @@ import {
 import { Order } from '@prisma/client';
 import { calcUnitPrice, toUsd } from '@utils/calc';
 import { trpc } from '@utils/trpc';
-import { desensitizeAddress, getCurrentAccountAddress } from '@utils/wallet';
+import { desensitizeAddress } from '@utils/wallet';
 import { ListRes } from 'apps/backend/src/modules/order';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
+import { MdOutlineVerified } from 'react-icons/md';
+import { PiLightningLight } from 'react-icons/pi';
 import InfiniteScroll from 'react-infinite-scroller';
+import { toast } from 'react-toastify';
 import { ListCard } from '../components/Card/ListCard';
 import { MyListCard } from '../components/Card/MyListCard';
 import { BuyModal } from '../components/Modal/BuyModal';
+import { SellModal } from '../components/Modal/SellModal';
 
 const polkadotScan = import.meta.env.VITE_POLKADOT_SCAN;
-const account = getCurrentAccountAddress();
+
+const veryfyTicks = ['dota'];
 
 export function Market() {
   const globalState = useGlobalStateStore();
+  const { account } = globalState;
+  const [selectTick, setSelectTick] = useState<string>('dota');
   const { client } = trpc.useUtils();
+  const tickTrending = trpc.tick.trending.useQuery();
   const {
     isOpen: isOpenBuyModal,
     onOpen: onOpenBuyModal,
     onOpenChange: onOpenChangeBuyModal,
   } = useDisclosure();
   const [buyModalOrderInfo, setBuyModalOrderInfo] = useState<Order>({} as any);
+  const {
+    isOpen: isSellOpen,
+    onOpen: onSellOpen,
+    onOpenChange: onSellOpenChange,
+  } = useDisclosure();
 
   const [listedOrderList, setListedOrderList] = useState<ListRes>({
+    total: -1,
     list: [],
   });
   const [orderList, setOrderList] = useState<ListRes>({
+    total: -1,
     list: [],
   });
   const [myOrderList, setMyOrderList] = useState<ListRes>({
+    total: -1,
     list: [],
   });
 
+  function clearList() {
+    setListedOrderList({ total: -1, list: [] });
+    setOrderList({ total: -1, list: [] });
+    setMyOrderList({ total: -1, list: [] });
+  }
+
   useEffect(() => {
-    fetchListedOrderList();
-    fetchOrderList();
-    fetchMyOrderList();
-  }, []);
+    clearList();
+  }, [account]);
+
+  async function changeTick(tick: string) {
+    if (tick === selectTick) {
+      return;
+    }
+    clearList();
+    setSelectTick(tick);
+  }
 
   async function fetchListedOrderList() {
     const resp = await client.order.list.query({
+      tick: selectTick,
       cursor: listedOrderList.next,
       limit: 15,
       excludeSeller: account,
@@ -75,6 +107,7 @@ export function Market() {
 
   async function fetchOrderList() {
     const resp = await client.order.list.query({
+      tick: selectTick,
       cursor: orderList.next,
       limit: 15,
       statues: ['SOLD'],
@@ -91,7 +124,12 @@ export function Market() {
   }
 
   async function fetchMyOrderList() {
+    if (!account) {
+      return;
+    }
+
     const resp = await client.order.list.query({
+      tick: selectTick,
       cursor: myOrderList.next,
       limit: 15,
       seller: account,
@@ -108,6 +146,10 @@ export function Market() {
   }
 
   function onOpenBuyModalWithData(order: Order) {
+    if (!account) {
+      toast.warn('Please connect wallet first');
+      return;
+    }
     setBuyModalOrderInfo(order);
     onOpenBuyModal();
   }
@@ -116,20 +158,73 @@ export function Market() {
     <>
       <div className="flex w-full justify-center mt-10">
         <div className="flex w-4/5 flex-col">
-          {/*   <Button
-            className="absolute right-32"
-            radius="full"
-            color="primary"
-            startContent={<PiLightningLight />}
-            onClick={onOpenBuyModal}
-          >
-            Quick List
-          </Button> */}
+          <div className="flex justify-between">
+            <p className="text-large fw-600 mb-6 text-primary">
+              Trending Inscriptions
+            </p>
+            <Button
+              className="w-32 ml-4"
+              radius="full"
+              color="primary"
+              startContent={<PiLightningLight />}
+              onClick={() => {
+                if (!account) {
+                  toast.warn('Please connect wallet first');
+                  return;
+                }
+                onSellOpen();
+              }}
+            >
+              Quick List
+            </Button>
+          </div>
+          <div className="mb-2 pb-2 w-full overflow-x-auto">
+            <div className="flex gap-4">
+              {(tickTrending.data ?? []).map((item) => (
+                <Card
+                  key={item.tick}
+                  isPressable={true}
+                  className={`min-min-w-[240px] w-[220px] cursor-pointer border-1 hover:border-primary ${
+                    selectTick === item.tick ? 'border-primary' : ''
+                  }`}
+                  onClick={() => changeTick(item.tick)}
+                >
+                  <CardHeader className="flex gap-3 content-center justify-center items-center">
+                    <span className="text-xl font-bold">
+                      {item.tick.toUpperCase()}
+                    </span>
+                    {veryfyTicks.includes(item.tick) && (
+                      <MdOutlineVerified color="#4C6FFF" />
+                    )}
+                  </CardHeader>
+                  <Divider />
+                  <CardBody>
+                    <div className="flex gap-2 justify-center">
+                      <div className="flex flex-col items-center justify-center w-full">
+                        <span>
+                          {toUsd(item.floorPrice, globalState.dotPrice)}
+                        </span>
+                        <span className="text-foreground-400">Floor Price</span>
+                      </div>
+                      <Divider orientation="vertical" />
+                      <div className="flex flex-col items-center justify-center w-full">
+                        <span>
+                          {toUsd(item.totalVol, globalState.dotPrice)}
+                        </span>
+                        <span className="text-foreground-400">Total Vol</span>
+                      </div>
+                    </div>
+                  </CardBody>
+                </Card>
+              ))}
+            </div>
+          </div>
+          <Divider className="mb-4" />
           <Tabs aria-label="Options">
             <Tab key="Listed" title="Listed">
               <InfiniteScroll
                 loadMore={fetchListedOrderList}
-                hasMore={!!listedOrderList.next}
+                hasMore={listedOrderList.total === -1 || !!listedOrderList.next}
               >
                 {listedOrderList.list.length ? (
                   <div className="flex items-center gap-4 flex-wrap">
@@ -153,7 +248,7 @@ export function Market() {
             <Tab key="Orders" title="Orders">
               <InfiniteScroll
                 loadMore={fetchOrderList}
-                hasMore={!!orderList.next}
+                hasMore={orderList.total === -1 || !!orderList.next}
               >
                 <Table aria-label="collection table">
                   <TableHeader>
@@ -221,7 +316,7 @@ export function Market() {
             <Tab key="My List" title="My List">
               <InfiniteScroll
                 loadMore={fetchMyOrderList}
-                hasMore={!!myOrderList.next}
+                hasMore={myOrderList.total === -1 || !!myOrderList.next}
               >
                 {myOrderList.list.length ? (
                   <div className="flex items-center gap-4 flex-wrap">
@@ -280,11 +375,20 @@ export function Market() {
           </Tabs>
         </div>
       </div>
-      <BuyModal
-        order={buyModalOrderInfo}
-        isOpen={isOpenBuyModal}
-        onOpenChange={onOpenChangeBuyModal}
-      />
+      {account && (
+        <BuyModal
+          order={buyModalOrderInfo}
+          isOpen={isOpenBuyModal}
+          onOpenChange={onOpenChangeBuyModal}
+        />
+      )}
+      {account && (
+        <SellModal
+          isOpen={isSellOpen}
+          onOpenChange={onSellOpenChange}
+          tick={selectTick}
+        />
+      )}
     </>
   );
 }

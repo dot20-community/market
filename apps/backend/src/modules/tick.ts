@@ -1,3 +1,4 @@
+import { Status } from '@prisma/client';
 import { BizError } from 'apps/libs/error';
 import { noAuthProcedure, router } from '../server/trpc';
 
@@ -11,6 +12,13 @@ export type ListRes = {
   totalBlock: number;
   totalSupply: bigint;
   circulatingSupply: bigint;
+}[];
+
+export type TrendingRes = {
+  tick: string;
+  floorPrice: bigint;
+  totalAmt: bigint;
+  totalVol: bigint;
 }[];
 
 export const tickRouter = router({
@@ -33,4 +41,17 @@ export const tickRouter = router({
       circulatingSupply: BigInt(parseInt(item.circulating_supply)),
     }));
   }),
+
+  /**
+   * 获取铭文交易排行列表
+   */
+  trending: noAuthProcedure.query(
+    async ({ input, ctx }): Promise<TrendingRes> => {
+      const soldStatus: Status = 'SOLD';
+      const resp = await ctx.prisma.$queryRaw<TrendingRes>`
+    select tick, min(total_price/amount) floorPrice, sum(amount) totalAmt, sum(if(status=${soldStatus},total_price,0)) totalVol from orders group by tick order by totalVol desc limit 10
+    `;
+      return resp;
+    },
+  ),
 });

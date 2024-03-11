@@ -19,7 +19,7 @@ import { BizError } from '../../../libs/error';
 export class Wallet {
   accounts!: InjectedAccountWithMeta[];
 
-  constructor() { }
+  constructor() {}
 
   /**
    * 连接钱包并获取账户授权
@@ -43,7 +43,7 @@ export class Wallet {
    * 查询账户余额(单位: planck)
    * @param address
    */
-  async getBalance(address: string): Promise<u128> {
+  async getBalance(address?: string): Promise<u128> {
     if (!address) {
       return new BN(0) as u128;
     }
@@ -135,7 +135,6 @@ export class Wallet {
   }
 
   private async request(from: string): Promise<InjectedExtension> {
-    console.log('request', this.accounts, from);
     const account = this.accounts.find((account) => account.address === from);
     if (!account) {
       throw new BizError({ code: 'NO_ACCOUNT' });
@@ -158,23 +157,6 @@ export async function getGas(): Promise<u128> {
   // Estimate the gas fee
   const paymentInfo = await transfer.paymentInfo(testAddress);
   return paymentInfo.partialFee.toBn() as u128;
-}
-
-/**
- * 从localstorage获取当前选中的的账号address
- */
-export function getCurrentAccountAddress() {
-  const accountsStr = localStorage.getItem('DotWalletAccounts');
-  if (!accountsStr) {
-    return '';
-  }
-  const accounts = JSON.parse(accountsStr) as InjectedAccountWithMeta[];
-  const selectedAccountIndexStr = localStorage.getItem('selectedAccountIndex');
-  if (!selectedAccountIndexStr) {
-    return accounts[0].address;
-  } else {
-    return accounts[parseInt(selectedAccountIndexStr)].address;
-  }
 }
 
 /**

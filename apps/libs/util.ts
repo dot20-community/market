@@ -21,7 +21,6 @@ export function setPolkadotEndpoint(endpoint: string) {
 let api: ApiPromise;
 export async function getApi(): Promise<ApiPromise> {
   if (!api) {
-    console.log('Connecting to Polkadot API:', POLKADOT_ENDPOINT);
     const provider = new WsProvider(POLKADOT_ENDPOINT);
     api = await ApiPromise.create({ provider });
   }
@@ -41,7 +40,8 @@ export function fmtAddress(address: string): string {
  * 转换planck到dot
  */
 export function planck2Dot(balance: number | u128 | Decimal): Decimal {
-  const value = balance instanceof Decimal ? balance : new Decimal(balance.toString());
+  const value =
+    balance instanceof Decimal ? balance : new Decimal(balance.toString());
   return value.div(decimalsPow());
 }
 
@@ -209,7 +209,7 @@ function verifyIsTransferKeepAlive(call: any): TransferCall | null {
 }
 
 export function toCamelCase(str: string) {
-  return str.replace(/([-_][a-z])/g, group =>
-    group.toUpperCase().replace('-', '').replace('_', '')
+  return str.replace(/([-_][a-z])/g, (group) =>
+    group.toUpperCase().replace('-', '').replace('_', ''),
   );
 }
