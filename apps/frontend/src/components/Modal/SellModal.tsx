@@ -59,7 +59,7 @@ export const SellModal: FC<SellModalContext> = ({
     wallet.getBalance(account).then((balance) => {
       setBalance(new Decimal(balance.toString()));
     });
-  }, []);
+  }, [account]);
 
   const amountValid = (value: number): string | undefined => {
     if (!value || value.toString().includes('.')) {
@@ -76,6 +76,10 @@ export const SellModal: FC<SellModalContext> = ({
     }
     if (value < minTotalPrice) {
       return `Total price at least ${minTotalPrice} DOT`;
+    }
+    // 检查小数点位数是否超过4位
+    if (new Decimal(value).dp() > 4) {
+      return 'Total price must be a number with at most 4 decimal places';
     }
   };
 
@@ -186,7 +190,7 @@ export const SellModal: FC<SellModalContext> = ({
               />
 
               <div className="flex justify-between mt-4">
-                <span>Unit Price</span>
+                <span>Unit Price (10k)</span>
                 <span>
                   {fmtDot(unitPricePlanck)} DOT ≈{' '}
                   {toUsd(unitPricePlanck, globalState.dotPrice)}

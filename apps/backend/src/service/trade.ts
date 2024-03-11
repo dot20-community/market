@@ -96,7 +96,7 @@ export async function sellCancelInscribeCheck() {
 /**
  * 处理买家支付完，上链成功后，转铭文给买家
  */
-export async function buyInscribeCheck() {
+export async function buyBlockCheck() {
   const needCheckOrderList = await prisma.order.findMany({
     where: {
       status: 'LOCKED',
@@ -168,7 +168,28 @@ export async function buyInscribeCheck() {
         updatedAt: new Date(),
       },
     });
+  }
+}
 
+/**
+ * 处理买家支付完，上链成功后，转铭文给买家
+ */
+export async function buyInscribeCheck() {
+  const needCheckOrderList = await prisma.order.findMany({
+    where: {
+      status: 'LOCKED',
+      chainStatus: 'TRADE_BLOCK_CONFIRMED',
+    },
+    orderBy: {
+      id: 'asc',
+    },
+  });
+
+  if (!needCheckOrderList.length) {
+    return;
+  }
+
+  for (const order of needCheckOrderList) {
     const status = await transactionStatus(order.tradeHash!!);
     const now = new Date();
     // 如果铭文确认成功更新为已售出

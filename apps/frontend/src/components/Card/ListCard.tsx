@@ -37,11 +37,14 @@ export const ListCard: FC<ListCardContext> = ({ onOpenBuyModal, order }) => {
             <div className="text-2xl mt-2 flex w-[200px] justify-center">
               {order.amount.toString()}
             </div>
-            <div className="text-xs text-primary mt-2 flex w-[200px] justify-center">
-              {toUsd(
-                calcUnitPrice(order.totalPrice, order.amount),
-                globalState.dotPrice,
-              )}
+            <div className="flex justify-center w-[200px]">
+              <div className="text-xs text-primary mt-2 flex ">
+                {toUsd(
+                  calcUnitPrice(order.totalPrice, order.amount),
+                  globalState.dotPrice,
+                )}
+              </div>
+              <div className="text-xs mt-2 flex ml-1">/ 10k DOTA</div>
             </div>
           </div>
         </CardHeader>

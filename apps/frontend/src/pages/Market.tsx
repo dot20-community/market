@@ -18,7 +18,7 @@ import {
   useDisclosure,
 } from '@nextui-org/react';
 import { Order } from '@prisma/client';
-import { calcUnitPrice, toUsd } from '@utils/calc';
+import { calcUnitPrice, toDecimal, toUsd } from '@utils/calc';
 import { trpc } from '@utils/trpc';
 import { desensitizeAddress } from '@utils/wallet';
 import { ListRes } from 'apps/backend/src/modules/order';
@@ -222,7 +222,10 @@ export function Market() {
                     <div className="flex gap-2 justify-center">
                       <div className="flex flex-col items-center justify-center w-full">
                         <span>
-                          {toUsd(item.floorPrice, globalState.dotPrice)}
+                          {toUsd(
+                            toDecimal(item.floorPrice).mul(10000),
+                            globalState.dotPrice,
+                          )}
                         </span>
                         <span className="text-foreground-400">Floor Price</span>
                       </div>
@@ -260,7 +263,10 @@ export function Market() {
           <Tabs
             aria-label="Options"
             selectedKey={selectTab}
-            onSelectionChange={(key) => setSelectTab(key as string)}
+            onSelectionChange={(key) => {
+              setSelectTab(key as string);
+              clearList(key as string);
+            }}
           >
             <Tab key="Listed" title="Listed">
               <InfiniteScroll
@@ -296,7 +302,7 @@ export function Market() {
                     <TableColumn>Date Time</TableColumn>
                     <TableColumn>Method</TableColumn>
                     <TableColumn>Amount</TableColumn>
-                    <TableColumn>Unit Price</TableColumn>
+                    <TableColumn>Unit Price (10k)</TableColumn>
                     <TableColumn>Total Value</TableColumn>
                     <TableColumn>Buyer</TableColumn>
                     <TableColumn>Seller</TableColumn>

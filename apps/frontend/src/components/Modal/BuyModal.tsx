@@ -46,7 +46,7 @@ export const BuyModal: FC<BuyModalContext> = ({
     wallet.getBalance(account).then((balance) => {
       setBalance(new Decimal(balance.toString()));
     });
-  }, []);
+  }, [account]);
 
   const totalPricePlanck = toDecimal(order.totalPrice);
   const unitPricePlanck = calcUnitPrice(order.totalPrice, order.amount);
@@ -107,14 +107,14 @@ export const BuyModal: FC<BuyModalContext> = ({
                 <span>{order.amount.toString()}</span>
               </div>
               <div className="flex justify-between mt-4">
-                <span>Unit Value</span>
+                <span>Unit Price (10k)</span>
                 <span>
                   {fmtDot(unitPricePlanck)} DOT ≈{' '}
                   {toUsd(unitPricePlanck, globalState.dotPrice)}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span>Total Value</span>
+                <span>Total Price</span>
                 <span>
                   {fmtDot(order.totalPrice)} DOT ≈{' '}
                   {toUsd(order.totalPrice, globalState.dotPrice)}

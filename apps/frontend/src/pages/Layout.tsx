@@ -169,13 +169,41 @@ export function Layout() {
 
       <Outlet />
 
-      <div className='h-72 mt-16'>
-        <div className='flex gap-6 justify-center'>
-          <a href="https://twitter.com/dot20_dota" target="_blank"><img alt="twitter" loading="lazy" width="32" height="32" decoding="async" data-nimg="1" src="/twitter.svg" /></a>
-          <a href="https://github.com/dot20-community" target="_blank"><img alt="github" loading="lazy" width="32" height="32" decoding="async" data-nimg="1" src="/github.svg" /></a>
+      <div className="h-auto mt-16">
+        <div className="flex gap-6 justify-center">
+          <a href="https://twitter.com/dot20_dota" target="_blank">
+            <img
+              alt="twitter"
+              loading="lazy"
+              width="32"
+              height="32"
+              decoding="async"
+              data-nimg="1"
+              src="/twitter.svg"
+            />
+          </a>
+          <a href="https://github.com/dot20-community" target="_blank">
+            <img
+              alt="github"
+              loading="lazy"
+              width="32"
+              height="32"
+              decoding="async"
+              data-nimg="1"
+              src="/github.svg"
+            />
+          </a>
         </div>
-        <div className='flex justify-center'>
-          <img alt="Secured by PolkaDot" loading="lazy" width="385" height="50" decoding="async" data-nimg="1" src="/dot_copyright.svg" />
+        <div className="flex justify-center">
+          <img
+            alt="Secured by PolkaDot"
+            loading="lazy"
+            width="385"
+            height="50"
+            decoding="async"
+            data-nimg="1"
+            src="/dot_copyright.svg"
+          />
         </div>
       </div>
     </div>

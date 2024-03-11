@@ -1,6 +1,7 @@
 import { serverConfig } from './configs/server.config';
 import { createServer } from './server/server';
 import {
+  buyBlockCheck,
   buyInscribeCheck,
   sellCancelInscribeCheck,
   sellInscribeCheck,
@@ -33,6 +34,18 @@ createServer(serverConfig).then((server) => server.start());
     }
   }
 
+  async function buyBlockCheckTask() {
+    while (true) {
+      try {
+        await buyBlockCheck();
+      } catch (e) {
+        console.error('buyTransferCheckTask error', e);
+      } finally {
+        await new Promise((resolve) => setTimeout(resolve, 5000));
+      }
+    }
+  }
+
   async function buyInscribeCheckTask() {
     while (true) {
       try {
@@ -48,6 +61,7 @@ createServer(serverConfig).then((server) => server.start());
   Promise.all([
     sellInscribeCheckTask(),
     sellCancelInscribeCheckTask(),
+    buyBlockCheckTask(),
     buyInscribeCheckTask(),
   ]);
 })();

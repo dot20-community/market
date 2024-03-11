@@ -47,9 +47,10 @@ export const tickRouter = router({
    */
   trending: noAuthProcedure.query(
     async ({ input, ctx }): Promise<TrendingRes> => {
+      const listingStatus: Status = 'LISTING';
       const soldStatus: Status = 'SOLD';
       const resp = await ctx.prisma.$queryRaw<TrendingRes>`
-    select tick, min(total_price/amount) floorPrice, sum(amount) totalAmt, sum(if(status=${soldStatus},total_price,0)) totalVol from orders group by tick order by totalVol desc limit 10
+    select tick, ifnull(min(if(status=${listingStatus},total_price/amount,null)),0) floorPrice, sum(amount) totalAmt, sum(if(status=${soldStatus},total_price,0)) totalVol from orders group by tick order by totalVol desc limit 10
     `;
       return resp;
     },

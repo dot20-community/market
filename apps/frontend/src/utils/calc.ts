@@ -10,7 +10,7 @@ export function calcUnitPrice(
   amount: Decimal | bigint,
 ): Decimal {
   const totalPriceDec = toDecimal(totalPrice);
-  return totalPriceDec.div(toDecimal(amount));
+  return totalPriceDec.mul(10000).div(toDecimal(amount));
 }
 
 export function fmtDecimal(value: Decimal) {
