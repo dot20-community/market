@@ -1,5 +1,7 @@
+import { buildInscribeTransfer, getApi } from 'apps/libs/util';
 import { serverConfig } from '../configs/server.config';
 import { prisma } from '../server/context';
+import { signExtrinsic, submitSignedExtrinsicAndWait } from '../util/dapp';
 
 /**
  * 查询铭文交易状态，1表示成功
@@ -92,13 +94,13 @@ export async function sellCancelInscribeCheck() {
 }
 
 /**
- * 处理买家支付完，上链成功后，转铭文到买家状态确认
+ * 处理买家支付完，上链成功后，转铭文给买家
  */
 export async function buyInscribeCheck() {
   const needCheckOrderList = await prisma.order.findMany({
     where: {
       status: 'LOCKED',
-      chainStatus: 'TRADE_BLOCK_CONFIRMED',
+      chainStatus: 'BUY_BLOCK_CONFIRMED',
     },
     orderBy: {
       id: 'asc',
@@ -109,8 +111,65 @@ export async function buyInscribeCheck() {
     return;
   }
 
+  const api = await getApi();
+
   for (const order of needCheckOrderList) {
-    const status = await transactionStatus(order.buyHash!!);
+    // 如果已经转账过了，跳过，防止重复转账
+    if (order.tradeHash) {
+      continue;
+    }
+
+    // 构造铭文转账交易数据
+    const tradeExtrinsic = await signExtrinsic(
+      buildInscribeTransfer(
+        api,
+        order.tick,
+        Number(order.amount),
+        order.seller,
+      ),
+      serverConfig.marketAccountMnemonic,
+    );
+
+    // 更新订单交易 hash
+    await prisma.order.update({
+      where: {
+        id: order.id,
+      },
+      data: {
+        tradeHash: tradeExtrinsic.hash.toString(),
+        updatedAt: new Date(),
+      },
+    });
+
+    // 市场账户转账铭文给买家
+    const tradeErrMsg = await submitSignedExtrinsicAndWait(api, tradeExtrinsic);
+    if (tradeErrMsg) {
+      await prisma.order.update({
+        where: {
+          id: order.id,
+        },
+        data: {
+          status: 'FAILED',
+          chainStatus: 'TRADE_BLOCK_FAILED',
+          failReason: tradeErrMsg,
+          updatedAt: new Date(),
+        },
+      });
+      continue;
+    }
+
+    // 更新订单子状态为区块确认
+    await prisma.order.update({
+      where: {
+        id: order.id,
+      },
+      data: {
+        chainStatus: 'TRADE_BLOCK_CONFIRMED',
+        updatedAt: new Date(),
+      },
+    });
+
+    const status = await transactionStatus(order.tradeHash!!);
     const now = new Date();
     // 如果铭文确认成功更新为已售出
     if (status === 1) {

@@ -62,7 +62,14 @@ export function Account() {
         </Table>
       </div>
       {account && (
-        <SellModal isOpen={isOpen} onOpenChange={onOpenChange} tick={tick} />
+        <SellModal
+          isOpen={isOpen}
+          onOpenChange={onOpenChange}
+          onSuccess={() => {
+            location.href = '/market';
+          }}
+          tick={tick}
+        />
       )}
     </div>
   );

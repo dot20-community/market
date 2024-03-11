@@ -24,6 +24,7 @@ import { desensitizeAddress } from '@utils/wallet';
 import { ListRes } from 'apps/backend/src/modules/order';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
+import { LuRefreshCcw } from 'react-icons/lu';
 import { MdOutlineVerified } from 'react-icons/md';
 import { PiLightningLight } from 'react-icons/pi';
 import InfiniteScroll from 'react-infinite-scroller';
@@ -41,6 +42,8 @@ export function Market() {
   const globalState = useGlobalStateStore();
   const { account } = globalState;
   const [selectTick, setSelectTick] = useState<string>('dota');
+  const [selectTab, setSelectTab] = useState<string>('Listed');
+  const [listRefresh, setListRefresh] = useState(false);
   const { client } = trpc.useUtils();
   const tickTrending = trpc.tick.trending.useQuery();
   const {
@@ -55,6 +58,16 @@ export function Market() {
     onOpenChange: onSellOpenChange,
   } = useDisclosure();
 
+  function onBuySuccess() {
+    setSelectTab('Orders');
+    clearList('Orders');
+  }
+
+  function onSellSuccess() {
+    setSelectTab('MyList');
+    clearList('MyList');
+  }
+
   const [listedOrderList, setListedOrderList] = useState<ListRes>({
     total: -1,
     list: [],
@@ -68,10 +81,17 @@ export function Market() {
     list: [],
   });
 
-  function clearList() {
-    setListedOrderList({ total: -1, list: [] });
-    setOrderList({ total: -1, list: [] });
-    setMyOrderList({ total: -1, list: [] });
+  function clearList(tab?: string) {
+    const refreshTab = tab || selectTab;
+    if (refreshTab === 'Listed') {
+      setListedOrderList({ total: -1, list: [] });
+    }
+    if (refreshTab === 'Orders') {
+      setOrderList({ total: -1, list: [] });
+    }
+    if (refreshTab === 'MyList') {
+      setMyOrderList({ total: -1, list: [] });
+    }
   }
 
   useEffect(() => {
@@ -82,8 +102,8 @@ export function Market() {
     if (tick === selectTick) {
       return;
     }
-    clearList();
     setSelectTick(tick);
+    clearList();
   }
 
   async function fetchListedOrderList() {
@@ -110,7 +130,8 @@ export function Market() {
       tick: selectTick,
       cursor: orderList.next,
       limit: 15,
-      statues: ['SOLD'],
+      buyer: account,
+      statues: account ? ['LOCKED', 'SOLD'] : ['SOLD'],
       orderBy: 'update_desc',
     });
     setOrderList((list) => {
@@ -185,7 +206,7 @@ export function Market() {
                   key={item.tick}
                   isPressable={true}
                   className={`min-min-w-[240px] w-[220px] cursor-pointer border-1 hover:border-primary ${
-                    selectTick === item.tick ? 'border-primary' : ''
+                    selectTick === item.tick && 'border-primary'
                   }`}
                   onClick={() => changeTick(item.tick)}
                 >
@@ -220,7 +241,28 @@ export function Market() {
             </div>
           </div>
           <Divider className="mb-4" />
-          <Tabs aria-label="Options">
+          <LuRefreshCcw
+            size={20}
+            className={`relative top-[30px] left-64 cursor-pointer ${
+              listRefresh && 'animate-spin'
+            }`}
+            onClick={() => {
+              if (listRefresh) {
+                return;
+              }
+              setListRefresh(true);
+              setTimeout(() => {
+                setListRefresh(false);
+              }, 1000);
+              clearList();
+            }}
+          />
+
+          <Tabs
+            aria-label="Options"
+            selectedKey={selectTab}
+            onSelectionChange={(key) => setSelectTab(key as string)}
+          >
             <Tab key="Listed" title="Listed">
               <InfiniteScroll
                 loadMore={fetchListedOrderList}
@@ -268,7 +310,9 @@ export function Market() {
                           {dayjs(order.updatedAt).format('YYYY-MM-DD HH:mm:ss')}
                         </TableCell>
                         <TableCell>
-                          <Chip>Sale</Chip>
+                          <Chip>
+                            {order.status === 'LOCKED' ? 'Pending' : 'Sale'}
+                          </Chip>
                         </TableCell>
                         <TableCell>{order.amount.toLocaleString()}</TableCell>
                         <TableCell>
@@ -313,7 +357,7 @@ export function Market() {
                 </Table>
               </InfiniteScroll>
             </Tab>
-            <Tab key="My List" title="My List">
+            <Tab key="MyList" title="My List">
               <InfiniteScroll
                 loadMore={fetchMyOrderList}
                 hasMore={myOrderList.total === -1 || !!myOrderList.next}
@@ -379,6 +423,7 @@ export function Market() {
         <BuyModal
           order={buyModalOrderInfo}
           isOpen={isOpenBuyModal}
+          onSuccess={onBuySuccess}
           onOpenChange={onOpenChangeBuyModal}
         />
       )}
@@ -386,6 +431,7 @@ export function Market() {
         <SellModal
           isOpen={isSellOpen}
           onOpenChange={onSellOpenChange}
+          onSuccess={onSellSuccess}
           tick={selectTick}
         />
       )}

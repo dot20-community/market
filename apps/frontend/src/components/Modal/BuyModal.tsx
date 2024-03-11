@@ -20,6 +20,7 @@ import { toast } from 'react-toastify';
 export interface BuyModalContext {
   isOpen: boolean;
   onOpenChange: () => void;
+  onSuccess: () => void;
   order: Order;
 }
 
@@ -30,6 +31,7 @@ export const BuyModal: FC<BuyModalContext> = ({
   order,
   isOpen,
   onOpenChange,
+  onSuccess,
 }) => {
   if (!isOpen) return null;
 
@@ -77,6 +79,7 @@ export const BuyModal: FC<BuyModalContext> = ({
         signedExtrinsic,
       });
       onClose();
+      onSuccess();
     } catch (e) {
       console.error(e);
       const error = assertError(e);

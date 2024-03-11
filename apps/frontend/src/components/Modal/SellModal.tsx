@@ -21,6 +21,7 @@ import { toast } from 'react-toastify';
 export interface SellModalContext {
   isOpen: boolean;
   onOpenChange: () => void;
+  onSuccess: () => void;
   tick: string;
 }
 
@@ -36,6 +37,7 @@ const serviceFeeRate = new Decimal(import.meta.env.VITE_SERVER_FEE_RATE);
 export const SellModal: FC<SellModalContext> = ({
   isOpen,
   onOpenChange,
+  onSuccess,
   tick,
 }) => {
   const globalState = useGlobalStateStore((state) => state);
@@ -118,6 +120,7 @@ export const SellModal: FC<SellModalContext> = ({
         signedExtrinsic,
       });
       onClose();
+      onSuccess();
     } catch (e) {
       console.error(e);
       const error = assertError(e);
