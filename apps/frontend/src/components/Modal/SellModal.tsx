@@ -161,7 +161,9 @@ export const SellModal: FC<SellModalContext> = ({
                 errorMessage={errors.amount?.message?.toString()}
               />
               <div className="flex justify-end text-small">
-                <span className="text-primary">Available {tick}</span>
+                <span className="text-primary">
+                  Available {tick.toLocaleUpperCase()}
+                </span>
                 <span className="ml-2 italic">
                   {dotaBalance.data?.balance?.toLocaleString()}
                 </span>
