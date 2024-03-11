@@ -56,7 +56,7 @@ export async function getAccountTickList(
   const resp = await fetch(`${host}/get_account_balance?account=${account}`);
   const data = await resp.json();
   if (!data.balance) {
-    throw BizError.of('ERROR', data?.error);
+    throw BizError.ofTrpc('ERROR', data?.error);
   }
 
   const result = data.balance.map((item: any) => ({

@@ -24,6 +24,10 @@ export type ErrorCode =
    */
   | 'INVALID_TRANSACTION'
   /**
+   * 存在待确认的订单
+   */
+  | 'EXIST_PENDING_ORDER'
+  /**
    * 转账失败，比如dot余额不足
    */
   | 'TRANSFER_FAILED'
@@ -52,5 +56,15 @@ export class BizError extends Error {
 
   static of(error: ErrorCode, message?: string) {
     return new BizError({ code: error, message });
+  }
+
+  static ofTrpc(error: ErrorCode, message?: string) {
+    return new Error(
+      JSON.stringify({
+        type: 'TRPC_WARP',
+        code: error,
+        message,
+      }),
+    );
   }
 }

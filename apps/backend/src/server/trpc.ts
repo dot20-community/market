@@ -8,8 +8,17 @@ const t = initTRPC.context<Context>().create({
   transformer: superjson,
   errorFormatter({ shape, error: err, ctx }) {
     ctx?.req.log.error(err);
-    const bizErr =
-      err instanceof BizError ? err : BizError.of('ERROR', err.message);
+    const errMsg = err.message;
+    let bizErr: BizError | null = null;
+    try {
+      const errJson = JSON.parse(errMsg);
+      if (errJson.type === 'TRPC_WARP') {
+        bizErr = BizError.of(errJson.code, errJson.message);
+      }
+    } catch {}
+    if (!bizErr) {
+      bizErr = BizError.of('ERROR', err.message);
+    }
     return {
       ...shape,
       data: {

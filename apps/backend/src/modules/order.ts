@@ -173,12 +173,15 @@ export const orderRouter = router({
       // 解析铭文转账数据
       const inscribeTransfer = parseInscribeTransfer(extrinsic as any);
       if (!inscribeTransfer) {
-        throw BizError.of('INVALID_TRANSACTION', 'Invalid extrinsic format');
+        throw BizError.ofTrpc(
+          'INVALID_TRANSACTION',
+          'Invalid extrinsic format',
+        );
       }
       // 校验卖家地址是否与签名地址一致
       const signer = fmtAddress(extrinsic.signer.toString());
       if (input.seller !== signer) {
-        throw BizError.of(
+        throw BizError.ofTrpc(
           'INVALID_TRANSACTION',
           `Invalid seller: expect ${input.seller} but got ${signer}`,
         );
@@ -186,14 +189,14 @@ export const orderRouter = router({
       // 校验是否满足最小交易金额
       const minSellTotalPriceDecimal = dot2Planck(ctx.opts.minSellTotalPrice);
       if (totalPriceDecimal.lt(minSellTotalPriceDecimal)) {
-        throw BizError.of(
+        throw BizError.ofTrpc(
           'INVALID_TRANSACTION',
           `Invalid total price: at least ${minSellTotalPriceDecimal} Planck but got ${totalPriceDecimal}`,
         );
       }
       // 检查是否转账给平台地址
       if (inscribeTransfer.to !== ctx.opts.marketAccount) {
-        throw BizError.of(
+        throw BizError.ofTrpc(
           'INVALID_TRANSACTION',
           `Invalid receiver address: expect ${ctx.opts.marketAccount} but got ${inscribeTransfer.to}`,
         );
@@ -202,7 +205,7 @@ export const orderRouter = router({
       const needPayPrice = totalPriceDecimal.mul(ctx.opts.serverFeeRate);
       const realPayPrice = inscribeTransfer.value;
       if (realPayPrice.lt(needPayPrice)) {
-        throw BizError.of(
+        throw BizError.ofTrpc(
           'INVALID_TRANSACTION',
           `Insufficient service fee: expect at least ${needPayPrice} Planck but got ${realPayPrice}`,
         );
@@ -214,9 +217,25 @@ export const orderRouter = router({
         inscribeTransfer.inscribeTick,
       );
       if (accountTick.balance < inscribeTransfer.inscribeAmt) {
-        throw BizError.of(
+        throw BizError.ofTrpc(
           'INVALID_TRANSACTION',
           `Insufficient inscribe amount: expect at least ${inscribeTransfer.inscribeAmt} but got ${accountTick.balance}`,
+        );
+      }
+
+      // 查询用户是否有待确认的订单
+      const runningCount = await ctx.prisma.order.count({
+        where: {
+          seller: input.seller,
+          status: {
+            in: ['PENDING', 'CANCELING'],
+          },
+        },
+      });
+      if (runningCount > 0) {
+        throw BizError.ofTrpc(
+          'EXIST_PENDING_ORDER',
+          'You have a pending order',
         );
       }
 
@@ -254,7 +273,7 @@ export const orderRouter = router({
             updatedAt: now,
           },
         });
-        throw BizError.of('TRANSFER_FAILED', errMsg);
+        throw BizError.ofTrpc('TRANSFER_FAILED', errMsg);
       }
 
       // 更新订单子状态为区块已确认
@@ -282,7 +301,7 @@ export const orderRouter = router({
         },
       });
       if (!order) {
-        throw BizError.of('ORDER_NOT_FOUND');
+        throw BizError.ofTrpc('ORDER_NOT_FOUND');
       }
 
       // 生成铭文交易数据
@@ -309,7 +328,7 @@ export const orderRouter = router({
         },
       });
       if (result.count === 0) {
-        throw BizError.of('ORDER_STATUS_ERROR', 'status is not LISTING');
+        throw BizError.ofTrpc('ORDER_STATUS_ERROR', 'status is not LISTING');
       }
 
       const errMsg = await submitSignedExtrinsicAndWait(ctx.api, extrinsic);
@@ -325,7 +344,7 @@ export const orderRouter = router({
             updatedAt: new Date(),
           },
         });
-        throw BizError.of('TRANSFER_FAILED', errMsg);
+        throw BizError.ofTrpc('TRANSFER_FAILED', errMsg);
       }
 
       // 更新订单子状态为区块已确认
@@ -357,7 +376,7 @@ export const orderRouter = router({
         },
       });
       if (!order) {
-        throw BizError.of('ORDER_NOT_FOUND');
+        throw BizError.ofTrpc('ORDER_NOT_FOUND');
       }
       return order;
     }),
@@ -465,12 +484,12 @@ export const orderRouter = router({
         },
       });
       if (!order) {
-        throw BizError.of('ORDER_NOT_FOUND');
+        throw BizError.ofTrpc('ORDER_NOT_FOUND');
       }
       // 买家和卖家不能是同一个地址
       const buyer = fmtAddress(extrinsic.signer.toString());
       if (order.seller === buyer) {
-        throw BizError.of(
+        throw BizError.ofTrpc(
           'INVALID_TRANSACTION',
           'seller and buyer cannot be the same address',
         );
@@ -478,14 +497,17 @@ export const orderRouter = router({
       // 校验是否为合法的转账交易
       const batchTransfer = parseBatchTransfer(extrinsic as any);
       if (!batchTransfer) {
-        throw BizError.of('INVALID_TRANSACTION', 'Invalid extrinsic format');
+        throw BizError.ofTrpc(
+          'INVALID_TRANSACTION',
+          'Invalid extrinsic format',
+        );
       }
       // 检查是否转账给卖家地址
       const transferToSeller = batchTransfer.list.filter(
         (transfer) => transfer.to === order.seller,
       )[0];
       if (!transferToSeller) {
-        throw BizError.of(
+        throw BizError.ofTrpc(
           'INVALID_TRANSACTION',
           `Invalid receiver address: not found seller address ${order.seller}`,
         );
@@ -495,7 +517,7 @@ export const orderRouter = router({
         (transfer) => transfer.to === ctx.opts.marketAccount,
       )[0];
       if (!transferToMarket) {
-        throw BizError.of(
+        throw BizError.ofTrpc(
           'INVALID_TRANSACTION',
           `Invalid receiver address: not found seller address ${ctx.opts.marketAccount}`,
         );
@@ -508,13 +530,13 @@ export const orderRouter = router({
       const realTotalPriceDecimal = transferToSeller.value;
       const realServiceFeeDecimal = transferToMarket.value;
       if (realTotalPriceDecimal.lt(needTotalPriceDecimal)) {
-        throw BizError.of(
+        throw BizError.ofTrpc(
           'INVALID_TRANSACTION',
           `Invalid total price transfer amount: expect at least ${needTotalPriceDecimal} Planck but got ${realTotalPriceDecimal}`,
         );
       }
       if (realServiceFeeDecimal.lt(needServiceFeeDecimal)) {
-        throw BizError.of(
+        throw BizError.ofTrpc(
           'INVALID_TRANSACTION',
           `Invalid service fee transfer amount: expect at least ${needServiceFeeDecimal} Planck but got ${realServiceFeeDecimal}`,
         );
@@ -534,7 +556,7 @@ export const orderRouter = router({
         },
       });
       if (result.count === 0) {
-        throw BizError.of('ORDER_STATUS_ERROR', 'status is not LISTING');
+        throw BizError.ofTrpc('ORDER_STATUS_ERROR', 'status is not LISTING');
       }
 
       // 买家转账事务上链
@@ -554,7 +576,7 @@ export const orderRouter = router({
             updatedAt: new Date(),
           },
         });
-        throw BizError.of('TRANSFER_FAILED', errMsg);
+        throw BizError.ofTrpc('TRANSFER_FAILED', errMsg);
       }
 
       // 更新订单子状态为区块确认

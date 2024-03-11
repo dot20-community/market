@@ -11,7 +11,7 @@ export type RouterOutput = inferRouterOutputs<AppRouter>;
 
 export function assertError(err: any): BizError {
   if (err instanceof BizError) {
-    return err
+    return err;
   }
   if (err instanceof TRPCClientError) {
     return err.data as BizError;

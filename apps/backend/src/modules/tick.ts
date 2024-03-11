@@ -29,7 +29,7 @@ export const tickRouter = router({
     const resp = await fetch(`${ctx.opts.dotaApiUrl}/get_tick_list`);
     const data = await resp.json();
     if (!data.ticks) {
-      throw BizError.of('ERROR', data?.error);
+      throw BizError.ofTrpc('ERROR', data?.error);
     }
 
     return data.ticks.map((item: any) => ({
