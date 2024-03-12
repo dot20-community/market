@@ -100,12 +100,12 @@ export type ListReq = PageReq & {
    * 排序方式
    */
   orderBy?:
-  | 'price_asc'
-  | 'price_desc'
-  | 'create_asc'
-  | 'create_desc'
-  | 'update_asc'
-  | 'update_desc';
+    | 'price_asc'
+    | 'price_desc'
+    | 'create_asc'
+    | 'create_desc'
+    | 'update_asc'
+    | 'update_desc';
 };
 /**
  * 查询订单列表响应参数
@@ -422,32 +422,32 @@ export const orderRouter = router({
         total === 0
           ? []
           : await (async function () {
-            // 排序方式
-            let orderBySql = '';
-            if (input.orderBy === 'price_asc') {
-              orderBySql = '(total_price/amount) asc, id desc';
-            } else if (input.orderBy === 'price_desc') {
-              orderBySql = '(total_price/amount) desc, id desc';
-            } else if (input.orderBy === 'create_asc') {
-              orderBySql = 'id asc';
-            } else if (input.orderBy === 'create_desc') {
-              orderBySql = 'id desc';
-            } else if (input.orderBy === 'update_asc') {
-              orderBySql = 'updated_at asc, id desc';
-            } else if (input.orderBy === 'update_desc') {
-              orderBySql = 'updated_at desc, id desc';
-            } else {
-              orderBySql = 'id desc';
-            }
-            values.push((page - 1) * input.limit);
-            values.push(input.limit - 1);
-            return await ctx.prisma.$queryRawUnsafe<Order[]>(
-              `
+              // 排序方式
+              let orderBySql = '';
+              if (input.orderBy === 'price_asc') {
+                orderBySql = '(total_price/amount) asc, id desc';
+              } else if (input.orderBy === 'price_desc') {
+                orderBySql = '(total_price/amount) desc, id desc';
+              } else if (input.orderBy === 'create_asc') {
+                orderBySql = 'id asc';
+              } else if (input.orderBy === 'create_desc') {
+                orderBySql = 'id desc';
+              } else if (input.orderBy === 'update_asc') {
+                orderBySql = 'updated_at asc, id desc';
+              } else if (input.orderBy === 'update_desc') {
+                orderBySql = 'updated_at desc, id desc';
+              } else {
+                orderBySql = 'id desc';
+              }
+              values.push((page - 1) * input.limit);
+              values.push(input.limit);
+              return await ctx.prisma.$queryRawUnsafe<Order[]>(
+                `
      select * from orders where ${whereSql} order by ${orderBySql} limit ?,?
        `,
-              ...values,
-            );
-          })();
+                ...values,
+              );
+            })();
 
       const totalPage = Math.ceil(total / input.limit);
       const nextCursor = page < totalPage ? (page + 1).toString() : undefined;
@@ -566,17 +566,20 @@ export const orderRouter = router({
       );
       if (errMsg) {
         // 如果是因为dot余额不足导致的失败，则取消锁单
-        let afterStatus: Status
-        let afterChainStatus: ChainStatus | undefined
-        let failReason: string | undefined
-        if (errMsg === '{"token":"Frozen"}' || errMsg === '{"token":"FundsUnavailable"}') {
-          afterStatus = 'LISTING'
-          afterChainStatus = undefined
-          failReason = undefined
+        let afterStatus: Status;
+        let afterChainStatus: ChainStatus | undefined;
+        let failReason: string | undefined;
+        if (
+          errMsg === '{"token":"Frozen"}' ||
+          errMsg === '{"token":"FundsUnavailable"}'
+        ) {
+          afterStatus = 'LISTING';
+          afterChainStatus = undefined;
+          failReason = undefined;
         } else {
-          afterStatus = 'FAILED'
-          afterChainStatus = 'BUY_BLOCK_FAILED'
-          failReason = errMsg
+          afterStatus = 'FAILED';
+          afterChainStatus = 'BUY_BLOCK_FAILED';
+          failReason = errMsg;
         }
         await ctx.prisma.order.update({
           where: {
