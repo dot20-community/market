@@ -171,7 +171,7 @@ export function Layout() {
         <Outlet />
       </main>
 
-      <footer className="inset-x-0 bottom-0 p-4">
+      <footer className="inset-x-0 bottom-0 pm-4 pt-24">
         <div className="flex gap-6 justify-center">
           <a href="https://twitter.com/dot20_dota" target="_blank">
             <img

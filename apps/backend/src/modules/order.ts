@@ -412,12 +412,13 @@ export const orderRouter = router({
       }
       // 页码参数计算，从1开始
       const page = input.cursor ? parseInt(input.cursor) : 1;
-      const total = await ctx.prisma.$queryRawUnsafe<number>(
+      const [count] = await ctx.prisma.$queryRawUnsafe<any>(
         `
-      select count(*) from orders where ${whereSql}
+      select count(*) as total from orders where ${whereSql}
         `,
         ...values,
       );
+      const total = Number(count.total);
       let list =
         total === 0
           ? []
@@ -449,7 +450,10 @@ export const orderRouter = router({
               );
             })();
 
-      const totalPage = Math.ceil(total / input.limit);
+      const totalPage = Math.ceil(Number(total) / input.limit);
+      console.log('page', page);
+      console.log('total', total);
+      console.log('totalPage', totalPage);
       const nextCursor = page < totalPage ? (page + 1).toString() : undefined;
       const prevCursor = page > 1 ? (page - 1).toString() : undefined;
 
