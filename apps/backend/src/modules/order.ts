@@ -66,7 +66,7 @@ export type CancelRes = {
 /**
  * 查询订单详情请求参数
  */
-export type DetailReq = number;
+export type DetailReq = bigint;
 /**
  * 查询订单详情响应参数
  */

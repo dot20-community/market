@@ -7,6 +7,11 @@ import {
   CardHeader,
   Divider,
   Image,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
 } from '@nextui-org/react';
 import { Order, Status } from '@prisma/client';
 import { calcUnitPrice, fmtDot, toUsd } from '@utils/calc';
@@ -26,19 +31,23 @@ const statusText: Record<Status, string | undefined> = {
 
 export interface MyListCardContext {
   order: Order;
-  onUpdate: () => void;
+  onUpdate: (id: bigint) => void;
 }
 
 export const MyListCard: FC<MyListCardContext> = ({ order, onUpdate }) => {
   const globalState = useGlobalStateStore();
   const [cancelLoading, setCancelLoading] = useState(false);
+  const [cancelConfirm, setCancelConfirm] = useState(false);
   const cancel = trpc.order.cancel.useMutation();
 
   async function handleCancel() {
+    if (!confirm('Please confirm that you want to cancel the listing.')) {
+      return;
+    }
     setCancelLoading(true);
     try {
       await cancel.mutateAsync(order.id);
-      onUpdate();
+      onUpdate(order.id);
       toast.success(
         'Cancel success, please wait for DOT20 index update, it may take a few minutes.',
       );
@@ -93,6 +102,29 @@ export const MyListCard: FC<MyListCardContext> = ({ order, onUpdate }) => {
           </Button>
         </div>
       </CardFooter>
+
+      <Modal isOpen={cancelConfirm}>
+        <ModalContent>
+          {(onClose) => (
+            <>
+              <ModalHeader className="flex flex-col gap-1">
+                Cancel Confirmation
+              </ModalHeader>
+              <ModalBody>
+                <p>Please confirm that you want to cancel the listing.</p>
+              </ModalBody>
+              <ModalFooter>
+                <Button color="danger" variant="light" onPress={onClose}>
+                  Yes
+                </Button>
+                <Button color="primary" onPress={onClose}>
+                  No
+                </Button>
+              </ModalFooter>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
     </Card>
   );
 };

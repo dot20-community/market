@@ -20,7 +20,7 @@ import { toast } from 'react-toastify';
 export interface BuyModalContext {
   isOpen: boolean;
   onOpenChange: () => void;
-  onSuccess: () => void;
+  onSuccess: (id: bigint) => void;
   order: Order;
 }
 
@@ -79,7 +79,7 @@ export const BuyModal: FC<BuyModalContext> = ({
         signedExtrinsic,
       });
       onClose();
-      onSuccess();
+      onSuccess(order.id);
       toast.success(
         'Purchase success, please wait for DOT20 index update, it may take a few minutes.',
       );

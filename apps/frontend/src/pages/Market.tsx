@@ -17,7 +17,7 @@ import {
   Tabs,
   useDisclosure,
 } from '@nextui-org/react';
-import { Order } from '@prisma/client';
+import { Order, Status } from '@prisma/client';
 import { calcUnitPrice, toDecimal, toUsd } from '@utils/calc';
 import { trpc } from '@utils/trpc';
 import { desensitizeAddress } from '@utils/wallet';
@@ -35,16 +35,13 @@ import { BuyModal } from '../components/Modal/BuyModal';
 import { SellModal } from '../components/Modal/SellModal';
 
 const polkadotScan = import.meta.env.VITE_POLKADOT_SCAN;
-
 const veryfyTicks = ['dota'];
-
 const pageSize = 15;
-const autofreshTabInfo = {
-  selectTab: "Listed",
-  listedOrderListLength: 0,
-  orderListLength: 0,
-  myOrderListLength: 0,
-}
+
+type AutoRefresh = {
+  id: bigint;
+  targetStatus: Status;
+};
 
 export function Market() {
   const globalState = useGlobalStateStore();
@@ -52,6 +49,7 @@ export function Market() {
   const [selectTick, setSelectTick] = useState<string>('dota');
   const [selectTab, setSelectTab] = useState<string>('Listed');
   const [listRefresh, setListRefresh] = useState(false);
+  const [autoRefresh, setAutoRefresh] = useState<AutoRefresh | null>(null);
   const { client } = trpc.useUtils();
   const tickTrending = trpc.tick.trending.useQuery();
   const {
@@ -66,14 +64,22 @@ export function Market() {
     onOpenChange: onSellOpenChange,
   } = useDisclosure();
 
-  function onBuySuccess() {
+  function onBuySuccess(id: bigint) {
     setSelectTab('Orders');
     clearList('Orders');
+    setAutoRefresh({ id, targetStatus: 'SOLD' });
   }
 
-  function onSellSuccess() {
+  function onSellSuccess(id: bigint) {
     setSelectTab('MyList');
     clearList('MyList');
+    setAutoRefresh({ id, targetStatus: 'LISTING' });
+  }
+
+  function onCancelSuccess(id: bigint) {
+    setSelectTab('MyList');
+    clearList('MyList');
+    setAutoRefresh({ id, targetStatus: 'CANCELED' });
   }
 
   const [listedOrderList, setListedOrderList] = useState<ListRes>({
@@ -102,26 +108,54 @@ export function Market() {
     }
   }
 
-  autofreshTabInfo.selectTab = selectTab
-  autofreshTabInfo.listedOrderListLength = listedOrderList.list.length
-  autofreshTabInfo.orderListLength = orderList.list.length
-  autofreshTabInfo.myOrderListLength = myOrderList.list.length
-
   useEffect(() => {
     clearList();
-    const autofreshList = setInterval(() => {
-      if (autofreshTabInfo.selectTab == "Listed" && autofreshTabInfo.listedOrderListLength <= pageSize) {
-        fetchListedOrderList()
-      } else if (autofreshTabInfo.selectTab == "Orders" && autofreshTabInfo.orderListLength <= pageSize) {
-        fetchOrderList()
-      } else if (autofreshTabInfo.selectTab == "MyList" && autofreshTabInfo.myOrderListLength <= pageSize) {
-        fetchMyOrderList()
-      }
-    }, 5000)
-    return () => {
-      clearInterval(autofreshList)
-    }
   }, [account]);
+
+  useEffect(() => {
+    if (autoRefresh) {
+      const timer = setInterval(async () => {
+        const order = await client.order.detail.query(autoRefresh.id);
+        if (order.status === autoRefresh.targetStatus) {
+          setAutoRefresh(null);
+          setListedOrderList((list) => {
+            return {
+              ...list,
+              list: list.list.map((e) => {
+                if (e.id === autoRefresh.id) {
+                  return order;
+                }
+                return e;
+              }),
+            };
+          });
+          setMyOrderList((list) => {
+            return {
+              ...list,
+              list: list.list.map((e) => {
+                if (e.id === autoRefresh.id) {
+                  return order;
+                }
+                return e;
+              }),
+            };
+          });
+          setOrderList((list) => {
+            return {
+              ...list,
+              list: list.list.map((e) => {
+                if (e.id === autoRefresh.id) {
+                  return order;
+                }
+                return e;
+              }),
+            };
+          });
+        }
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [autoRefresh]);
 
   async function changeTick(tick: string) {
     if (tick === selectTick) {
@@ -140,19 +174,15 @@ export function Market() {
       statues: ['LISTING', 'LOCKED'],
       orderBy: 'price_asc',
     });
-    if (!listedOrderList.next) {
-      resp.total && setListedOrderList(resp);
-    } else {
-      resp.total && setListedOrderList((list) => {
-        return {
-          ...resp,
-          list: list.list.concat(
-            resp.list.filter((e) => !list.list.some((ee) => ee.id === e.id)),
-          ),
-        };
-      });
-    }
-    
+
+    setListedOrderList((list) => {
+      return {
+        ...resp,
+        list: list.list.concat(
+          resp.list.filter((e) => !list.list.some((ee) => ee.id === e.id)),
+        ),
+      };
+    });
   }
 
   async function fetchOrderList() {
@@ -163,18 +193,15 @@ export function Market() {
       statues: account ? ['LOCKED', 'SOLD'] : ['SOLD'],
       orderBy: 'update_desc',
     });
-    if (!orderList.next) {
-      resp.total && setOrderList(resp)
-    } else {
-      resp.total && setOrderList((list) => {
-        return {
-          ...resp,
-          list: list.list.concat(
-            resp.list.filter((e) => !list.list.some((ee) => ee.id === e.id)),
-          ),
-        };
-      });
-    }
+
+    setOrderList((list) => {
+      return {
+        ...resp,
+        list: list.list.concat(
+          resp.list.filter((e) => !list.list.some((ee) => ee.id === e.id)),
+        ),
+      };
+    });
   }
 
   async function fetchMyOrderList() {
@@ -188,18 +215,15 @@ export function Market() {
       seller: account,
       orderBy: 'create_desc',
     });
-    if (!myOrderList.next) {
-      resp.total && setMyOrderList(resp)
-    } else {
-      resp.total && setMyOrderList((list) => {
-        return {
-          ...resp,
-          list: list.list.concat(
-            resp.list.filter((e) => !list.list.some((ee) => ee.id === e.id)),
-          ),
-        };
-      });
-    }
+
+    setMyOrderList((list) => {
+      return {
+        ...resp,
+        list: list.list.concat(
+          resp.list.filter((e) => !list.list.some((ee) => ee.id === e.id)),
+        ),
+      };
+    });
   }
 
   function onOpenBuyModalWithData(order: Order) {
@@ -410,7 +434,7 @@ export function Market() {
                       <MyListCard
                         key={order.id}
                         order={order}
-                        onUpdate={clearList}
+                        onUpdate={onCancelSuccess}
                       />
                     ))}
                   </div>

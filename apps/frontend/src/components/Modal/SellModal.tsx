@@ -21,7 +21,7 @@ import { toast } from 'react-toastify';
 export interface SellModalContext {
   isOpen: boolean;
   onOpenChange: () => void;
-  onSuccess: () => void;
+  onSuccess: (id: bigint) => void;
   tick: string;
 }
 
@@ -118,13 +118,13 @@ export const SellModal: FC<SellModalContext> = ({
         tick,
         data.amount,
       );
-      await sell.mutateAsync({
+      const { id } = await sell.mutateAsync({
         seller: account,
         totalPrice: totalPricePlanck.toFixed(),
         signedExtrinsic,
       });
       onClose();
-      onSuccess();
+      onSuccess(id);
       toast.success(
         'Listing success, please wait for DOT20 index update, it may take a few minutes.',
       );
