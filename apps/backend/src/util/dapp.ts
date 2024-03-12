@@ -12,39 +12,43 @@ export async function submitSignedExtrinsicAndWait(
   extrinsic: SubmittableExtrinsic<'promise'>,
 ): Promise<string | null> {
   // 提交事务并等待区块确认
-  return await new Promise(async (resolve, reject) => {
-    const unsub = await extrinsic.send(async (result) => {
-      if (result.isFinalized) {
-        unsub();
+  try {
+    return await new Promise(async (resolve, reject) => {
+      const unsub = await extrinsic.send(async (result) => {
+        if (result.isFinalized) {
+          unsub();
 
-        let errorMsg: string | null = null;
-        result.events
-          // test the events against the specific types we are looking for
-          .forEach(({ event }: any) => {
-            if (api.events.system.ExtrinsicFailed.is(event)) {
-              // extract the data for this event
-              const [dispatchError]: any[] = event.data;
+          let errorMsg: string | null = null;
+          result.events
+            // test the events against the specific types we are looking for
+            .forEach(({ event }: any) => {
+              if (api.events.system.ExtrinsicFailed.is(event)) {
+                // extract the data for this event
+                const [dispatchError]: any[] = event.data;
 
-              // decode the error
-              if (dispatchError.isModule) {
-                // for module errors, we have the section indexed, lookup
-                // (For specific known errors, we can also do a check against the
-                // api.errors.<module>.<ErrorName>.is(dispatchError.asModule) guard)
-                const decoded = api.registry.findMetaError(
-                  dispatchError.asModule,
-                );
-                errorMsg = `${decoded.section}.${decoded.name}`;
-              } else {
-                // Other, CannotLookup, BadOrigin, no extra info
-                errorMsg = dispatchError.toString();
+                // decode the error
+                if (dispatchError.isModule) {
+                  // for module errors, we have the section indexed, lookup
+                  // (For specific known errors, we can also do a check against the
+                  // api.errors.<module>.<ErrorName>.is(dispatchError.asModule) guard)
+                  const decoded = api.registry.findMetaError(
+                    dispatchError.asModule,
+                  );
+                  errorMsg = `${decoded.section}.${decoded.name}`;
+                } else {
+                  // Other, CannotLookup, BadOrigin, no extra info
+                  errorMsg = dispatchError.toString();
+                }
+                return;
               }
-              return;
-            }
-          });
-        resolve(errorMsg);
-      }
+            });
+          resolve(errorMsg);
+        }
+      });
     });
-  });
+  } catch (e: any) {
+    return e?.message ?? "Submit extrinsic failed"
+  }
 }
 
 /**
