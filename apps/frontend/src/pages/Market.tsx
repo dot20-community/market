@@ -141,9 +141,9 @@ export function Market() {
       orderBy: 'price_asc',
     });
     if (!listedOrderList.next) {
-      setListedOrderList(resp);
+      resp.total && setListedOrderList(resp);
     } else {
-      setListedOrderList((list) => {
+      resp.total && setListedOrderList((list) => {
         return {
           ...resp,
           list: list.list.concat(
@@ -164,9 +164,9 @@ export function Market() {
       orderBy: 'update_desc',
     });
     if (!orderList.next) {
-      setOrderList(resp)
+      resp.total && setOrderList(resp)
     } else {
-      setOrderList((list) => {
+      resp.total && setOrderList((list) => {
         return {
           ...resp,
           list: list.list.concat(
@@ -189,9 +189,9 @@ export function Market() {
       orderBy: 'create_desc',
     });
     if (!myOrderList.next) {
-      setOrderList(resp)
+      resp.total && setOrderList(resp)
     } else {
-      setMyOrderList((list) => {
+      resp.total && setMyOrderList((list) => {
         return {
           ...resp,
           list: list.list.concat(
