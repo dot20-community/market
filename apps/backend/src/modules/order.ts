@@ -585,14 +585,15 @@ export const orderRouter = router({
         let failReason: string | undefined;
         if (
           errMsg === '{"token":"Frozen"}' ||
-          errMsg === '{"token":"FundsUnavailable"}'
+          errMsg === '{"token":"FundsUnavailable"}' ||
+          errMsg === '{"token":"NotExpendable"}'
         ) {
           afterStatus = 'LISTING';
           afterChainStatus = undefined;
           failReason = undefined;
         } else {
           afterStatus = 'FAILED';
-          afterChainStatus = 'BUY_BLOCK_FAILED';
+          afterChainStatus = 'SELL_INSCRIBE_CONFIRMED';
           failReason = errMsg;
         }
         await ctx.prisma.order.update({
