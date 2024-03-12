@@ -590,10 +590,10 @@ export const orderRouter = router({
         ) {
           afterStatus = 'LISTING';
           afterChainStatus = undefined;
-          failReason = undefined;
+          failReason = errMsg;
         } else {
           afterStatus = 'FAILED';
-          afterChainStatus = 'SELL_INSCRIBE_CONFIRMED';
+          afterChainStatus = 'BUY_BLOCK_FAILED';
           failReason = errMsg;
         }
         await ctx.prisma.order.update({
