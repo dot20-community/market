@@ -582,6 +582,7 @@ export const orderRouter = router({
         // 如果是因为dot余额不足导致的失败，则取消锁单
         let afterStatus: Status;
         let afterChainStatus: ChainStatus | undefined;
+        let afterBuyer: null | undefined;
         let failReason: string | undefined;
         if (
           errMsg === '{"token":"Frozen"}' ||
@@ -590,10 +591,12 @@ export const orderRouter = router({
         ) {
           afterStatus = 'LISTING';
           afterChainStatus = undefined;
+          afterBuyer = null;
           failReason = errMsg;
         } else {
           afterStatus = 'FAILED';
           afterChainStatus = 'BUY_BLOCK_FAILED';
+          afterBuyer = undefined;
           failReason = errMsg;
         }
         await ctx.prisma.order.update({
@@ -602,6 +605,7 @@ export const orderRouter = router({
           },
           data: {
             status: afterStatus,
+            buyer: afterBuyer,
             chainStatus: afterChainStatus,
             failReason: errMsg,
             updatedAt: new Date(),
