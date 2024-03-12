@@ -172,7 +172,7 @@ export const SellModal: FC<SellModalContext> = ({
                   Available {tick.toLocaleUpperCase()}
                 </span>
                 <span className="ml-2 italic">
-                  {dotaBalance.data?.balance?.toLocaleString()}
+                  {dotaBalance.data?.balance?.toLocaleString() || 0}
                 </span>
               </div>
               <Input
