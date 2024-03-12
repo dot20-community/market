@@ -195,6 +195,17 @@ export function Layout() {
               src="/github.svg"
             />
           </a>
+          <a href="https://t.me/+R11nMCkuUZ0zN2M1" target="_blank">
+            <img
+              alt="telegram"
+              loading="lazy"
+              width="32"
+              height="32"
+              decoding="async"
+              data-nimg="1"
+              src="/tg.svg"
+            />
+          </a>
         </div>
         <div className="flex justify-center">
           <img
