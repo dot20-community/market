@@ -304,6 +304,15 @@ export const orderRouter = router({
         throw BizError.ofTrpc('ORDER_NOT_FOUND');
       }
 
+      // 计算退款金额 手续费 - 0.05 gas
+      const refundAmount = new Decimal(order.sellServiceFee.toString()).sub(
+        dot2Planck(0.05),
+      );
+      // 如果退款金额小于0，则不进行退还，保证不会因为支付gas而亏钱
+      const realRefundAmount = refundAmount.lt(0)
+        ? new Decimal(0)
+        : refundAmount;
+
       // 生成铭文交易数据
       const extrinsic = await signExtrinsic(
         buildInscribeTransfer(
@@ -311,6 +320,7 @@ export const orderRouter = router({
           order.tick,
           Number(order.amount),
           order.seller,
+          realRefundAmount,
         ),
         ctx.opts.marketAccountMnemonic,
       );
