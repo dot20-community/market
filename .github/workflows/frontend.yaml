@@ -7,11 +7,12 @@ on:
     branches:
       - main
     paths:
-      - ".github/workflows/frontend.yaml"
-      - "apps/frontend/**"
-      - "apps/libs/**"
-      - "package.json"
-      - "pnpm-lock.yaml"
+      - '.github/workflows/frontend.yaml'
+      - 'apps/frontend/**'
+      - 'apps/libs/**'
+      - 'package.json'
+      - 'build.sh'
+      - 'pnpm-lock.yaml'
 jobs:
   build:
     runs-on: ubuntu-latest
