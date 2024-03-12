@@ -79,7 +79,7 @@ export const ListCard: FC<ListCardContext> = ({ onOpenBuyModal, order }) => {
               disabled={isLocked(order.status)}
               onClick={onOpenBuyModal}
             >
-              {isLocked(order.status) ? 'Locked' : 'Buy'}
+              {isLocked(order.status) ? 'Trading' : 'Buy'}
             </Button>
           </div>
         </CardFooter>

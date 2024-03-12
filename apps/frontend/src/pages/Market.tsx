@@ -43,6 +43,16 @@ type AutoRefresh = {
   targetStatus: Status;
 };
 
+const statusText: Record<Status, string | undefined> = {
+  PENDING: 'Pending',
+  LISTING: 'Listing',
+  CANCELING: 'Canceling',
+  CANCELED: 'Canceled',
+  LOCKED: 'Trading',
+  SOLD: 'Sold',
+  FAILED: undefined,
+};
+
 export function Market() {
   const globalState = useGlobalStateStore();
   const { account } = globalState;
@@ -190,7 +200,9 @@ export function Market() {
       tick: selectTick,
       cursor: orderList.next,
       limit: pageSize,
-      statues: account ? ['LOCKED', 'SOLD'] : ['SOLD'],
+      statues: (Object.keys(statusText) as Status[]).filter(
+        (e) => statusText[e],
+      ),
       orderBy: 'update_desc',
     });
 
@@ -376,9 +388,7 @@ export function Market() {
                           {dayjs(order.updatedAt).format('YYYY-MM-DD HH:mm:ss')}
                         </TableCell>
                         <TableCell>
-                          <Chip>
-                            {order.status === 'LOCKED' ? 'Indexing' : 'Sold'}
-                          </Chip>
+                          <Chip>{statusText[order.status]}</Chip>
                         </TableCell>
                         <TableCell>{order.amount.toLocaleString()}</TableCell>
                         <TableCell>
