@@ -125,6 +125,9 @@ export const SellModal: FC<SellModalContext> = ({
       });
       onClose();
       onSuccess();
+      toast.success(
+        'Listing success, please wait for DOT20 index update, it may take a few minutes.',
+      );
     } catch (e) {
       console.error(e);
       const error = assertError(e);

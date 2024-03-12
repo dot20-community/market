@@ -12,7 +12,7 @@ export function Root() {
     <trpc.Provider client={trpcClient} queryClient={queryClient}>
       <ToastContainer
         position="bottom-right"
-        autoClose={3000}
+        autoClose={10000}
         theme="colored"
         hideProgressBar
         closeOnClick

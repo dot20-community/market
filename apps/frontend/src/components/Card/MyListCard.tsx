@@ -15,9 +15,9 @@ import { FC, useState } from 'react';
 import { toast } from 'react-toastify';
 
 const statusText: Record<Status, string | undefined> = {
-  PENDING: 'Pending',
+  PENDING: 'Indexing',
   LISTING: undefined,
-  CANCELING: 'Canceling',
+  CANCELING: 'Indexing',
   CANCELED: 'Canceled',
   LOCKED: 'Locked',
   FAILED: 'Failed',
@@ -39,6 +39,9 @@ export const MyListCard: FC<MyListCardContext> = ({ order, onUpdate }) => {
     try {
       await cancel.mutateAsync(order.id);
       onUpdate();
+      toast.success(
+        'Cancel success, please wait for DOT20 index update, it may take a few minutes.',
+      );
     } catch (e) {
       console.error(e);
       const err = assertError(e);

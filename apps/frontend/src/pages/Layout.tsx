@@ -64,7 +64,7 @@ export function Layout() {
   }
 
   return (
-    <div>
+    <div className="flex flex-col min-h-screen">
       <Navbar
         position="static"
         isBordered
@@ -167,9 +167,11 @@ export function Layout() {
         </NavbarContent>
       </Navbar>
 
-      <Outlet />
+      <main className="flex-grow">
+        <Outlet />
+      </main>
 
-      <div className="h-auto mt-16">
+      <footer className="inset-x-0 bottom-0 p-4">
         <div className="flex gap-6 justify-center">
           <a href="https://twitter.com/dot20_dota" target="_blank">
             <img
@@ -205,7 +207,7 @@ export function Layout() {
             src="/dot_copyright.svg"
           />
         </div>
-      </div>
+      </footer>
     </div>
   );
 }

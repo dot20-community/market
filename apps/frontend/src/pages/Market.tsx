@@ -300,7 +300,7 @@ export function Market() {
                 <Table aria-label="collection table">
                   <TableHeader>
                     <TableColumn>Date Time</TableColumn>
-                    <TableColumn>Method</TableColumn>
+                    <TableColumn>Status</TableColumn>
                     <TableColumn>Amount</TableColumn>
                     <TableColumn>Unit Price (10k)</TableColumn>
                     <TableColumn>Total Value</TableColumn>
@@ -316,7 +316,7 @@ export function Market() {
                         </TableCell>
                         <TableCell>
                           <Chip>
-                            {order.status === 'LOCKED' ? 'Pending' : 'Sale'}
+                            {order.status === 'LOCKED' ? 'Indexing' : 'Sold'}
                           </Chip>
                         </TableCell>
                         <TableCell>{order.amount.toLocaleString()}</TableCell>
