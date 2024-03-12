@@ -57,7 +57,7 @@ function getHashByStatus(order: Order): string {
   if (['PENDING', 'LISTING'].includes(order.status)) {
     return order.sellHash;
   }
-  if (['CANCELED', 'CANCELED'].includes(order.status)) {
+  if (['CANCELING', 'CANCELED'].includes(order.status)) {
     return order.cancelHash!;
   }
   if (order.status === 'LOCKED') {
