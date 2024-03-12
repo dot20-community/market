@@ -24,7 +24,7 @@ import { desensitizeAddress } from '@utils/wallet';
 import { ListRes } from 'apps/backend/src/modules/order';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
-import { LuRefreshCcw } from 'react-icons/lu';
+import { LuRefreshCw } from 'react-icons/lu';
 import { MdOutlineVerified } from 'react-icons/md';
 import { PiLightningLight } from 'react-icons/pi';
 import InfiniteScroll from 'react-infinite-scroller';
@@ -243,7 +243,7 @@ export function Market() {
             </div>
           </div>
           <Divider className="mb-4" />
-          <LuRefreshCcw
+          <LuRefreshCw
             size={20}
             className={`relative top-[30px] left-64 cursor-pointer ${
               listRefresh && 'animate-spin'
