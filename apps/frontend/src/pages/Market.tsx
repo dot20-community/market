@@ -189,7 +189,7 @@ export function Market() {
       orderBy: 'create_desc',
     });
     if (!myOrderList.next) {
-      resp.total && setOrderList(resp)
+      resp.total && setMyOrderList(resp)
     } else {
       resp.total && setMyOrderList((list) => {
         return {
