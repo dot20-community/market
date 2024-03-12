@@ -7,11 +7,11 @@ on:
     branches:
       - main
     paths:
-      - ".github/workflows/backend.yaml"
-      - "apps/backend/**"
-      - "apps/libs/**"
-      - "package.json"
-      - "pnpm-lock.yaml"
+      - '.github/workflows/backend.yaml'
+      - 'apps/backend/**'
+      - 'apps/libs/**'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -20,7 +20,7 @@ jobs:
       - name: Install Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: "20.x"
+          node-version: '20.x'
       - name: Install PNPM
         run: npm install --global pnpm
       - name: Install npm dependencies
@@ -31,11 +31,10 @@ jobs:
         uses: easingthemes/ssh-deploy@main
         with:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-          ARGS: "-rlgoDzvc -i --delete"
+          ARGS: '-rlgoDzvc -i --delete'
           REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
-          REMOTE_USER: "root"
-          TARGET: "/root/server"
-          EXCLUDE: "/node_modules/"
+          REMOTE_USER: 'root'
+          TARGET: '/root/server'
+          EXCLUDE: '/node_modules/, /.env'
           SCRIPT_AFTER: |
-            cp server/.env.example server/.env
             pm2 restart all
