@@ -38,6 +38,14 @@ const polkadotScan = import.meta.env.VITE_POLKADOT_SCAN;
 
 const veryfyTicks = ['dota'];
 
+const pageSize = 15;
+const autofreshTabInfo = {
+  selectTab: "Listed",
+  listedOrderListLength: 0,
+  orderListLength: 0,
+  myOrderListLength: 0,
+}
+
 export function Market() {
   const globalState = useGlobalStateStore();
   const { account } = globalState;
@@ -94,8 +102,25 @@ export function Market() {
     }
   }
 
+  autofreshTabInfo.selectTab = selectTab
+  autofreshTabInfo.listedOrderListLength = listedOrderList.list.length
+  autofreshTabInfo.orderListLength = orderList.list.length
+  autofreshTabInfo.myOrderListLength = myOrderList.list.length
+
   useEffect(() => {
     clearList();
+    const autofreshList = setInterval(() => {
+      if (autofreshTabInfo.selectTab == "Listed" && autofreshTabInfo.listedOrderListLength <= pageSize) {
+        fetchListedOrderList()
+      } else if (autofreshTabInfo.selectTab == "Orders" && autofreshTabInfo.orderListLength <= pageSize) {
+        fetchOrderList()
+      } else if (autofreshTabInfo.selectTab == "MyList" && autofreshTabInfo.myOrderListLength <= pageSize) {
+        fetchMyOrderList()
+      }
+    }, 5000)
+    return () => {
+      clearInterval(autofreshList)
+    }
   }, [account]);
 
   async function changeTick(tick: string) {
@@ -110,59 +135,71 @@ export function Market() {
     const resp = await client.order.list.query({
       tick: selectTick,
       cursor: listedOrderList.next,
-      limit: 15,
+      limit: pageSize,
       excludeSeller: account,
       statues: ['LISTING', 'LOCKED'],
       orderBy: 'price_asc',
     });
-    setListedOrderList((list) => {
-      return {
-        ...resp,
-        list: list.list.concat(
-          resp.list.filter((e) => !list.list.some((ee) => ee.id === e.id)),
-        ),
-      };
-    });
+    if (!listedOrderList.next) {
+      setListedOrderList(resp);
+    } else {
+      setListedOrderList((list) => {
+        return {
+          ...resp,
+          list: list.list.concat(
+            resp.list.filter((e) => !list.list.some((ee) => ee.id === e.id)),
+          ),
+        };
+      });
+    }
+    
   }
 
   async function fetchOrderList() {
     const resp = await client.order.list.query({
       tick: selectTick,
       cursor: orderList.next,
-      limit: 15,
+      limit: pageSize,
       statues: account ? ['LOCKED', 'SOLD'] : ['SOLD'],
       orderBy: 'update_desc',
     });
-    setOrderList((list) => {
-      return {
-        ...resp,
-        list: list.list.concat(
-          resp.list.filter((e) => !list.list.some((ee) => ee.id === e.id)),
-        ),
-      };
-    });
+    if (!orderList.next) {
+      setOrderList(resp)
+    } else {
+      setOrderList((list) => {
+        return {
+          ...resp,
+          list: list.list.concat(
+            resp.list.filter((e) => !list.list.some((ee) => ee.id === e.id)),
+          ),
+        };
+      });
+    }
   }
 
   async function fetchMyOrderList() {
     if (!account) {
       return;
     }
-
     const resp = await client.order.list.query({
       tick: selectTick,
       cursor: myOrderList.next,
-      limit: 15,
+      limit: pageSize,
       seller: account,
       orderBy: 'create_desc',
     });
-    setMyOrderList((list) => {
-      return {
-        ...resp,
-        list: list.list.concat(
-          resp.list.filter((e) => !list.list.some((ee) => ee.id === e.id)),
-        ),
-      };
-    });
+    if (!myOrderList.next) {
+      setOrderList(resp)
+    } else {
+      setMyOrderList((list) => {
+        return {
+          ...resp,
+          list: list.list.concat(
+            resp.list.filter((e) => !list.list.some((ee) => ee.id === e.id)),
+          ),
+        };
+      });
+    }
   }
 
   function onOpenBuyModalWithData(order: Order) {
