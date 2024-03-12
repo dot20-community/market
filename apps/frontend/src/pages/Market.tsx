@@ -32,6 +32,7 @@ import { toast } from 'react-toastify';
 import { ListCard } from '../components/Card/ListCard';
 import { MyListCard } from '../components/Card/MyListCard';
 import { BuyModal } from '../components/Modal/BuyModal';
+import { ConfirmModal } from '../components/Modal/ConfirmModal';
 import { SellModal } from '../components/Modal/SellModal';
 
 const polkadotScan = import.meta.env.VITE_POLKADOT_SCAN;
@@ -62,6 +63,8 @@ export function Market() {
   const [autoRefresh, setAutoRefresh] = useState<AutoRefresh | null>(null);
   const { client } = trpc.useUtils();
   const tickTrending = trpc.tick.trending.useQuery();
+  const cancelOrder = trpc.order.cancel.useMutation();
+
   const {
     isOpen: isOpenBuyModal,
     onOpen: onOpenBuyModal,
@@ -73,6 +76,26 @@ export function Market() {
     onOpen: onSellOpen,
     onOpenChange: onSellOpenChange,
   } = useDisclosure();
+
+  const [cancelModalOrderId, setCancelModalOrderId] = useState<bigint>(0n)
+  const {
+    isOpen: isCancelModalOpen,
+    onOpen: onOpenCancelModal,
+    onOpenChange: onCancelModalOpenChange,
+  } = useDisclosure();
+  function onOpenCancelModalWithData(orderId: bigint) {
+    if (!account) {
+      toast.warn('Please connect wallet first');
+      return;
+    }
+    setCancelModalOrderId(orderId);
+    onOpenCancelModal();
+  }
+  async function onCancelOrder(id: bigint) {
+    console.log("cancel: " + id);
+    await cancelOrder.mutateAsync(id);
+    onCancelSuccess(id);
+  }
 
   function onBuySuccess(id: bigint) {
     setSelectTab('Orders');
@@ -445,6 +468,7 @@ export function Market() {
                         key={order.id}
                         order={order}
                         onUpdate={onCancelSuccess}
+                        onOpenCancelModal={() => onOpenCancelModalWithData(order.id)}
                       />
                     ))}
                   </div>
@@ -515,6 +539,7 @@ export function Market() {
           tick={selectTick}
         />
       )}
+      <ConfirmModal isOpen={isCancelModalOpen} onOpenChange={onCancelModalOpenChange} onConfirm={() => onCancelOrder(cancelModalOrderId)}/>
     </>
   );
 }

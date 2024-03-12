@@ -6,12 +6,7 @@ import {
   CardFooter,
   CardHeader,
   Divider,
-  Image,
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
+  Image
 } from '@nextui-org/react';
 import { Order, Status } from '@prisma/client';
 import { calcUnitPrice, fmtDot, toUsd } from '@utils/calc';
@@ -32,12 +27,12 @@ const statusText: Record<Status, string | undefined> = {
 export interface MyListCardContext {
   order: Order;
   onUpdate: (id: bigint) => void;
+  onOpenCancelModal: () => void;
 }
 
-export const MyListCard: FC<MyListCardContext> = ({ order, onUpdate }) => {
+export const MyListCard: FC<MyListCardContext> = ({ order, onUpdate, onOpenCancelModal }) => {
   const globalState = useGlobalStateStore();
   const [cancelLoading, setCancelLoading] = useState(false);
-  const [cancelConfirm, setCancelConfirm] = useState(false);
   const cancel = trpc.order.cancel.useMutation();
 
   async function handleCancel() {
@@ -96,35 +91,12 @@ export const MyListCard: FC<MyListCardContext> = ({ order, onUpdate }) => {
             color={!statusText[order.status] ? 'primary' : 'default'}
             disabled={!!statusText[order.status]}
             isLoading={cancelLoading}
-            onClick={handleCancel}
+            onClick={onOpenCancelModal}
           >
             {statusText[order.status] || 'Cancel'}
           </Button>
         </div>
       </CardFooter>
-
-      <Modal isOpen={cancelConfirm}>
-        <ModalContent>
-          {(onClose) => (
-            <>
-              <ModalHeader className="flex flex-col gap-1">
-                Cancel Confirmation
-              </ModalHeader>
-              <ModalBody>
-                <p>Please confirm that you want to cancel the listing.</p>
-              </ModalBody>
-              <ModalFooter>
-                <Button color="danger" variant="light" onPress={onClose}>
-                  Yes
-                </Button>
-                <Button color="primary" onPress={onClose}>
-                  No
-                </Button>
-              </ModalFooter>
-            </>
-          )}
-        </ModalContent>
-      </Modal>
     </Card>
   );
 };
