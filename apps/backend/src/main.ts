@@ -7,6 +7,12 @@ import {
   sellInscribeCheck,
 } from './service/trade';
 
+console.log('================== start server ==================');
+console.log('environment', serverConfig.environment);
+console.log('marketAccount', serverConfig.marketAccount);
+console.log('polkadotEndpoint', serverConfig.polkadotEndpoint);
+console.log('polkadotDecimals', serverConfig.polkadotDecimals);
+
 createServer(serverConfig).then((server) => server.start());
 
 (async function () {
