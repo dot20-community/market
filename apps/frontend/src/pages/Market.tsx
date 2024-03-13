@@ -54,6 +54,22 @@ const statusText: Record<Status, string | undefined> = {
   FAILED: undefined,
 };
 
+function getHashByStatus(order: Order): string {
+  if (['PENDING', 'LISTING'].includes(order.status)) {
+    return order.sellHash;
+  }
+  if (['CANCELING', 'CANCELED'].includes(order.status)) {
+    return order.cancelHash!;
+  }
+  if (order.status === 'LOCKED') {
+    return order.buyHash!;
+  }
+  if (order.status === 'SOLD') {
+    return order.tradeHash!;
+  }
+  return '';
+}
+
 export function Market() {
   const globalState = useGlobalStateStore();
   const { account } = globalState;
@@ -203,7 +219,6 @@ export function Market() {
       tick: selectTick,
       cursor: listedOrderList.next,
       limit: pageSize,
-      excludeSeller: account,
       statues: ['LISTING', 'LOCKED'],
       orderBy: 'price_asc',
     });
@@ -446,7 +461,9 @@ export function Market() {
                             isBlock
                             showAnchorIcon
                             target="_blank"
-                            href={`${polkadotScan}/extrinsic/${order.tradeHash}`}
+                            href={`${polkadotScan}/extrinsic/${getHashByStatus(
+                              order,
+                            )}`}
                             color="primary"
                           />
                         </TableCell>

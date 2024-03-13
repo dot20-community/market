@@ -61,7 +61,7 @@ export const MyListCard: FC<MyListCardContext> = ({ order, onUpdate, onOpenCance
         <div>
           <div className="text-xs">{order.tick.toUpperCase()}</div>
           <div className="text-2xl mt-2 flex w-[200px] justify-center">
-            {order.amount.toString()}
+            {order.amount.toLocaleString()}
           </div>
           <div className="text-xs text-primary mt-2 flex w-[200px] justify-center">
             {toUsd(

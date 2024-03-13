@@ -35,7 +35,7 @@ export const ListCard: FC<ListCardContext> = ({ onOpenBuyModal, order }) => {
           <div>
             <div className="text-xs">{order.tick.toUpperCase()}</div>
             <div className="text-2xl mt-2 flex w-[200px] justify-center">
-              {order.amount.toString()}
+              {order.amount.toLocaleString()}
             </div>
             <div className="flex justify-center w-[200px]">
               <div className="text-xs text-primary mt-2 flex ">
@@ -75,8 +75,14 @@ export const ListCard: FC<ListCardContext> = ({ onOpenBuyModal, order }) => {
             </div>
             <Button
               className="w-[200px] mt-3"
-              color={isLocked(order.status) ? 'default' : 'primary'}
-              disabled={isLocked(order.status)}
+              color={
+                order.seller == globalState.account || isLocked(order.status)
+                  ? 'default'
+                  : 'primary'
+              }
+              disabled={
+                order.seller == globalState.account || isLocked(order.status)
+              }
               onClick={onOpenBuyModal}
             >
               {isLocked(order.status) ? 'Trading' : 'Buy'}

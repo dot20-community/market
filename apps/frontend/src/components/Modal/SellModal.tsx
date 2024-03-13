@@ -135,6 +135,14 @@ export const SellModal: FC<SellModalContext> = ({
         toast.warn('User rejected');
         return;
       }
+      if (
+        ['NotExpendable', 'Inability'].some(
+          (item) => error.message?.includes(item),
+        )
+      ) {
+        toast.error('Please make sure you have enough balance to pay');
+        return;
+      }
       toast.error(error.code);
     } finally {
       setConfirmLoading(false);
