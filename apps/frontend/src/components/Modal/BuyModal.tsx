@@ -59,7 +59,9 @@ export const BuyModal: FC<BuyModalContext> = ({
 
   useEffect(() => {
     setBalanceValidMsg(
-      balance.lt(serviceFeePlanck) ? 'Insufficient Balance' : undefined,
+      balance.lt(totalPricePlanck.add(serviceFeePlanck))
+        ? 'Insufficient Balance'
+        : undefined,
     );
   }, [balance]);
 
