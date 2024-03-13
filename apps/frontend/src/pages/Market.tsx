@@ -19,7 +19,7 @@ import {
 } from '@nextui-org/react';
 import { Order, Status } from '@prisma/client';
 import { calcUnitPrice, toDecimal, toUsd } from '@utils/calc';
-import { trpc } from '@utils/trpc';
+import { assertError, trpc } from '@utils/trpc';
 import { desensitizeAddress } from '@utils/wallet';
 import { ListRes } from 'apps/backend/src/modules/order';
 import dayjs from 'dayjs';
@@ -110,8 +110,17 @@ export function Market() {
   }
   async function onCancelOrder(id: bigint) {
     console.log("cancel: " + id);
-    await cancelOrder.mutateAsync(id);
-    onCancelSuccess(id);
+    try {
+      await cancelOrder.mutateAsync(id);
+      onCancelSuccess(id);
+      toast.success(
+        'Cancel success, please wait for DOT20 index update, it may take a few minutes.',
+      );
+    } catch (e) {
+      console.error(e);
+      const err = assertError(e);
+      toast.error(err.code);
+    }
   }
 
   function onBuySuccess(id: bigint) {
@@ -497,45 +506,6 @@ export function Market() {
                     </CardBody>
                   </Card>
                 )}
-                {/* <Table aria-label="collection table">
-                  <TableHeader>
-                    <TableColumn>Date Time</TableColumn>
-                    <TableColumn>Amount</TableColumn>
-                    <TableColumn>Unit Price</TableColumn>
-                    <TableColumn>Total Value</TableColumn>
-                    <TableColumn>Status</TableColumn>
-                    <TableColumn>Hash</TableColumn>
-                  </TableHeader>
-                  <TableBody emptyContent={'No Result'}>
-                    {myOrderList.list.map((order) => (
-                      <TableRow key={order.id}>
-                        <TableCell>
-                          {dayjs(order.updatedAt).format('YYYY-MM-DD HH:mm:ss')}
-                        </TableCell>
-                        <TableCell>{order.amount.toLocaleString()}</TableCell>
-                        <TableCell>
-                          {toUsd(
-                            calcUnitPrice(order.totalPrice, order.amount),
-                            globalState.dotPrice,
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          {toUsd(order.totalPrice, globalState.dotPrice)}
-                        </TableCell>
-                        <TableCell>{order.status}</TableCell>
-                        <TableCell>
-                          <Link
-                            isBlock
-                            showAnchorIcon
-                            target="_blank"
-                            href={`${polkadotScan}/extrinsic/${order.sellHash}`}
-                            color="primary"
-                          ></Link>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table> */}
               </InfiniteScroll>
             </Tab>
           </Tabs>
@@ -558,7 +528,7 @@ export function Market() {
           floorPrice={selectTickFloorPrice}
         />
       )}
-      <ConfirmModal isOpen={isCancelModalOpen} onOpenChange={onCancelModalOpenChange} onConfirm={() => onCancelOrder(cancelModalOrderId)}/>
+      <ConfirmModal text='Please confirm that you want to cancel the listing' isOpen={isCancelModalOpen} onOpenChange={onCancelModalOpenChange} onConfirm={() => onCancelOrder(cancelModalOrderId)}/>
     </>
   );
 }

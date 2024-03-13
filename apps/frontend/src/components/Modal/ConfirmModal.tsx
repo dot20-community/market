@@ -1,15 +1,16 @@
 import { Button, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader } from "@nextui-org/react";
-import { FC } from "react";
+import { FC, useState } from "react";
 
 export interface ConfirmModalContext {
+  text: string
   isOpen: boolean;
   onOpenChange: () => void;
-  onConfirm: () => void;
+  onConfirm: () => Promise<void>;
 }
 
 
-export const ConfirmModal: FC<ConfirmModalContext> = ({ isOpen, onOpenChange, onConfirm }) => {
-
+export const ConfirmModal: FC<ConfirmModalContext> = ({ text, isOpen, onOpenChange, onConfirm }) => {
+  const [isLoading, setIsLoading] = useState(false);
   return (
     <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
         <ModalContent>
@@ -18,11 +19,21 @@ export const ConfirmModal: FC<ConfirmModalContext> = ({ isOpen, onOpenChange, on
               <ModalHeader className="flex flex-col gap-1">Confirmation</ModalHeader>
               <ModalBody>
                 <p> 
-                  Please confirm that you want to cancel the listing
+                  {text}
                 </p>
               </ModalBody>
               <ModalFooter>
-                <Button color="primary" onPress={() => {onConfirm();onClose()}}>
+                <Button color="primary" isLoading={isLoading} onPress={async () => {
+                  setIsLoading(true)
+                  try {
+                    await onConfirm();
+                  } catch (e) {
+                    console.log(e)
+                  } finally {
+                    setIsLoading(false)
+                    onClose();
+                  }
+                }}>
                   Confirm
                 </Button>
               </ModalFooter>
