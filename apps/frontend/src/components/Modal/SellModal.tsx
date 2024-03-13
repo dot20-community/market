@@ -9,10 +9,10 @@ import {
   ModalFooter,
   ModalHeader,
 } from '@nextui-org/react';
-import { calcUnitPrice, fmtDot, toUsd } from '@utils/calc';
+import { calcUnitPrice, fmtDot, toDecimal, toUsd } from '@utils/calc';
 import { assertError, trpc } from '@utils/trpc';
 import { wallet } from '@utils/wallet';
-import { dot2Planck } from 'apps/libs/util';
+import { dot2Planck, planck2Dot } from 'apps/libs/util';
 import Decimal from 'decimal.js';
 import { FC, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -23,6 +23,7 @@ export interface SellModalContext {
   onOpenChange: () => void;
   onSuccess: (id: bigint) => void;
   tick: string;
+  floorPrice: bigint;
 }
 
 type FormType = {
@@ -39,6 +40,7 @@ export const SellModal: FC<SellModalContext> = ({
   onOpenChange,
   onSuccess,
   tick,
+  floorPrice
 }) => {
   const globalState = useGlobalStateStore((state) => state);
   const account = globalState.account!!;
@@ -46,6 +48,7 @@ export const SellModal: FC<SellModalContext> = ({
     register,
     handleSubmit,
     watch,
+    setValue,
     formState: { errors },
   } = useForm<FormType>();
   const [confirmLoading, setConfirmLoading] = useState(false);
@@ -56,6 +59,8 @@ export const SellModal: FC<SellModalContext> = ({
   const sell = trpc.order.sell.useMutation();
 
   useEffect(() => {
+    setValue("amount", 0)
+    setValue("totalPrice", 0)
     wallet.getBalance(account).then((balance) => {
       setBalance(new Decimal(balance.toString()));
     });
@@ -174,6 +179,14 @@ export const SellModal: FC<SellModalContext> = ({
                 variant="bordered"
                 isInvalid={!!errors.amount}
                 errorMessage={errors.amount?.message?.toString()}
+                value={amount ? String(amount) : ""}
+                endContent={
+                  <div className="flex items-center z-50">
+                    <Button size="sm" radius="full" color="primary" onPress={() => {
+                      setValue("amount", Number(dotaBalance.data?.balance || 0))
+                    }}>Max</Button>
+                  </div>
+                }
               />
               <div className="flex justify-end text-small">
                 <span className="text-primary">
@@ -193,9 +206,16 @@ export const SellModal: FC<SellModalContext> = ({
                 variant="bordered"
                 isInvalid={!!errors.totalPrice}
                 errorMessage={errors.totalPrice?.message?.toString()}
+                value={totalPrice ? String(totalPrice) : ""}
                 endContent={
-                  <div className="pointer-events-none flex items-center">
+                  <div className="flex items-center gap-2">
                     <span className="text-default-400 text-small">DOT</span>
+                    <Button size="sm"  radius="full" color="primary" onPress={() => {
+                      if (floorPrice && amount) {
+                        const totalPrice = planck2Dot(toDecimal(floorPrice).mul(amount)).toNumber()
+                        setValue("totalPrice", totalPrice)
+                      }
+                    }}>Auto</Button>
                   </div>
                 }
               />

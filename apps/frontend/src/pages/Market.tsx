@@ -81,6 +81,7 @@ export function Market() {
   const tickTrending = trpc.tick.trending.useQuery();
   const cancelOrder = trpc.order.cancel.useMutation();
 
+  const selectTickFloorPrice = tickTrending.data?.find(i => i.tick == selectTick)?.floorPrice || 0n
   const {
     isOpen: isOpenBuyModal,
     onOpen: onOpenBuyModal,
@@ -554,6 +555,7 @@ export function Market() {
           onOpenChange={onSellOpenChange}
           onSuccess={onSellSuccess}
           tick={selectTick}
+          floorPrice={selectTickFloorPrice}
         />
       )}
       <ConfirmModal isOpen={isCancelModalOpen} onOpenChange={onCancelModalOpenChange} onConfirm={() => onCancelOrder(cancelModalOrderId)}/>
