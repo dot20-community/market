@@ -136,7 +136,9 @@ export const SellModal: FC<SellModalContext> = ({
         return;
       }
       if (
-        ['NotExpendable', 'Inability'].some((item) => error.code.includes(item))
+        ['NotExpendable', 'Inability'].some(
+          (item) => error.message?.includes(item),
+        )
       ) {
         toast.error('Please make sure you have enough balance to pay');
         return;
