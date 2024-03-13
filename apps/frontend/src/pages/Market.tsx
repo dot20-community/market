@@ -196,7 +196,6 @@ export function Market() {
       tick: selectTick,
       cursor: listedOrderList.next,
       limit: pageSize,
-      excludeSeller: account,
       statues: ['LISTING', 'LOCKED'],
       orderBy: 'price_asc',
     });

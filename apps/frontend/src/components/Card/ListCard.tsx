@@ -75,8 +75,14 @@ export const ListCard: FC<ListCardContext> = ({ onOpenBuyModal, order }) => {
             </div>
             <Button
               className="w-[200px] mt-3"
-              color={isLocked(order.status) ? 'default' : 'primary'}
-              disabled={isLocked(order.status)}
+              color={
+                order.seller == globalState.account || isLocked(order.status)
+                  ? 'default'
+                  : 'primary'
+              }
+              disabled={
+                order.seller == globalState.account || isLocked(order.status)
+              }
               onClick={onOpenBuyModal}
             >
               {isLocked(order.status) ? 'Trading' : 'Buy'}
