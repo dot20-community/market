@@ -20,9 +20,12 @@ export function Account() {
   const account = globalState.account ?? '';
   const { client } = trpc.useUtils();
   const [tickList, setTickList] = useState<TickListRes>([]);
-  const [tick, setTick] = useState<string>('');
+  const [tick, setTick] = useState<string>('dota');
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
+  const tickTrending = trpc.tick.trending.useQuery();
+  const selectTickFloorPrice = tickTrending.data?.find(i => i.tick == tick)?.floorPrice || 0n
+  
   useEffect(() => {
     if (account) {
       client.account.tickList.query({ account }).then(setTickList);
@@ -69,6 +72,7 @@ export function Account() {
             location.href = '/market';
           }}
           tick={tick}
+          floorPrice={selectTickFloorPrice}
         />
       )}
     </div>
