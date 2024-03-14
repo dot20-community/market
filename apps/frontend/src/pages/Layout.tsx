@@ -173,7 +173,7 @@ export function Layout() {
 
       <footer className="inset-x-0 bottom-0 pm-4 pt-24">
         <div className="flex gap-6 justify-center">
-          <a href="https://twitter.com/dot20_dota" target="_blank">
+          <a href="https://twitter.com/JayPlayDota" target="_blank">
             <img
               alt="twitter"
               loading="lazy"
@@ -182,17 +182,6 @@ export function Layout() {
               decoding="async"
               data-nimg="1"
               src="/twitter.svg"
-            />
-          </a>
-          <a href="https://github.com/dot20-community" target="_blank">
-            <img
-              alt="github"
-              loading="lazy"
-              width="32"
-              height="32"
-              decoding="async"
-              data-nimg="1"
-              src="/github.svg"
             />
           </a>
           <a href="https://t.me/+R11nMCkuUZ0zN2M1" target="_blank">
@@ -204,6 +193,17 @@ export function Layout() {
               decoding="async"
               data-nimg="1"
               src="/tg.svg"
+            />
+          </a>
+          <a href="https://github.com/dot20-community" target="_blank">
+            <img
+              alt="github"
+              loading="lazy"
+              width="32"
+              height="32"
+              decoding="async"
+              data-nimg="1"
+              src="/github.svg"
             />
           </a>
         </div>
