@@ -91,6 +91,46 @@ export function Layout() {
           </NavbarItem>
         </NavbarContent>
         <NavbarContent justify="end">
+          <NavbarItem className="hidden md:flex">
+            <a href="https://twitter.com/JayPlayDota" target="_blank">
+              <img
+                color="red"
+                alt="twitter"
+                loading="lazy"
+                width="32"
+                height="32"
+                decoding="async"
+                data-nimg="1"
+                src="/twitter.svg"
+              />
+            </a>
+          </NavbarItem>
+          <NavbarItem className="hidden md:flex">
+            <a href="https://t.me/+R11nMCkuUZ0zN2M1" target="_blank">
+              <img
+                alt="telegram"
+                loading="lazy"
+                width="28"
+                height="28"
+                decoding="async"
+                data-nimg="1"
+                src="/tg.svg"
+              />
+            </a>
+          </NavbarItem>
+          <NavbarItem className="hidden md:flex">
+            <a href="https://github.com/dot20-community" target="_blank">
+              <img
+                alt="github"
+                loading="lazy"
+                width="32"
+                height="32"
+                decoding="async"
+                data-nimg="1"
+                src="/github.svg"
+              />
+            </a>
+          </NavbarItem>
           <NavbarItem>
             {account ? (
               <Dropdown>
@@ -188,8 +228,8 @@ export function Layout() {
             <img
               alt="telegram"
               loading="lazy"
-              width="32"
-              height="32"
+              width="28"
+              height="28"
               decoding="async"
               data-nimg="1"
               src="/tg.svg"
