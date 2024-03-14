@@ -13,9 +13,10 @@ export function calcUnitPrice(
   return totalPriceDec.mul(10000).div(toDecimal(amount));
 }
 
-export function fmtDecimal(value: Decimal) {
-  if (value.dp() > 4) {
-    return value.toFixed(4, Decimal.ROUND_UP);
+export function fmtDecimal(value: Decimal, dp?: number) {
+  const showDp = dp ?? 4;
+  if (value.dp() > showDp) {
+    return value.toFixed(showDp, Decimal.ROUND_UP);
   }
   return value.toFixed();
 }
@@ -25,6 +26,6 @@ export function fmtDot(dotPlanck: Decimal | bigint) {
   return fmtDecimal(dotAmt);
 }
 
-export function toUsd(dotPlanck: Decimal | bigint, price: number) {
-  return '$' + fmtDecimal(planck2Dot(toDecimal(dotPlanck)).mul(price));
+export function toUsd(dotPlanck: Decimal | bigint, price: number, dp?: number) {
+  return '$' + fmtDecimal(planck2Dot(toDecimal(dotPlanck)).mul(price), dp);
 }

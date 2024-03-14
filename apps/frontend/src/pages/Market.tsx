@@ -326,7 +326,7 @@ export function Market() {
                 <Card
                   key={item.tick}
                   isPressable={true}
-                  className={`w-[240px] cursor-pointer border-1 hover:border-primary ${
+                  className={`w-[220px] cursor-pointer border-1 hover:border-primary ${
                     selectTick === item.tick && 'border-primary'
                   }`}
                   onClick={() => changeTick(item.tick)}
@@ -354,7 +354,7 @@ export function Market() {
                       <Divider orientation="vertical" />
                       <div className="flex flex-col items-center justify-center w-full">
                         <span>
-                          {toUsd(item.totalVol, globalState.dotPrice)}
+                          {toUsd(item.totalVol, globalState.dotPrice, 2)}
                         </span>
                         <span className="text-foreground-400">Total Vol</span>
                       </div>
