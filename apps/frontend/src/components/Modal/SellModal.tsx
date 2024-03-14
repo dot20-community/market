@@ -213,7 +213,7 @@ export const SellModal: FC<SellModalContext> = ({
                     <Button size="sm"  radius="full" color="primary" onPress={() => {
                       if (floorPrice && amount) {
                         const totalPrice = planck2Dot(toDecimal(floorPrice).mul(amount)).toNumber()
-                        setValue("totalPrice", totalPrice)
+                        setValue("totalPrice", parseFloat(totalPrice.toFixed(4)))
                       }
                     }}>Auto</Button>
                   </div>
