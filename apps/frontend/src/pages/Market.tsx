@@ -81,7 +81,8 @@ export function Market() {
   const tickTrending = trpc.tick.trending.useQuery();
   const cancelOrder = trpc.order.cancel.useMutation();
 
-  const selectTickFloorPrice = tickTrending.data?.find(i => i.tick == selectTick)?.floorPrice || 0n
+  const selectTickFloorPrice =
+    tickTrending.data?.find((i) => i.tick == selectTick)?.floorPrice || 0n;
   const {
     isOpen: isOpenBuyModal,
     onOpen: onOpenBuyModal,
@@ -94,7 +95,7 @@ export function Market() {
     onOpenChange: onSellOpenChange,
   } = useDisclosure();
 
-  const [cancelModalOrderId, setCancelModalOrderId] = useState<bigint>(0n)
+  const [cancelModalOrderId, setCancelModalOrderId] = useState<bigint>(0n);
   const {
     isOpen: isCancelModalOpen,
     onOpen: onOpenCancelModal,
@@ -109,7 +110,7 @@ export function Market() {
     onOpenCancelModal();
   }
   async function onCancelOrder(id: bigint) {
-    console.log("cancel: " + id);
+    console.log('cancel: ' + id);
     try {
       await cancelOrder.mutateAsync(id);
       onCancelSuccess(id);
@@ -325,7 +326,7 @@ export function Market() {
                 <Card
                   key={item.tick}
                   isPressable={true}
-                  className={`min-min-w-[240px] w-[220px] cursor-pointer border-1 hover:border-primary ${
+                  className={`w-[240px] cursor-pointer border-1 hover:border-primary ${
                     selectTick === item.tick && 'border-primary'
                   }`}
                   onClick={() => changeTick(item.tick)}
@@ -495,7 +496,9 @@ export function Market() {
                         key={order.id}
                         order={order}
                         onUpdate={onCancelSuccess}
-                        onOpenCancelModal={() => onOpenCancelModalWithData(order.id)}
+                        onOpenCancelModal={() =>
+                          onOpenCancelModalWithData(order.id)
+                        }
                       />
                     ))}
                   </div>
@@ -528,7 +531,12 @@ export function Market() {
           floorPrice={selectTickFloorPrice}
         />
       )}
-      <ConfirmModal text='Please confirm that you want to cancel the listing' isOpen={isCancelModalOpen} onOpenChange={onCancelModalOpenChange} onConfirm={() => onCancelOrder(cancelModalOrderId)}/>
+      <ConfirmModal
+        text="Please confirm that you want to cancel the listing"
+        isOpen={isCancelModalOpen}
+        onOpenChange={onCancelModalOpenChange}
+        onConfirm={() => onCancelOrder(cancelModalOrderId)}
+      />
     </>
   );
 }
