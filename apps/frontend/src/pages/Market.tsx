@@ -382,7 +382,6 @@ export function Market() {
               clearList();
             }}
           />
-          {document.documentElement.clientWidth}
           <Tabs
             aria-label="Options"
             selectedKey={selectTab}
