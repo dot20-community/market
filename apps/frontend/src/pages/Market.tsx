@@ -3,7 +3,6 @@ import {
   Button,
   Card,
   CardBody,
-  CardHeader,
   Chip,
   Divider,
   Link,
@@ -18,20 +17,19 @@ import {
   useDisclosure,
 } from '@nextui-org/react';
 import { Order, Status } from '@prisma/client';
-import { calcUnitPrice, fmtDecimal, toDecimal, toUsd } from '@utils/calc';
+import { calcUnitPrice, toUsd } from '@utils/calc';
 import { assertError, trpc } from '@utils/trpc';
 import { desensitizeAddress } from '@utils/wallet';
 import { ListRes } from 'apps/backend/src/modules/order';
-import { planck2Dot } from 'apps/libs/util';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
 import { LuRefreshCw } from 'react-icons/lu';
-import { MdOutlineVerified } from 'react-icons/md';
 import { PiLightningLight } from 'react-icons/pi';
 import InfiniteScroll from 'react-infinite-scroller';
 import { toast } from 'react-toastify';
 import { ListCard } from '../components/Card/ListCard';
 import { MyListCard } from '../components/Card/MyListCard';
+import { TickCard } from '../components/Card/TIckCard';
 import { BuyModal } from '../components/Modal/BuyModal';
 import { ConfirmModal } from '../components/Modal/ConfirmModal';
 import { SellModal } from '../components/Modal/SellModal';
@@ -324,44 +322,11 @@ export function Market() {
           <div className="mb-2 pb-2 w-full overflow-x-auto">
             <div className="flex gap-4">
               {(tickTrending.data ?? []).map((item) => (
-                <Card
-                  key={item.tick}
-                  isPressable={true}
-                  className={`w-[260px] cursor-pointer border-1 hover:border-primary ${
-                    selectTick === item.tick && 'border-primary'
-                  }`}
-                  onClick={() => changeTick(item.tick)}
-                >
-                  <CardHeader className="flex gap-3 content-center justify-center items-center">
-                    <span className="text-xl font-bold">
-                      {item.tick.toUpperCase()}
-                    </span>
-                    {veryfyTicks.includes(item.tick) && (
-                      <MdOutlineVerified color="#4C6FFF" />
-                    )}
-                  </CardHeader>
-                  <Divider />
-                  <CardBody>
-                    <div className="flex gap-2 justify-center">
-                      <div className="flex flex-col items-center justify-center w-full">
-                        <span>
-                          {toUsd(
-                            toDecimal(item.floorPrice).mul(10000),
-                            globalState.dotPrice,
-                          )}
-                        </span>
-                        <span className="text-foreground-400">Floor Price</span>
-                      </div>
-                      <Divider orientation="vertical" />
-                      <div className="flex flex-col items-center justify-center w-full">
-                        <span>
-                          {fmtDecimal(planck2Dot(Number(item.totalVol)), 2)} DOT
-                        </span>
-                        <span className="text-foreground-400">Total Vol</span>
-                      </div>
-                    </div>
-                  </CardBody>
-                </Card>
+                <TickCard
+                  item={item}
+                  selected={selectTick === item.tick}
+                  changeTick={changeTick}
+                />
               ))}
             </div>
           </div>

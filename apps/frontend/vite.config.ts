@@ -1,17 +1,17 @@
 /// <reference types="vitest" />
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
 import { nxViteTsPaths } from '@nx/vite/plugins/nx-tsconfig-paths.plugin';
+import react from '@vitejs/plugin-react';
+import { defineConfig } from 'vite';
 import tsconfigPaths from 'vite-tsconfig-paths';
 
 export default defineConfig({
   server: {
     port: 4200,
-    host: 'localhost',
+    host: '0.0.0.0',
   },
   plugins: [
     react(),
-    tsconfigPaths({ projects: ['./tsconfig.app.json']}),
+    tsconfigPaths({ projects: ['./tsconfig.app.json'] }),
     nxViteTsPaths(),
   ],
 
