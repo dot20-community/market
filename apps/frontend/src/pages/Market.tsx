@@ -299,8 +299,8 @@ export function Market() {
 
   return (
     <>
-      <div className="flex w-full justify-center mt-10">
-        <div className="flex w-4/5 flex-col">
+      <div className="flex justify-center mt-10">
+        <div className="flex w-96 xs:w-full xs:px-2 flex-col lg:w-4/5">
           <div className="flex justify-between">
             <p className="text-large fw-600 mb-6 text-primary">
               Trending Inscriptions
@@ -397,7 +397,7 @@ export function Market() {
                 hasMore={listedOrderList.total === -1 || !!listedOrderList.next}
               >
                 {listedOrderList.list.length ? (
-                  <div className="flex items-center gap-4 flex-wrap">
+                  <div className="flex items-center gap-3 xs:gap-4 flex-wrap">
                     {listedOrderList.list.map((order) => (
                       <ListCard
                         key={order.id}

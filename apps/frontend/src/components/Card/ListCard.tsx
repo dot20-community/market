@@ -29,14 +29,14 @@ export const ListCard: FC<ListCardContext> = ({ onOpenBuyModal, order }) => {
   }
 
   return (
-    <Card className="w-[220px]">
+    <Card className="w-44 xs:w-56">
       <CardHeader>
         <div>
           <div className="text-xs">{order.tick.toUpperCase()}</div>
-          <div className="text-2xl mt-2 flex w-[200px] justify-center">
+          <div className="text-2xl mt-2 flex w-[152px] xs:w-[200px] justify-center">
             {order.amount.toLocaleString()}
           </div>
-          <div className="flex justify-center w-[200px]">
+          <div className="flex justify-center w-[152px] xs:w-[200px]">
             <div className="text-xs text-primary mt-2 flex ">
               {toUsd(
                 calcUnitPrice(order.totalPrice, order.amount),
@@ -62,7 +62,7 @@ export const ListCard: FC<ListCardContext> = ({ onOpenBuyModal, order }) => {
       <Divider />
       <CardFooter>
         <div>
-          <div className="w-[200px] text-sm flex justify-between">
+          <div className="w-[152px] xs:w-[200px] text-sm flex justify-between">
             <div>Seller</div>
             <Link
               className="text-xs"
@@ -73,7 +73,7 @@ export const ListCard: FC<ListCardContext> = ({ onOpenBuyModal, order }) => {
             </Link>
           </div>
           <Button
-            className="w-[200px] mt-3"
+            className="w-[152px] xs:w-[200px] mt-3"
             color={
               order.seller == globalState.account || isLocked(order.status)
                 ? 'default'
