@@ -6,7 +6,7 @@ import {
   CardFooter,
   CardHeader,
   Divider,
-  Image
+  Image,
 } from '@nextui-org/react';
 import { Order, Status } from '@prisma/client';
 import { calcUnitPrice, fmtDot, toUsd } from '@utils/calc';
@@ -30,7 +30,11 @@ export interface MyListCardContext {
   onOpenCancelModal: () => void;
 }
 
-export const MyListCard: FC<MyListCardContext> = ({ order, onUpdate, onOpenCancelModal }) => {
+export const MyListCard: FC<MyListCardContext> = ({
+  order,
+  onUpdate,
+  onOpenCancelModal,
+}) => {
   const globalState = useGlobalStateStore();
   const [cancelLoading, setCancelLoading] = useState(false);
   const cancel = trpc.order.cancel.useMutation();

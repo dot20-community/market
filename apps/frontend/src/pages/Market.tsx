@@ -18,10 +18,11 @@ import {
   useDisclosure,
 } from '@nextui-org/react';
 import { Order, Status } from '@prisma/client';
-import { calcUnitPrice, toDecimal, toUsd } from '@utils/calc';
+import { calcUnitPrice, fmtDecimal, toDecimal, toUsd } from '@utils/calc';
 import { assertError, trpc } from '@utils/trpc';
 import { desensitizeAddress } from '@utils/wallet';
 import { ListRes } from 'apps/backend/src/modules/order';
+import { planck2Dot } from 'apps/libs/util';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
 import { LuRefreshCw } from 'react-icons/lu';
@@ -326,7 +327,7 @@ export function Market() {
                 <Card
                   key={item.tick}
                   isPressable={true}
-                  className={`w-[220px] cursor-pointer border-1 hover:border-primary ${
+                  className={`w-[260px] cursor-pointer border-1 hover:border-primary ${
                     selectTick === item.tick && 'border-primary'
                   }`}
                   onClick={() => changeTick(item.tick)}
@@ -354,7 +355,7 @@ export function Market() {
                       <Divider orientation="vertical" />
                       <div className="flex flex-col items-center justify-center w-full">
                         <span>
-                          {toUsd(item.totalVol, globalState.dotPrice, 2)}
+                          {fmtDecimal(planck2Dot(Number(item.totalVol)), 2)} DOT
                         </span>
                         <span className="text-foreground-400">Total Vol</span>
                       </div>
@@ -364,7 +365,7 @@ export function Market() {
               ))}
             </div>
           </div>
-          <Divider className="mb-4" />
+          <Divider />
           <LuRefreshCw
             size={20}
             className={`relative top-[30px] left-64 cursor-pointer ${
