@@ -300,7 +300,7 @@ export function Market() {
   return (
     <>
       <div className="flex justify-center mt-10">
-        <div className="flex w-96 xs:w-full xs:px-2 flex-col lg:w-4/5">
+        <div className="flex w-88 xxs:w-96 xs:w-full xs:px-2 flex-col lg:w-4/5">
           <div className="flex justify-between">
             <p className="text-large fw-600 mb-6 text-primary">
               Trending Inscriptions
@@ -382,7 +382,7 @@ export function Market() {
               clearList();
             }}
           />
-
+          {document.documentElement.clientWidth}
           <Tabs
             aria-label="Options"
             selectedKey={selectTab}

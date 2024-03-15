@@ -17,9 +17,13 @@ module.exports = {
         primary: '#DE0376',
       },
       screens: {
+        xxs: '372px',
         xs: '480px',
         ...screens,
       },
+      width: {
+        '88': '22rem',
+      }
     },
   },
   darkMode: 'class',
