@@ -566,6 +566,8 @@ export const orderRouter = router({
           status: 'LOCKED',
           buyHash: extrinsic.hash.toString(),
           buyer: buyer,
+          buyServiceFee: BigInt(realServiceFeeDecimal.toFixed()),
+          buyPayPrice: BigInt(realTotalPriceDecimal.toFixed()),
           updatedAt: new Date(),
         },
       });
