@@ -60,14 +60,14 @@ export const MyListCard: FC<MyListCardContext> = ({
   }
 
   return (
-    <Card className="w-[220px]">
+    <Card className="w-[166px] xxs:w-44 xs:w-56">
       <CardHeader>
         <div>
           <div className="text-xs">{order.tick.toUpperCase()}</div>
-          <div className="text-2xl mt-2 flex w-[200px] justify-center">
+          <div className="text-2xl mt-2 flex w-[142px] xxs:w-[152px]  xs:w-[200px] justify-center">
             {order.amount.toLocaleString()}
           </div>
-          <div className="text-xs text-primary mt-2 flex w-[200px] justify-center">
+          <div className="text-xs text-primary mt-2 flex w-[142px] xxs:w-[152px]  xs:w-[200px] justify-center">
             {toUsd(
               calcUnitPrice(order.totalPrice, order.amount),
               globalState.dotPrice,
@@ -91,7 +91,7 @@ export const MyListCard: FC<MyListCardContext> = ({
       <CardFooter>
         <div>
           <Button
-            className="w-[200px] mt-3"
+            className="w-[142px] xxs:w-[152px]  xs:w-[200px] mt-3"
             color={!statusText[order.status] ? 'primary' : 'default'}
             disabled={!!statusText[order.status]}
             isLoading={cancelLoading}

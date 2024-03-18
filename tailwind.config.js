@@ -1,5 +1,5 @@
 import { nextui } from '@nextui-org/react';
-import { fontFamily } from 'tailwindcss/defaultTheme';
+import { fontFamily, screens } from 'tailwindcss/defaultTheme';
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
@@ -16,6 +16,14 @@ module.exports = {
       colors: {
         primary: '#DE0376',
       },
+      screens: {
+        xxs: '372px',
+        xs: '480px',
+        ...screens,
+      },
+      width: {
+        '88': '22rem',
+      }
     },
   },
   darkMode: 'class',
