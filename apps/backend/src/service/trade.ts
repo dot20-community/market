@@ -51,6 +51,19 @@ export async function sellInscribeCheck() {
           updatedAt: now,
         },
       });
+    } else if (status == 9) {
+      // 铭文不足，挂单失败
+      await prisma.order.update({
+        where: {
+          id: order.id,
+        },
+        data: {
+          status: 'FAILED',
+          chainStatus: 'SELL_INSCRIBE_FAILED',
+          failReason: 'Inscribe not enough',
+          updatedAt: now,
+        },
+      });
     }
   }
 }
@@ -86,6 +99,19 @@ export async function sellCancelInscribeCheck() {
           status: 'CANCELED',
           chainStatus: 'CANCEL_INSCRIBE_CONFIRMED',
           canceledAt: now,
+          updatedAt: now,
+        },
+      });
+    } else if (status == 9) {
+      // 铭文不足，挂单失败
+      await prisma.order.update({
+        where: {
+          id: order.id,
+        },
+        data: {
+          status: 'FAILED',
+          chainStatus: 'CANCEL_INSCRIBE_FAILED',
+          failReason: 'Inscribe not enough',
           updatedAt: now,
         },
       });
@@ -202,6 +228,19 @@ export async function buyInscribeCheck() {
           status: 'SOLD',
           chainStatus: 'TRADE_INSCRIBE_CONFIRMED',
           soldAt: now,
+          updatedAt: now,
+        },
+      });
+    } else if (status == 9) {
+      // 铭文不足，挂单失败
+      await prisma.order.update({
+        where: {
+          id: order.id,
+        },
+        data: {
+          status: 'FAILED',
+          chainStatus: 'TRADE_INSCRIBE_FAILED',
+          failReason: 'Inscribe not enough',
           updatedAt: now,
         },
       });
