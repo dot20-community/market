@@ -105,7 +105,7 @@ export async function submitSignedExtrinsicAndWait(
   try {
     return await new Promise(async (resolve, reject) => {
       let isFinalized = false;
-      // 如果30秒内没有收到最终确认，则通过subscan API检查状态
+      // 如果45秒内没有收到最终确认，则通过subscan API检查状态
       setTimeout(async () => {
         if (isFinalized) {
           return;
@@ -116,7 +116,7 @@ export async function submitSignedExtrinsicAndWait(
         } catch (e) {
           reject(e);
         }
-      }, 30000);
+      }, 45000);
 
       try {
         const unsub = await extrinsic.send(async (result) => {

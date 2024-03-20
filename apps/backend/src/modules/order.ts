@@ -461,9 +461,6 @@ export const orderRouter = router({
           })();
 
       const totalPage = Math.ceil(Number(total) / input.limit);
-      console.log('page', page);
-      console.log('total', total);
-      console.log('totalPage', totalPage);
       const nextCursor = page < totalPage ? (page + 1).toString() : undefined;
       const prevCursor = page > 1 ? (page - 1).toString() : undefined;
 
