@@ -59,9 +59,7 @@ export const BuyModal: FC<BuyModalContext> = ({
 
   useEffect(() => {
     setBalanceValidMsg(
-      balance.lt(totalPricePlanck.add(serviceFeePlanck))
-        ? 'Insufficient Balance'
-        : undefined,
+      balance.lt(payPricePlanck) ? 'Insufficient Balance' : undefined,
     );
   }, [balance]);
 
@@ -90,6 +88,14 @@ export const BuyModal: FC<BuyModalContext> = ({
       const error = assertError(e);
       if (error.code === 'USER_REJECTED') {
         toast.warn('User rejected');
+        return;
+      }
+      if (
+        ['Frozen', 'FundsUnavailable', 'NotExpendable', 'Inability'].some(
+          (item) => error.message?.includes(item),
+        )
+      ) {
+        toast.error('Please make sure you have enough balance to pay');
         return;
       }
       toast.error(error.code);

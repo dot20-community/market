@@ -40,7 +40,7 @@ export const SellModal: FC<SellModalContext> = ({
   onOpenChange,
   onSuccess,
   tick,
-  floorPrice
+  floorPrice,
 }) => {
   const globalState = useGlobalStateStore((state) => state);
   const account = globalState.account!!;
@@ -59,8 +59,8 @@ export const SellModal: FC<SellModalContext> = ({
   const sell = trpc.order.sell.useMutation();
 
   useEffect(() => {
-    setValue("amount", 0)
-    setValue("totalPrice", 0)
+    setValue('amount', 0);
+    setValue('totalPrice', 0);
     wallet.getBalance(account).then((balance) => {
       setBalance(new Decimal(balance.toString()));
     });
@@ -108,7 +108,7 @@ export const SellModal: FC<SellModalContext> = ({
 
   useEffect(() => {
     setBalanceValidMsg(
-      balance.lt(serviceFeePlanck) ? 'Insufficient Balance' : undefined,
+      balance.lt(payPricePlanck) ? 'Insufficient Balance' : undefined,
     );
   }, [balance, totalPrice]);
 
@@ -141,7 +141,7 @@ export const SellModal: FC<SellModalContext> = ({
         return;
       }
       if (
-        ['NotExpendable', 'Inability'].some(
+        ['Frozen', 'FundsUnavailable', 'NotExpendable', 'Inability'].some(
           (item) => error.message?.includes(item),
         )
       ) {
@@ -179,12 +179,22 @@ export const SellModal: FC<SellModalContext> = ({
                 variant="bordered"
                 isInvalid={!!errors.amount}
                 errorMessage={errors.amount?.message?.toString()}
-                value={amount ? String(amount) : ""}
+                value={amount ? String(amount) : ''}
                 endContent={
                   <div className="flex items-center z-50">
-                    <Button size="sm" radius="full" color="primary" onPress={() => {
-                      setValue("amount", Number(dotaBalance.data?.balance || 0))
-                    }}>Max</Button>
+                    <Button
+                      size="sm"
+                      radius="full"
+                      color="primary"
+                      onPress={() => {
+                        setValue(
+                          'amount',
+                          Number(dotaBalance.data?.balance || 0),
+                        );
+                      }}
+                    >
+                      Max
+                    </Button>
                   </div>
                 }
               />
@@ -206,16 +216,28 @@ export const SellModal: FC<SellModalContext> = ({
                 variant="bordered"
                 isInvalid={!!errors.totalPrice}
                 errorMessage={errors.totalPrice?.message?.toString()}
-                value={totalPrice ? String(totalPrice) : ""}
+                value={totalPrice ? String(totalPrice) : ''}
                 endContent={
                   <div className="flex items-center gap-2">
                     <span className="text-default-400 text-small">DOT</span>
-                    <Button size="sm"  radius="full" color="primary" onPress={() => {
-                      if (floorPrice && amount) {
-                        const totalPrice = planck2Dot(toDecimal(floorPrice).mul(amount)).toNumber()
-                        setValue("totalPrice", parseFloat(totalPrice.toFixed(4)))
-                      }
-                    }}>Auto</Button>
+                    <Button
+                      size="sm"
+                      radius="full"
+                      color="primary"
+                      onPress={() => {
+                        if (floorPrice && amount) {
+                          const totalPrice = planck2Dot(
+                            toDecimal(floorPrice).mul(amount),
+                          ).toNumber();
+                          setValue(
+                            'totalPrice',
+                            parseFloat(totalPrice.toFixed(4)),
+                          );
+                        }
+                      }}
+                    >
+                      Auto
+                    </Button>
                   </div>
                 }
               />

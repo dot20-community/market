@@ -19,6 +19,8 @@ export interface ServerOptions {
   dotaApiUrl: string;
   marketAccountMnemonic: string;
   marketAccount: string;
+  subscanApiEndpoint: string;
+  subscanApiKey: string;
   polkadotEndpoint: string;
   polkadotDecimals: number;
   serverFeeRate: number;

@@ -13,6 +13,8 @@ export const serverConfig: ServerOptions = {
   dotaApiUrl: get('DOTA_API_URL').required().asString(),
   marketAccountMnemonic: get('MARKET_ACCOUNT_MNEMONIC').required().asString(),
   marketAccount: get('VITE_MARKET_ACCOUNT').required().asString(),
+  subscanApiEndpoint: get('SUBSCAN_API_ENDPOINT').required().asString(),
+  subscanApiKey: get('SUBSCAN_API_KEY').required().asString(),
   polkadotEndpoint: get('VITE_POLKADOT_ENDPOINT').required().asString(),
   polkadotDecimals: get('VITE_POLKADOT_DECIMALS').required().asInt(),
   serverFeeRate: get('VITE_SERVER_FEE_RATE').required().asFloat(),
