@@ -79,6 +79,7 @@ export function Market() {
   const { client } = trpc.useUtils();
   const tickTrending = trpc.tick.trending.useQuery();
   const cancelOrder = trpc.order.cancel.useMutation();
+  const tickList = trpc.tick.list.useQuery();
 
   const selectTickFloorPrice =
     tickTrending.data?.find((i) => i.tick == selectTick)?.floorPrice || 0n;
@@ -324,6 +325,9 @@ export function Market() {
               {(tickTrending.data ?? []).map((item) => (
                 <TickCard
                   item={item}
+                  tickInfo={tickList.data?.find(
+                    (i) => i.tick.toLowerCase() == item.tick.toLowerCase(),
+                  )}
                   selected={selectTick === item.tick}
                   changeTick={changeTick}
                 />

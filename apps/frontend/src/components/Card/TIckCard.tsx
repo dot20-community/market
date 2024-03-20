@@ -22,6 +22,16 @@ export interface TickCardContext {
     totalAmt: bigint;
     totalVol: bigint;
   };
+  tickInfo:
+    | {
+        tick: string;
+        holder: number;
+        startBlock: number;
+        totalBlock: number;
+        totalSupply: bigint;
+        circulatingSupply: bigint;
+      }
+    | undefined;
   changeTick: (tick: string) => Promise<void>;
   selected: boolean;
 }
@@ -30,6 +40,7 @@ export const TickCard: FC<TickCardContext> = ({
   item,
   changeTick,
   selected,
+  tickInfo,
 }) => {
   const globalState = useGlobalStateStore();
   const [isOpenPopover, setIsOpenPopover] = useState(false);
@@ -63,8 +74,12 @@ export const TickCard: FC<TickCardContext> = ({
             <div className="px-1 py-2">
               <div className="text-small font-bold">INFO</div>
               <div className="text-small mt-2">
-                <div className="px-1 py-2">Holders: 26,897</div>
-                <div className="px-1 py-2">Total Supply: 21,000,000,000</div>
+                <div className="px-1 py-2">
+                  Holders: {tickInfo?.holder.toLocaleString()}
+                </div>
+                <div className="px-1 py-2">
+                  Total Supply: {tickInfo?.totalSupply.toLocaleString()}
+                </div>
               </div>
             </div>
           </PopoverContent>
