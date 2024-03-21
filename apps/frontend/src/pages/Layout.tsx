@@ -206,7 +206,10 @@ export function Layout() {
           </NavbarItem>
         </NavbarContent>
       </Navbar>
-
+      <div className="py-1 w-full bg-stone-600 flex justify-center ">
+        The official index is being upgraded and maintained, please wait
+        patiently.
+      </div>
       <main className="flex-grow">
         <Outlet />
       </main>
