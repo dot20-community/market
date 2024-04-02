@@ -6,6 +6,8 @@ import {
   Chip,
   Divider,
   Link,
+  Select,
+  SelectItem,
   Tab,
   Table,
   TableBody,
@@ -74,6 +76,7 @@ export function Market() {
   const { account } = globalState;
   const [selectTick, setSelectTick] = useState<string>('dota');
   const [selectTab, setSelectTab] = useState<string>('Listed');
+  const [selectStatus, setSelectStatus] = useState<string>('All');
   const [listRefresh, setListRefresh] = useState(false);
   const [autoRefresh, setAutoRefresh] = useState<AutoRefresh | null>(null);
   const { client } = trpc.useUtils();
@@ -384,6 +387,28 @@ export function Market() {
               </InfiniteScroll>
             </Tab>
             <Tab key="Orders" title="Orders">
+              <div className="flex justify-end">
+                <Select
+                  size="sm"
+                  label="Filter status"
+                  className="w-40 mb-4 -mt-12"
+                  selectedKeys={[selectStatus]}
+                  onChange={(e) => setSelectStatus(e.target.value)}
+                >
+                  <SelectItem key={'All'} value={'All'}>
+                    All
+                  </SelectItem>
+                  <SelectItem key={'listing'} value={'listing'}>
+                    Listing
+                  </SelectItem>
+                  <SelectItem key={'sold'} value={'sold'}>
+                    Sold
+                  </SelectItem>
+                  <SelectItem key={'canceled'} value={'canceled'}>
+                    Canceled
+                  </SelectItem>
+                </Select>
+              </div>
               <InfiniteScroll
                 loadMore={fetchOrderList}
                 hasMore={orderList.total === -1 || !!orderList.next}
