@@ -6,6 +6,7 @@ import { useEffect } from 'react';
 import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 import 'react-toastify/dist/ReactToastify.css';
 import { Account } from '../pages/Account';
+import { CrossChain } from '../pages/CrossChain';
 import { Home } from '../pages/Home';
 import { Layout } from '../pages/Layout';
 import { Market } from '../pages/Market';
@@ -35,6 +36,7 @@ export function App() {
           <Route index element={<Home />} />
           <Route path="account" element={<Account />} />
           <Route path="market" element={<Market />} />
+          <Route path="cross-chain" element={<CrossChain />} />
           <Route path="*" element={<NoMatch />} />
         </Route>
       </Routes>

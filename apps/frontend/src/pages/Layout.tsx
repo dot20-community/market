@@ -81,6 +81,11 @@ export function Layout() {
             </Link>
           </NavbarItem>
           <NavbarItem>
+            <Link href="/cross-chain" color="foreground">
+              CROSS-CHAIN
+            </Link>
+          </NavbarItem>
+          <NavbarItem>
             <Link
               color="foreground"
               href="https://dota.fyi/inscribe/"
