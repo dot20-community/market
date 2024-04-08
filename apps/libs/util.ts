@@ -18,6 +18,11 @@ export function setPolkadotEndpoint(endpoint: string) {
   POLKADOT_ENDPOINT = endpoint;
 }
 
+let ASSET_HUB_ENDPOINT: string;
+export function setAssetHubEndpoint(endpoint: string) {
+  ASSET_HUB_ENDPOINT = endpoint;
+}
+
 let api: ApiPromise;
 export async function getApi(): Promise<ApiPromise> {
   if (!api) {
@@ -25,6 +30,15 @@ export async function getApi(): Promise<ApiPromise> {
     api = await ApiPromise.create({ provider });
   }
   return api;
+}
+
+let assetHubApi: ApiPromise;
+export async function getAssetHubApi(): Promise<ApiPromise> {
+  if (!assetHubApi) {
+    const provider = new WsProvider(ASSET_HUB_ENDPOINT);
+    assetHubApi = await ApiPromise.create({ provider });
+  }
+  return assetHubApi;
 }
 
 /**
@@ -39,7 +53,7 @@ export function fmtAddress(address: string): string {
 /**
  * 转换planck到dot
  */
-export function planck2Dot(balance: number | u128 | Decimal): Decimal {
+export function planck2Dot(balance: number | u128 | Decimal | string): Decimal {
   const value =
     balance instanceof Decimal ? balance : new Decimal(balance.toString());
   return value.div(decimalsPow());
@@ -48,9 +62,27 @@ export function planck2Dot(balance: number | u128 | Decimal): Decimal {
 /**
  * 转换dot到planck
  */
-export function dot2Planck(dot: number | u128 | Decimal): Decimal {
+export function dot2Planck(dot: number | u128 | Decimal | string): Decimal {
   const value = dot instanceof Decimal ? dot : new Decimal(dot.toString());
   return value.mul(decimalsPow());
+}
+
+export function fmtAssetBalance(
+  balance: number | u128 | Decimal | string,
+  decimals: Decimal.Value,
+): Decimal {
+  const value =
+    balance instanceof Decimal ? balance : new Decimal(balance.toString());
+  return value.div(new Decimal(10).pow(decimals));
+}
+
+export function assetAmountToDecimal(
+  amount: number | u128 | Decimal | string,
+  decimals: Decimal.Value,
+) {
+  const value =
+    amount instanceof Decimal ? amount : new Decimal(amount.toString());
+  return value.mul(new Decimal(10).pow(decimals));
 }
 
 /**

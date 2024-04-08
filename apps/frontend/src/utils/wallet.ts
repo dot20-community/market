@@ -10,9 +10,18 @@ import type {
   InjectedExtension,
 } from '@polkadot/extension-inject/types';
 // eslint-disable-next-line @nx/enforce-module-boundaries
+import { SubmittableExtrinsic } from '@polkadot/api/types';
 import { u128 } from '@polkadot/types';
 import { BN } from '@polkadot/util';
-import { buildInscribeTransfer, fmtAddress, getApi } from 'apps/libs/util';
+import {
+  assetAmountToDecimal,
+  buildInscribeTransfer,
+  dot2Planck,
+  fmtAddress,
+  fmtAssetBalance,
+  getApi,
+  getAssetHubApi,
+} from 'apps/libs/util';
 import { Decimal } from 'decimal.js';
 import { BizError } from '../../../libs/error';
 
@@ -52,6 +61,172 @@ export class Wallet {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment
     const result = (await api.query.system.account(address)) as any;
     return result.data.free.toBn() as u128;
+  }
+
+  /**
+   * 查询AssetHub指定资产余额
+   * @param assetId
+   * @param address
+   */
+  async getAssetHubBalance(assetId: BN, address: string): Promise<number> {
+    const api = await getAssetHubApi();
+    const assetMetadataRes = await api.query.assets.metadata(assetId);
+    const assetMetadata: any = assetMetadataRes.toPrimitive();
+    const balanceInfoRes = await api.query.assets.account(assetId, address);
+    const balanceInfo: any = balanceInfoRes.toPrimitive();
+    const balance = fmtAssetBalance(
+      balanceInfo['balance'],
+      assetMetadata['decimals'],
+    );
+    return balance.toNumber();
+  }
+
+  /**
+   * 转账AssetHub指定资产
+   * @param assetId
+   * @param from
+   * @param to
+   * @param amount
+   * @param cb
+   */
+  async assetHubTransfer(
+    assetId: BN,
+    from: string,
+    to: string,
+    amount: number | u128 | Decimal | string,
+    cb: (hash: string) => void,
+  ) {
+    const api = await getAssetHubApi();
+    const assetMetadataRes = await api.query.assets.metadata(assetId);
+    const assetMetadata: any = assetMetadataRes.toPrimitive();
+    const assetDecimals = assetMetadata['decimals'];
+    const tx = api.tx.assets.transferKeepAlive(
+      assetId,
+      to,
+      new BN(assetAmountToDecimal(amount, assetDecimals).toString()),
+    );
+    await this.signAndSend(tx, from, cb);
+  }
+
+  /**
+   * 跨链转账
+   * @param from
+   * @param to
+   * @param amount
+   */
+  async dot2AssetHub(
+    from: string,
+    to: string,
+    amount: number | u128 | Decimal | string,
+    cb: (hash: string) => void,
+  ) {
+    const api = await getApi();
+    const p1 = { V3: { interior: { X1: { ParaChain: 1000 } }, parents: 0 } };
+    const p2 = {
+      V3: {
+        interior: {
+          X1: {
+            AccountId32: {
+              id: api.createType('AccountId32', to).toHex(),
+              network: null,
+            },
+          },
+        },
+        parents: 0,
+      },
+    };
+    const p3 = {
+      V3: [
+        {
+          fun: {
+            Fungible: new BN(dot2Planck(amount).toString()),
+          },
+          id: {
+            Concrete: {
+              interior: 'Here',
+              parents: 0,
+            },
+          },
+        },
+      ],
+    };
+    const tx = api.tx.xcmPallet.limitedTeleportAssets(p1, p2, p3, 0, {
+      Unlimited: null,
+    });
+    await this.signAndSend(tx, from, cb);
+  }
+
+  /**
+   * 跨链转账
+   * @param from
+   * @param to
+   * @param amount
+   */
+  async assetHub2Dot(
+    from: string,
+    to: string,
+    amount: number | u128 | Decimal | string,
+    cb: (hash: string) => void,
+  ) {
+    const api = await getAssetHubApi();
+    const p1 = { V3: { interior: 'Here', parents: 1 } };
+    const p2 = {
+      V3: {
+        interior: {
+          X1: {
+            AccountId32: {
+              id: api.createType('AccountId32', to).toHex(),
+              network: null,
+            },
+          },
+        },
+        parents: 0,
+      },
+    };
+    const p3 = {
+      V3: [
+        {
+          fun: {
+            Fungible: new BN(dot2Planck(amount).toString()),
+          },
+          id: {
+            Concrete: {
+              interior: 'Here',
+              parents: 1,
+            },
+          },
+        },
+      ],
+    };
+    const tx = api.tx.polkadotXcm.limitedTeleportAssets(p1, p2, p3, 0, {
+      Unlimited: null,
+    });
+    await this.signAndSend(tx, from, cb);
+  }
+
+  async signAndSend(
+    tx: SubmittableExtrinsic<'promise', any>,
+    account: string,
+    cb: (hash: string) => void,
+  ) {
+    const accountInfo = this.accounts.find((i) => i.address === account);
+    if (!accountInfo) {
+      throw new BizError({ code: 'NO_ACCOUNT' });
+    }
+    const injected = await web3FromSource(accountInfo.meta.source);
+    const unsub = await tx.signAndSend(
+      account,
+      { signer: injected.signer },
+      ({ events, status }) => {
+        console.log('Transaction status:', status.type);
+        if (status.isInBlock) {
+          const hash = status.asInBlock.toHex();
+          console.log('Completed at block hash', hash);
+          unsub();
+          cb(hash);
+        }
+      },
+    );
   }
 
   /**
