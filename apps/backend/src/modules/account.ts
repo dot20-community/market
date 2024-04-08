@@ -94,20 +94,6 @@ function mockTickList(
   return realData.concat(result);
 }
 
-export async function getAccountTick(
-  host: string,
-  account: string,
-  tick: string,
-): Promise<TickBalanceRes> {
-  const list = await getAccountTickList(host, account);
-  const item = list.find(
-    (item) => item.tick.toLocaleLowerCase() === tick.toLocaleLowerCase(),
-  );
-  return {
-    balance: item?.balance ?? 0n,
-  };
-}
-
 export const accountRouter = router({
   /**
    * 获取账号铭文列表
@@ -116,17 +102,5 @@ export const accountRouter = router({
     .input((input) => input as TickListReq)
     .query(async ({ input, ctx }): Promise<TickListRes> => {
       return await getAccountTickList(ctx.opts.dotaApiUrl, input.account);
-    }),
-  /**
-   * 查询账号指定铭文余额
-   */
-  tick: noAuthProcedure
-    .input((input) => input as TickBalanceReq)
-    .query(async ({ input, ctx }): Promise<TickBalanceRes> => {
-      return await getAccountTick(
-        ctx.opts.dotaApiUrl,
-        input.account,
-        input.tick,
-      );
     }),
 });

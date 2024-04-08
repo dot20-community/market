@@ -60,23 +60,23 @@ export class Wallet {
    * @param seller 发送方地址
    * @param marker 市场方地址
    * @param dotAmt 转账的 DOT 数量
-   * @param inscribeTick 转账的铭文名称
-   * @param inscribeAmt 转账的的铭文数量
+   * @param transferTick 转账的铭文名称
+   * @param transferAmt 转账的的铭文数量
    */
   async signTransferInscribe(
     seller: string,
     marker: string,
     dotAmt: Decimal,
-    inscribeTick: string,
-    inscribeAmt: number,
+    transferTick: string,
+    transferAmt: Decimal,
   ): Promise<string> {
     const api = await getApi();
 
     const injected = await this.request(seller);
     const transfer = buildInscribeTransfer(
       api,
-      inscribeTick,
-      inscribeAmt,
+      transferTick,
+      transferAmt,
       marker,
       dotAmt,
     );
@@ -153,7 +153,13 @@ export async function getGas(): Promise<u128> {
   const api = await getApi();
 
   const testAddress = import.meta.env.VITE_MARKET_ACCOUNT;
-  const transfer = buildInscribeTransfer(api, 'DOTA', 5000, testAddress);
+  const transfer = buildInscribeTransfer(
+    api,
+    '18',
+    new Decimal(5000000),
+    testAddress,
+    new Decimal(0),
+  );
   // Estimate the gas fee
   const paymentInfo = await transfer.paymentInfo(testAddress);
   return paymentInfo.partialFee.toBn() as u128;

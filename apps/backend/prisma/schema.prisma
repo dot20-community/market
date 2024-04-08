@@ -25,25 +25,38 @@ enum ChainStatus {
   PENDING // 挂单中
   SELL_BLOCK_CONFIRMED // 卖单区块已确认
   SELL_BLOCK_FAILED // 卖单区块确认失败
-  SELL_INSCRIBE_CONFIRMED // 卖单铭文索引确认成功
-  SELL_INSCRIBE_FAILED // 卖单铭文索引确认失败
+  // SELL_INSCRIBE_CONFIRMED // 卖单铭文索引确认成功
+  // SELL_INSCRIBE_FAILED // 卖单铭文索引确认失败
   CANCEL_BLOCK_CONFIRMED // 取消挂单区块已确认
   CANCEL_BLOCK_FAILED // 取消挂单区块确认失败
-  CANCEL_INSCRIBE_CONFIRMED // 取消挂单铭文索引确认成功
-  CANCEL_INSCRIBE_FAILED // 取消挂单铭文索引确认失败
+  // CANCEL_INSCRIBE_CONFIRMED // 取消挂单铭文索引确认成功
+  // CANCEL_INSCRIBE_FAILED // 取消挂单铭文索引确认失败
   BUY_BLOCK_CONFIRMED // 买单区块已确认
   BUY_BLOCK_FAILED // 买单区块确认失败
   TRADE_BLOCK_CONFIRMED // 交易成功转账铭文给买家的区块已确认
   TRADE_BLOCK_FAILED // 交易成功转账铭文给买家的区块确认失败
-  TRADE_INSCRIBE_CONFIRMED // 交易成功转账铭文给买家的铭文索引确认成功
-  TRADE_INSCRIBE_FAILED // 交易成功转账铭文给买家的铭文索引确认失败
+}
+
+model Asset {
+  id        BigInt   @id @default(autoincrement())
+  assetId   String   @map("asset_id") @db.VarChar(32)
+  name      String   @db.VarChar(128)
+  symbol    String   @db.VarChar(32)
+  decimals  Int
+  supply    BigInt
+  holder    BigInt
+  createdAt DateTime @map("created_at")
+  updatedAt DateTime @map("updated_at")
+
+  @@unique([assetId])
+  @@map("assets")
 }
 
 model Order {
   id             BigInt      @id @default(autoincrement())
   seller         String      @db.VarChar(64)
   buyer          String?     @db.VarChar(64)
-  tick           String      @db.VarChar(16)
+  assetId        String      @map("asset_id") @db.VarChar(32)
   amount         BigInt
   status         Status      @default(PENDING)
   chainStatus    ChainStatus @default(PENDING) @map("chain_status")

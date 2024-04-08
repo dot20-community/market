@@ -2,20 +2,33 @@ import { ApiPromise, WsProvider } from '@polkadot/api';
 import { SubmittableExtrinsic } from '@polkadot/api/types';
 import { u128 } from '@polkadot/types';
 import { Extrinsic } from '@polkadot/types/interfaces';
+import { BN } from '@polkadot/util';
 import { decodeAddress, encodeAddress } from '@polkadot/util-crypto';
 import { Decimal } from 'decimal.js';
 
 let POLKADOT_DECIMALS: number;
-const decimalsPow = () => new Decimal(10).pow(POLKADOT_DECIMALS);
-
 export function setPolkadotDecimals(decimals: number | string) {
   POLKADOT_DECIMALS =
     typeof decimals === 'string' ? parseInt(decimals) : decimals;
+}
+export function getPolkadotDecimals() {
+  return POLKADOT_DECIMALS;
 }
 
 let POLKADOT_ENDPOINT: string;
 export function setPolkadotEndpoint(endpoint: string) {
   POLKADOT_ENDPOINT = endpoint;
+}
+export function getPolkadotEndpoint() {
+  return POLKADOT_ENDPOINT;
+}
+
+let ASSET_IDS: number[];
+export function setAssetIds(ids: number[]) {
+  ASSET_IDS = ids;
+}
+export function getAssetIds() {
+  return ASSET_IDS;
 }
 
 let api: ApiPromise;
@@ -39,24 +52,33 @@ export function fmtAddress(address: string): string {
 /**
  * 转换planck到dot
  */
-export function planck2Dot(balance: number | u128 | Decimal): Decimal {
+export function planck2Dot(
+  balance: number | u128 | Decimal | bigint,
+  decimals?: number,
+): Decimal {
   const value =
     balance instanceof Decimal ? balance : new Decimal(balance.toString());
-  return value.div(decimalsPow());
+  return value.div(new Decimal(10).pow(decimals || POLKADOT_DECIMALS));
 }
 
 /**
  * 转换dot到planck
  */
-export function dot2Planck(dot: number | u128 | Decimal): Decimal {
+export function dot2Planck(
+  dot: number | u128 | Decimal,
+  decimals?: number,
+): Decimal {
   const value = dot instanceof Decimal ? dot : new Decimal(dot.toString());
-  return value.mul(decimalsPow());
+  return value.mul(new Decimal(10).pow(decimals || POLKADOT_DECIMALS));
 }
 
 /**
  * 链上科学计数法转换成planck
  */
-export function str2Planck(value: string): Decimal {
+export function str2Planck(value?: string): Decimal {
+  if (!value) {
+    return new Decimal(0);
+  }
   return new Decimal(value.replace(/,/g, ''));
 }
 
@@ -69,25 +91,44 @@ export function isNumber(value: string) {
   return /^-?\d+\.?\d*$/.test(value);
 }
 
-export function buildInscribeTransferRemark(tick: string, amt: number): string {
-  return `{"p":"dot-20","op":"transfer","tick":"${tick}","amt":${amt}}`;
+/**
+ * 获取账户指定资产余额，单位: planck
+ * @param api
+ * @param account
+ */
+export async function getAssetBalance(
+  api: ApiPromise,
+  assetId: string,
+  account: string,
+) {
+  const data = await api.query.assets.account(new BN(assetId), account);
+  const json = data.toHuman() as any;
+  return str2Planck(json?.balance);
 }
 
 export function buildInscribeTransfer(
   api: ApiPromise,
-  tick: string,
-  amt: number,
+  assetId: string,
+  amt: Decimal,
   to: string,
-  dotAmt?: Decimal,
+  dotAmt: Decimal,
 ): SubmittableExtrinsic<'promise'> {
-  const tx1 = api.tx.balances.transferKeepAlive(
+  const tx1 = api.tx.balances.transferKeepAlive(to, dotAmt.toFixed());
+  const tx2 = api.tx.assets.transferKeepAlive(
+    parseInt(assetId),
     to,
-    dotAmt ? dotAmt.toFixed() : 0,
-  );
-  const tx2 = api.tx.system.remarkWithEvent(
-    buildInscribeTransferRemark(tick.toUpperCase(), amt),
+    amt.toFixed(),
   );
   return api.tx.utility.batchAll([tx1, tx2]);
+}
+
+export function buildAssetTransfer(
+  api: ApiPromise,
+  assetId: string,
+  amt: Decimal,
+  to: string,
+): SubmittableExtrinsic<'promise'> {
+  return api.tx.assets.transferKeepAlive(parseInt(assetId), to, amt.toFixed());
 }
 
 export type TransferCall = {
@@ -95,11 +136,17 @@ export type TransferCall = {
   value: Decimal;
 };
 
+export type TransferAssetCall = {
+  assetId: string;
+  to: string;
+  value: Decimal;
+};
+
 export type InscribeTransfer = {
   from: string;
-  inscribeTick: string;
-  inscribeAmt: number;
-} & TransferCall;
+  transfer: TransferCall;
+  assetTransfer: TransferAssetCall;
+};
 
 export type BatchTransfer = {
   from: string;
@@ -119,42 +166,21 @@ export function parseInscribeTransfer(ex: Extrinsic): InscribeTransfer | null {
   }
 
   const call0 = methodJson.args.calls[0];
-  const call0Transfer = verifyIsTransferKeepAlive(call0);
+  const call0Transfer = verifyIsBalanceTransferKeepAlive(call0);
   if (!call0Transfer) {
     return null;
   }
 
   const call1 = methodJson.args.calls[1];
-  if (
-    !['remarkWithEvent'].includes(call1?.method as string) ||
-    call1?.section !== 'system' ||
-    !call1?.args?.remark
-  ) {
-    return null;
-  }
-
-  // Remove the spaces in the memo, replace single quotes with double quotes, then convert everything to lowercase
-  const remark = (call1.args.remark as string)
-    .replaceAll(' ', '')
-    .replaceAll("'", '"')
-    .toLowerCase();
-  // Try to parse the remark as a JSON object
-  let content: any;
-  try {
-    content = JSON.parse(remark);
-  } catch (err) {
-    return null;
-  }
-
-  if (remark !== buildInscribeTransferRemark(content.tick, content.amt)) {
+  const call1Transfer = verifyIsAssetTransferKeepAlive(call1);
+  if (!call1Transfer) {
     return null;
   }
 
   return {
-    ...call0Transfer,
     from: fmtAddress(ex.signer.toString()),
-    inscribeTick: content.tick,
-    inscribeAmt: content.amt,
+    transfer: call0Transfer,
+    assetTransfer: call1Transfer,
   };
 }
 
@@ -171,12 +197,12 @@ export function parseBatchTransfer(ex: Extrinsic): BatchTransfer | null {
   }
 
   const call0 = methodJson.args.calls[0];
-  const call0Transfer = verifyIsTransferKeepAlive(call0);
+  const call0Transfer = verifyIsBalanceTransferKeepAlive(call0);
   if (!call0Transfer) {
     return null;
   }
   const call1 = methodJson.args.calls[1];
-  const call1Transfer = verifyIsTransferKeepAlive(call1);
+  const call1Transfer = verifyIsBalanceTransferKeepAlive(call1);
   if (!call1Transfer) {
     return null;
   }
@@ -191,7 +217,7 @@ function verifyIsBatchUtil(ex: Extrinsic): boolean {
   return ex.method.method === 'batchAll' && ex.method.section === 'utility';
 }
 
-function verifyIsTransferKeepAlive(call: any): TransferCall | null {
+function verifyIsBalanceTransferKeepAlive(call: any): TransferCall | null {
   if (
     call?.method !== 'transferKeepAlive' ||
     call?.section !== 'balances' ||
@@ -205,6 +231,25 @@ function verifyIsTransferKeepAlive(call: any): TransferCall | null {
   return {
     to: fmtAddress(call.args.dest.Id),
     value: str2Planck(call.args.value),
+  };
+}
+
+function verifyIsAssetTransferKeepAlive(call: any): TransferAssetCall | null {
+  if (
+    call?.method !== 'transferKeepAlive' ||
+    call?.section !== 'assets' ||
+    !call?.args?.id ||
+    !call?.args?.target?.Id ||
+    call.args.target.Id.length < 40 ||
+    !call?.args?.amount
+  ) {
+    return null;
+  }
+
+  return {
+    assetId: call.args.id.replace(/,/g, ''),
+    to: fmtAddress(call.args.target.Id),
+    value: str2Planck(call.args.amount),
   };
 }
 

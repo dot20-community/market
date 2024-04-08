@@ -1,66 +1,68 @@
 import { ApiPromise, Keyring } from '@polkadot/api';
 import { SubmittableExtrinsic } from '@polkadot/api/types';
-import { fmtAddress } from 'apps/libs/util';
-import { serverConfig } from '../configs/server.config';
 
 /**
- * 通过subscan API查询交易状态
+ * 通过回溯历史区块中的事务hash查询事务状态，如果事务成功则返回null，否则返回错误信息字符串
  * @param extrinsic
  */
-async function checkExtrinsicBySubscan(api: ApiPromise, extrinsic: SubmittableExtrinsic<'promise'>) {
+async function checkExtrinsicByHistory(
+  api: ApiPromise,
+  extrinsic: SubmittableExtrinsic<'promise'>,
+) {
+  async function doCheck(blockNumber: number) {
+    let err: any;
+    // 重试10次
+    for (let i = 0; i < 10; i++) {
+      try {
+        const blockHash = await api.rpc.chain.getBlockHash(blockNumber);
+        const signedBlock = await api.rpc.chain.getBlock(blockHash);
+        const match = signedBlock.block.extrinsics
+          .map((extrinsic, index) => ({
+            ex: extrinsic,
+            ei: index,
+          }))
+          .find(({ ex }) => ex.hash.toString() === extrinsic.hash.toString());
 
-  async function doCheck() {
-    // 根据subscan API查询用户对应的区块号和交易索引
-    var headers = new Headers();
-    headers.append("Content-Type", "application/json");
-    var raw = JSON.stringify({
-      "address": fmtAddress(extrinsic.signer.toString()),
-      "finalized": true,
-      "module": "transactionpayment",
-      "event_id": "TransactionFeePaid",
-      "order": "desc",
-      "page": 0,
-      "row": 30
-    });
-    const resp = await fetch(`${serverConfig.subscanApiEndpoint}/api/v2/scan/events`, {
-      method: 'POST',
-      headers,
-      body: raw,
-    })
-    const data = await resp.json();
-    if (data.code !== 0) {
-      throw new Error(JSON.stringify({ code: data.code, message: data.message }));
+        if (!match) {
+          return null;
+        }
+
+        // 获取交易事务的events并检查是否成功
+        const apiAt = await api.at(signedBlock.block.header.hash);
+        const allRecords = (await apiAt.query.system.events()) as any;
+        const errorMsg = checkExtrinsicStatus(
+          api,
+          allRecords.filter(
+            ({ phase }: any) =>
+              phase.isApplyExtrinsic && phase.asApplyExtrinsic.eq(match.ei),
+          ),
+        );
+        return {
+          errorMsg,
+        };
+      } catch (e) {
+        err = e;
+      }
+      await new Promise((resolve) => setTimeout(resolve, 5000));
     }
-    const match = data.data.events.find((event: any) => event.extrinsic_hash === extrinsic.hash.toString());
-    if (!match) {
-      throw new Error(`Extrinsic hash ${extrinsic.hash.toString()} not found`);
-    }
-
-    const [blockNumber, extrinsicIndex] = match.extrinsic_index.split('-')
-
-    // 获取交易事务的events并检查是否成功
-    const blockHash = await api.rpc.chain.getBlockHash(blockNumber);
-    const signedBlock = await api.rpc.chain.getBlock(blockHash);
-    const apiAt = await api.at(signedBlock.block.header.hash);
-    const allRecords = (await apiAt.query.system.events()) as any;
-    return checkExtrinsicStatus(api, allRecords.filter(({ phase }: any) =>
-      phase.isApplyExtrinsic &&
-      phase.asApplyExtrinsic.eq(extrinsicIndex)
-    ))
+    throw new Error(`checkExtrinsicByHistory failed: ${err}`);
   }
 
-  let err: any = null;
-  // 重试10次
-  for (let i = 0; i < 10; i++) {
-    try {
-      return await doCheck();
-    } catch (e) {
-      err = e;
+  // 获取当前区块高度
+  const finalizedHead = await api.rpc.chain.getFinalizedHead();
+  const header = await api.rpc.chain.getHeader(finalizedHead);
+  const blockNumber = header.number.toNumber();
+  // 从当前区块开始检查，到当前区块-30
+  for (let i = 0; i < 30; i++) {
+    const result = await doCheck(blockNumber - i);
+    // 如果没有找到事务则继续
+    if (!result) {
+      continue;
     }
-    await new Promise((resolve) => setTimeout(resolve, 5000));
+    return result.errorMsg;
   }
 
-  throw new Error(`CheckExtrinsicBySubscan failed: ${err}`);
+  throw new Error(`checkExtrinsicByHistory not found`);
 }
 
 function checkExtrinsicStatus(api: ApiPromise, events: any[]): string | null {
@@ -77,9 +79,7 @@ function checkExtrinsicStatus(api: ApiPromise, events: any[]): string | null {
           // for module errors, we have the section indexed, lookup
           // (For specific known errors, we can also do a check against the
           // api.errors.<module>.<ErrorName>.is(dispatchError.asModule) guard)
-          const decoded = api.registry.findMetaError(
-            dispatchError.asModule,
-          );
+          const decoded = api.registry.findMetaError(dispatchError.asModule);
           errorMsg = `${decoded.section}.${decoded.name}`;
         } else {
           // Other, CannotLookup, BadOrigin, no extra info
@@ -105,21 +105,22 @@ export async function submitSignedExtrinsicAndWait(
   try {
     return await new Promise(async (resolve, reject) => {
       let isFinalized = false;
-      // 如果45秒内没有收到最终确认，则通过subscan API检查状态
+      // 如果120秒内没有收到最终确认，则通过历史区块检查状态
       setTimeout(async () => {
         if (isFinalized) {
           return;
         }
 
         try {
-          resolve(await checkExtrinsicBySubscan(api, extrinsic));
+          resolve(await checkExtrinsicByHistory(api, extrinsic));
         } catch (e) {
           reject(e);
         }
-      }, 45000);
+      }, 120 * 1000);
 
       try {
         const unsub = await extrinsic.send(async (result) => {
+          console.log(`Current status is ${result.status}`);
           if (result.isFinalized) {
             unsub();
             const errMsg = checkExtrinsicStatus(api, result.events);
@@ -133,7 +134,7 @@ export async function submitSignedExtrinsicAndWait(
       }
     });
   } catch (e: any) {
-    return e?.message ?? "Submit extrinsic failed"
+    return e?.message ?? 'Submit extrinsic failed';
   }
 }
 

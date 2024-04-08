@@ -10,8 +10,9 @@ import {
   Link,
 } from '@nextui-org/react';
 import { Order, Status } from '@prisma/client';
-import { calcUnitPrice, fmtDot, toUsd } from '@utils/calc';
+import { calcUnitPrice, fmtDecimal, fmtDot, toUsd } from '@utils/calc';
 import { desensitizeAddress } from '@utils/wallet';
+import { planck2Dot } from 'apps/libs/util';
 import { FC } from 'react';
 
 const polkadotScan = import.meta.env.VITE_POLKADOT_SCAN;
@@ -23,7 +24,9 @@ export interface ListCardContext {
 
 export const ListCard: FC<ListCardContext> = ({ onOpenBuyModal, order }) => {
   const globalState = useGlobalStateStore();
-
+  const assetInfo = globalState.assetInfos.find(
+    (asset) => asset.id === order.assetId,
+  );
   function isLocked(status: Status) {
     return status === 'LOCKED';
   }
@@ -32,18 +35,24 @@ export const ListCard: FC<ListCardContext> = ({ onOpenBuyModal, order }) => {
     <Card className="w-[166px] xxs:w-44 xs:w-56">
       <CardHeader>
         <div>
-          <div className="text-xs">{order.tick.toUpperCase()}</div>
+          <div className="text-xs">{assetInfo?.symbol}</div>
           <div className="text-2xl mt-2 flex w-[142px] xxs:w-[152px] xs:w-[200px] justify-center">
-            {order.amount.toLocaleString()}
+            {fmtDecimal(planck2Dot(order.amount, assetInfo?.decimals))}
           </div>
           <div className="flex justify-center w-[142px] xxs:w-[152px] xs:w-[200px]">
             <div className="text-xs text-primary mt-2 flex ">
               {toUsd(
-                calcUnitPrice(order.totalPrice, order.amount),
+                calcUnitPrice(
+                  order.totalPrice,
+                  order.amount,
+                  assetInfo?.decimals,
+                ),
                 globalState.dotPrice,
               )}
             </div>
-            <div className="text-xs mt-2 flex ml-1">/ 10k DOTA</div>
+            <div className="text-xs mt-2 flex ml-1">
+              1 / {assetInfo?.symbol}
+            </div>
           </div>
         </div>
       </CardHeader>

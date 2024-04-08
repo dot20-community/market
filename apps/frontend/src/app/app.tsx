@@ -13,7 +13,7 @@ import { NoMatch } from '../pages/NoMatch';
 
 export function App() {
   const { client } = trpc.useUtils();
-  const { setDotPrice, setGasFee } = useGlobalStateStore();
+  const { setDotPrice, setGasFee, setAssetInfo } = useGlobalStateStore();
 
   useEffect(() => {
     const fetchDotPrice = async () => {
@@ -24,8 +24,20 @@ export function App() {
       const gas = await getGas();
       setGasFee(planck2Dot(gas).toNumber());
     };
+    const fetchAssetInfos = async () => {
+      /* const api = await getApi();
+      const assetIds = getAssetIds().map((id) => new BN(id));
+      const assetInfos = await Promise.all([
+        api.query.assets.metadata.multi(assetIds),
+        api.query.assets.asset.multi(assetIds),
+      ]); */
+      const assets = await client.asset.trending.query();
+      for (const asset of assets) {
+        setAssetInfo(asset);
+      }
+    };
 
-    Promise.all([fetchDotPrice(), fetchGasFee()]);
+    Promise.all([fetchDotPrice(), fetchGasFee(), fetchAssetInfos()]);
   }, []);
 
   return (

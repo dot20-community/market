@@ -9,10 +9,16 @@ import {
   ModalHeader,
 } from '@nextui-org/react';
 import { Order } from '@prisma/client';
-import { calcUnitPrice, fmtDot, toDecimal, toUsd } from '@utils/calc';
+import {
+  calcUnitPrice,
+  fmtDecimal,
+  fmtDot,
+  toDecimal,
+  toUsd,
+} from '@utils/calc';
 import { assertError, trpc } from '@utils/trpc';
 import { wallet } from '@utils/wallet';
-import { dot2Planck } from 'apps/libs/util';
+import { dot2Planck, planck2Dot } from 'apps/libs/util';
 import Decimal from 'decimal.js';
 import { FC, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
@@ -36,7 +42,10 @@ export const BuyModal: FC<BuyModalContext> = ({
   if (!isOpen) return null;
 
   const globalState = useGlobalStateStore();
-  const { account: account } = globalState;
+  const assetInfo = globalState.assetInfos.find(
+    (asset) => asset.id === order.assetId,
+  );
+  const { account } = globalState;
   const [confirmLoading, setConfirmLoading] = useState(false);
   const [balance, setBalance] = useState<Decimal>(new Decimal(0));
   const [balanceValidMsg, setBalanceValidMsg] = useState<string | undefined>();
@@ -49,7 +58,11 @@ export const BuyModal: FC<BuyModalContext> = ({
   }, [account]);
 
   const totalPricePlanck = toDecimal(order.totalPrice);
-  const unitPricePlanck = calcUnitPrice(order.totalPrice, order.amount);
+  const unitPricePlanck = calcUnitPrice(
+    order.totalPrice,
+    order.amount,
+    assetInfo?.decimals,
+  );
   const serviceFeePlanck = totalPricePlanck.mul(serviceFeeRate);
   const gasFeePlanck = dot2Planck(globalState.gasFee);
   // 实际需支付价格(总价+ 服务费+gas费)
@@ -80,9 +93,7 @@ export const BuyModal: FC<BuyModalContext> = ({
       });
       onClose();
       onSuccess(order.id);
-      toast.success(
-        'Purchase success, please wait for DOT20 index update, it may take a few minutes.',
-      );
+      toast.success('Purchase success, please wait a moment for block confim!');
     } catch (e) {
       console.error(e);
       const error = assertError(e);
@@ -114,11 +125,13 @@ export const BuyModal: FC<BuyModalContext> = ({
             </ModalHeader>
             <ModalBody>
               <div className="flex justify-between mt-4">
-                <span>DOTA</span>
-                <span>{order.amount.toString()}</span>
+                <span>{assetInfo?.symbol}</span>
+                <span>
+                  {fmtDecimal(planck2Dot(order.amount, assetInfo?.decimals))}
+                </span>
               </div>
               <div className="flex justify-between mt-4">
-                <span>Unit Price (10k)</span>
+                <span>Unit Price</span>
                 <span>
                   {fmtDot(unitPricePlanck)} DOT ≈{' '}
                   {toUsd(unitPricePlanck, globalState.dotPrice)}

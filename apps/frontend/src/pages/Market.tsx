@@ -27,15 +27,14 @@ import { LuRefreshCw } from 'react-icons/lu';
 import { PiLightningLight } from 'react-icons/pi';
 import InfiniteScroll from 'react-infinite-scroller';
 import { toast } from 'react-toastify';
+import { AssetCard } from '../components/Card/AssetCard';
 import { ListCard } from '../components/Card/ListCard';
 import { MyListCard } from '../components/Card/MyListCard';
-import { TickCard } from '../components/Card/TIckCard';
 import { BuyModal } from '../components/Modal/BuyModal';
 import { ConfirmModal } from '../components/Modal/ConfirmModal';
 import { SellModal } from '../components/Modal/SellModal';
 
 const polkadotScan = import.meta.env.VITE_POLKADOT_SCAN;
-const veryfyTicks = ['dota'];
 const pageSize = 15;
 
 type AutoRefresh = {
@@ -70,19 +69,14 @@ function getHashByStatus(order: Order): string {
 }
 
 export function Market() {
-  const globalState = useGlobalStateStore();
-  const { account } = globalState;
-  const [selectTick, setSelectTick] = useState<string>('dota');
+  const { account, dotPrice, assetInfos } = useGlobalStateStore();
+  const [selectAssetId, setSelectAssetId] = useState<string>('');
   const [selectTab, setSelectTab] = useState<string>('Listed');
   const [listRefresh, setListRefresh] = useState(false);
   const [autoRefresh, setAutoRefresh] = useState<AutoRefresh | null>(null);
   const { client } = trpc.useUtils();
-  const tickTrending = trpc.tick.trending.useQuery();
   const cancelOrder = trpc.order.cancel.useMutation();
-  const tickList = trpc.tick.list.useQuery();
 
-  const selectTickFloorPrice =
-    tickTrending.data?.find((i) => i.tick == selectTick)?.floorPrice || 0n;
   const {
     isOpen: isOpenBuyModal,
     onOpen: onOpenBuyModal,
@@ -109,8 +103,8 @@ export function Market() {
     setCancelModalOrderId(orderId);
     onOpenCancelModal();
   }
+
   async function onCancelOrder(id: bigint) {
-    console.log('cancel: ' + id);
     try {
       await cancelOrder.mutateAsync(id);
       onCancelSuccess(id);
@@ -169,6 +163,16 @@ export function Market() {
   }
 
   useEffect(() => {
+    if (!assetInfos.length) {
+      return;
+    }
+    if (!selectAssetId) {
+      setSelectAssetId(assetInfos[0].id);
+      return;
+    }
+  }, [assetInfos]);
+
+  useEffect(() => {
     clearList();
   }, [account]);
 
@@ -217,17 +221,17 @@ export function Market() {
     }
   }, [autoRefresh]);
 
-  async function changeTick(tick: string) {
-    if (tick === selectTick) {
+  async function changeAsset(assetId: string) {
+    if (assetId === selectAssetId) {
       return;
     }
-    setSelectTick(tick);
+    setSelectAssetId(assetId);
     clearList();
   }
 
   async function fetchListedOrderList() {
     const resp = await client.order.list.query({
-      tick: selectTick,
+      assetId: selectAssetId,
       cursor: listedOrderList.next,
       limit: pageSize,
       statues: ['LISTING', 'LOCKED'],
@@ -246,7 +250,7 @@ export function Market() {
 
   async function fetchOrderList() {
     const resp = await client.order.list.query({
-      tick: selectTick,
+      assetId: selectAssetId,
       cursor: orderList.next,
       limit: pageSize,
       statues: (Object.keys(statusText) as Status[]).filter(
@@ -270,7 +274,7 @@ export function Market() {
       return;
     }
     const resp = await client.order.list.query({
-      tick: selectTick,
+      assetId: selectAssetId,
       cursor: myOrderList.next,
       limit: pageSize,
       seller: account,
@@ -322,14 +326,12 @@ export function Market() {
           </div>
           <div className="mb-2 pb-2 w-full overflow-x-auto">
             <div className="flex gap-4">
-              {(tickTrending.data ?? []).map((item) => (
-                <TickCard
-                  item={item}
-                  tickInfo={tickList.data?.find(
-                    (i) => i.tick.toLowerCase() == item.tick.toLowerCase(),
-                  )}
-                  selected={selectTick === item.tick}
-                  changeTick={changeTick}
+              {assetInfos.map((asset) => (
+                <AssetCard
+                  key={asset.id}
+                  asset={asset}
+                  selected={selectAssetId === asset.id}
+                  changeAsset={changeAsset}
                 />
               ))}
             </div>
@@ -412,11 +414,11 @@ export function Market() {
                         <TableCell>
                           {toUsd(
                             calcUnitPrice(order.totalPrice, order.amount),
-                            globalState.dotPrice,
+                            dotPrice,
                           )}
                         </TableCell>
                         <TableCell>
-                          {toUsd(order.totalPrice, globalState.dotPrice)}
+                          {toUsd(order.totalPrice, dotPrice)}
                         </TableCell>
                         <TableCell>
                           <Link
@@ -464,7 +466,6 @@ export function Market() {
                       <MyListCard
                         key={order.id}
                         order={order}
-                        onUpdate={onCancelSuccess}
                         onOpenCancelModal={() =>
                           onOpenCancelModalWithData(order.id)
                         }
@@ -493,11 +494,10 @@ export function Market() {
       )}
       {account && (
         <SellModal
+          assetId={selectAssetId}
           isOpen={isSellOpen}
           onOpenChange={onSellOpenChange}
           onSuccess={onSellSuccess}
-          tick={selectTick}
-          floorPrice={selectTickFloorPrice}
         />
       )}
       <ConfirmModal
