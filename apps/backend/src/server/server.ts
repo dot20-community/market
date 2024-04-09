@@ -2,8 +2,8 @@ import cors from '@fastify/cors';
 import { fastifyTRPCPlugin } from '@trpc/server/adapters/fastify';
 import {
   getAssetHubApi,
+  setAssetHubEndpoint,
   setPolkadotDecimals,
-  setPolkadotEndpoint,
 } from 'apps/libs/util';
 import Decimal from 'decimal.js';
 import fastify from 'fastify';
@@ -20,11 +20,10 @@ export interface ServerOptions {
   dotaApiUrl: string;
   marketAccountMnemonic: string;
   marketAccount: string;
-  polkadotEndpoint: string;
+  assetHubEndpoint: string;
   polkadotDecimals: number;
   serverFeeRate: number;
   minSellTotalPrice: number;
-  mockDot20Amount: string;
 }
 
 export async function createServer(opts: ServerOptions) {
@@ -39,7 +38,7 @@ export async function createServer(opts: ServerOptions) {
   const prettyLogger = pino({ level: 'debug' }, stream);
 
   setPolkadotDecimals(opts.polkadotDecimals);
-  setPolkadotEndpoint(opts.polkadotEndpoint);
+  setAssetHubEndpoint(opts.assetHubEndpoint);
   Decimal.set({ precision: 64 });
 
   const server = fastify({

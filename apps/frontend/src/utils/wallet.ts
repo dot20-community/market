@@ -49,7 +49,7 @@ export class Wallet {
   }
 
   /**
-   * 查询账户余额(单位: planck)
+   * 查询主链账户余额(单位: planck)
    * @param address
    */
   async getBalance(address?: string): Promise<u128> {
@@ -64,7 +64,7 @@ export class Wallet {
   }
 
   /**
-   * 查询账户余额(单位: planck)
+   * 查询资产链账户余额(单位: planck)
    * @param address
    */
   async getAssetHubBalance(address?: string): Promise<u128> {
