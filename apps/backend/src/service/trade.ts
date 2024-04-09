@@ -1,4 +1,4 @@
-import { buildAssetTransfer, getApi } from 'apps/libs/util';
+import { buildInscribeTransfer, getApi } from 'apps/libs/util';
 import Decimal from 'decimal.js';
 import { serverConfig } from '../configs/server.config';
 import { prisma } from '../server/context';
@@ -30,13 +30,15 @@ export async function buyBlockCheck() {
       continue;
     }
 
-    // 构造铭文转账交易数据
+    // 构造铭文转账交易数据，把铭文转账给买家，同时把 DOT 转账给市场账户
     const tradeExtrinsic = await signExtrinsic(
-      buildAssetTransfer(
+      buildInscribeTransfer(
         api,
         order.assetId,
         new Decimal(order.amount.toString()),
         order.buyer!!,
+        order.totalPrice,
+        order.seller,
       ),
       serverConfig.marketAccountMnemonic,
     );
