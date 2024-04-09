@@ -83,7 +83,7 @@ export function planck2Dot(
  * 转换dot到planck
  */
 export function dot2Planck(
-  dot: number | u128 | Decimal,
+  dot: number | u128 | Decimal | string,
   decimals?: number,
 ): Decimal {
   const value = dot instanceof Decimal ? dot : new Decimal(dot.toString());

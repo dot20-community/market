@@ -64,11 +64,26 @@ export class Wallet {
   }
 
   /**
+   * 查询账户余额(单位: planck)
+   * @param address
+   */
+  async getAssetHubBalance(address?: string): Promise<u128> {
+    if (!address) {
+      return new BN(0) as u128;
+    }
+    const api = await getAssetHubApi();
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment
+    const result = (await api.query.system.account(address)) as any;
+    return result.data.free.toBn() as u128;
+  }
+
+  /**
    * 查询AssetHub指定资产余额
    * @param assetId
    * @param address
    */
-  async getAssetHubBalance(assetId: BN, address: string): Promise<number> {
+  async getAssetHubAssetBalance(assetId: BN, address: string): Promise<number> {
     const api = await getAssetHubApi();
     const assetMetadataRes = await api.query.assets.metadata(assetId);
     const assetMetadata: any = assetMetadataRes.toPrimitive();
@@ -94,7 +109,7 @@ export class Wallet {
     from: string,
     to: string,
     amount: number | u128 | Decimal | string,
-    cb: (hash: string) => void,
+    cb?: (hash: string) => void,
   ) {
     const api = await getAssetHubApi();
     const assetMetadataRes = await api.query.assets.metadata(assetId);
@@ -118,7 +133,7 @@ export class Wallet {
     from: string,
     to: string,
     amount: number | u128 | Decimal | string,
-    cb: (hash: string) => void,
+    cb?: (hash: string) => void,
   ) {
     const api = await getApi();
     const p1 = { V3: { interior: { X1: { ParaChain: 1000 } }, parents: 0 } };
@@ -166,7 +181,7 @@ export class Wallet {
     from: string,
     to: string,
     amount: number | u128 | Decimal | string,
-    cb: (hash: string) => void,
+    cb?: (hash: string) => void,
   ) {
     const api = await getAssetHubApi();
     const p1 = { V3: { interior: 'Here', parents: 1 } };
@@ -207,7 +222,7 @@ export class Wallet {
   async signAndSend(
     tx: SubmittableExtrinsic<'promise', any>,
     account: string,
-    cb: (hash: string) => void,
+    cb?: (hash: string) => void,
   ) {
     const accountInfo = this.accounts.find((i) => i.address === account);
     if (!accountInfo) {
@@ -223,7 +238,9 @@ export class Wallet {
           const hash = status.asInBlock.toHex();
           console.log('Completed at block hash', hash);
           unsub();
-          cb(hash);
+          if (cb) {
+            cb(hash);
+          }
         }
       },
     );
