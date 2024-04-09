@@ -10,27 +10,51 @@ import {
   TableRow,
   useDisclosure,
 } from '@nextui-org/react';
-import { trpc } from '@utils/trpc';
-import { TickListRes } from 'apps/backend/src/modules/account';
+import { fmtDecimal } from '@utils/calc';
+import { AssetInfo } from 'apps/backend/src/modules/asset';
+import { getApi, getAssetsBalance, planck2Dot } from 'apps/libs/util';
+import Decimal from 'decimal.js';
 import { useEffect, useState } from 'react';
 import { SellModal } from '../components/Modal/SellModal';
 
 export function Account() {
   const globalState = useGlobalStateStore();
-  const account = globalState.account ?? '';
-  const { client } = trpc.useUtils();
-  const [tickList, setTickList] = useState<TickListRes>([]);
-  const [tick, setTick] = useState<string>('dota');
+  const account = globalState.account;
+  const [loading, setLoading] = useState<boolean>(false);
+  const [assetList, setAssetList] = useState<
+    {
+      asset: AssetInfo;
+      balance: Decimal;
+    }[]
+  >([]);
+  const [assetId, setAssetId] = useState<string>('');
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
-  const tickTrending = trpc.tick.trending.useQuery();
-  const selectTickFloorPrice = tickTrending.data?.find(i => i.tick == tick)?.floorPrice || 0n
-  
   useEffect(() => {
-    if (account) {
-      client.account.tickList.query({ account }).then(setTickList);
+    if (!account || !globalState.assetInfos.length) {
+      return;
     }
-  }, [account]);
+
+    (async function () {
+      setLoading(true);
+      try {
+        const api = await getApi();
+        const assetList = await getAssetsBalance(
+          api,
+          globalState.assetInfos.map((item) => item.id),
+          account,
+        );
+        setAssetList(
+          assetList.map((item, index) => ({
+            asset: globalState.assetInfos[index],
+            balance: item.balance,
+          })),
+        );
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, [account, globalState.assetInfos]);
 
   return (
     <div>
@@ -38,20 +62,30 @@ export function Account() {
         <Table className="w-2/3">
           <TableHeader>
             <TableColumn>TOKEN</TableColumn>
+            <TableColumn>SUPPLY</TableColumn>
+            <TableColumn>HOLDER</TableColumn>
             <TableColumn>BALANCE</TableColumn>
             <TableColumn>ACTION</TableColumn>
           </TableHeader>
-          <TableBody emptyContent={account ? 'No Result' : 'Please Login'}>
-            {tickList.map((item) => (
-              <TableRow key={item.tick}>
+          <TableBody
+            emptyContent={
+              loading ? 'Loading...' : account ? 'No Result' : 'Please Login'
+            }
+          >
+            {assetList.map((item) => (
+              <TableRow key={item.asset.id}>
                 <TableCell>
-                  <Chip>{item.tick}</Chip>
+                  <Chip>{item.asset.symbol}</Chip>
                 </TableCell>
-                <TableCell>{item.balance.toLocaleString()}</TableCell>
+                <TableCell>{item.asset.supply.toLocaleString()}</TableCell>
+                <TableCell>{item.asset.holder.toLocaleString()}</TableCell>
+                <TableCell>
+                  {fmtDecimal(planck2Dot(item.balance, item.asset.decimals))}
+                </TableCell>
                 <TableCell>
                   <Button
                     onClick={() => {
-                      setTick(item.tick);
+                      setAssetId(item.asset.id);
                       onOpen();
                     }}
                     color="primary"
@@ -66,13 +100,12 @@ export function Account() {
       </div>
       {account && (
         <SellModal
+          assetId={assetId}
           isOpen={isOpen}
           onOpenChange={onOpenChange}
           onSuccess={() => {
             location.href = '/market';
           }}
-          tick={tick}
-          floorPrice={selectTickFloorPrice}
         />
       )}
     </div>

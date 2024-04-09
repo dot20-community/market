@@ -1,11 +1,9 @@
-import { accountRouter } from '../modules/account';
+import { assetRouter } from '../modules/asset';
 import { orderRouter } from '../modules/order';
-import { tickRouter } from '../modules/tick';
 import { router } from './trpc';
 
 export const appRouter = router({
-  tick: tickRouter,
-  account: accountRouter,
+  asset: assetRouter,
   order: orderRouter,
 });
 

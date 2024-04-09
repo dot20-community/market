@@ -5,6 +5,7 @@ import {
   setPolkadotDecimals,
   setPolkadotEndpoint,
 } from 'apps/libs/util';
+import Decimal from 'decimal.js';
 import fastify from 'fastify';
 import pino from 'pino';
 import pretty from 'pino-pretty';
@@ -19,8 +20,6 @@ export interface ServerOptions {
   dotaApiUrl: string;
   marketAccountMnemonic: string;
   marketAccount: string;
-  subscanApiEndpoint: string;
-  subscanApiKey: string;
   polkadotEndpoint: string;
   polkadotDecimals: number;
   serverFeeRate: number;
@@ -41,6 +40,7 @@ export async function createServer(opts: ServerOptions) {
 
   setPolkadotDecimals(opts.polkadotDecimals);
   setPolkadotEndpoint(opts.polkadotEndpoint);
+  Decimal.set({ precision: 64 });
 
   const server = fastify({
     logger:
@@ -69,7 +69,7 @@ export async function createServer(opts: ServerOptions) {
   const stop = () => server.close();
   const start = async () => {
     try {
-      await server.listen({ host: "0.0.0.0", port });
+      await server.listen({ host: '0.0.0.0', port });
     } catch (err) {
       server.log.error(err);
       process.exit(1);

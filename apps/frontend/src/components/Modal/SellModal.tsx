@@ -9,21 +9,31 @@ import {
   ModalFooter,
   ModalHeader,
 } from '@nextui-org/react';
-import { calcUnitPrice, fmtDot, toDecimal, toUsd } from '@utils/calc';
+import {
+  calcUnitPrice,
+  fmtDecimal,
+  fmtDot,
+  toDecimal,
+  toUsd,
+} from '@utils/calc';
 import { assertError, trpc } from '@utils/trpc';
 import { wallet } from '@utils/wallet';
-import { dot2Planck, planck2Dot } from 'apps/libs/util';
+import {
+  dot2Planck,
+  getApi,
+  getAssetBalance,
+  planck2Dot,
+} from 'apps/libs/util';
 import Decimal from 'decimal.js';
 import { FC, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'react-toastify';
 
 export interface SellModalContext {
+  assetId: string;
   isOpen: boolean;
   onOpenChange: () => void;
   onSuccess: (id: bigint) => void;
-  tick: string;
-  floorPrice: bigint;
 }
 
 type FormType = {
@@ -36,14 +46,16 @@ const minTotalPrice = parseFloat(import.meta.env.VITE_MIN_SELL_TOTAL_PRICE);
 const serviceFeeRate = new Decimal(import.meta.env.VITE_SERVER_FEE_RATE);
 
 export const SellModal: FC<SellModalContext> = ({
+  assetId,
   isOpen,
   onOpenChange,
   onSuccess,
-  tick,
-  floorPrice,
 }) => {
   const globalState = useGlobalStateStore((state) => state);
   const account = globalState.account!!;
+  const assetInfo = globalState.assetInfos.find(
+    (asset) => asset.id === assetId,
+  );
   const {
     register,
     handleSubmit,
@@ -53,25 +65,44 @@ export const SellModal: FC<SellModalContext> = ({
   } = useForm<FormType>();
   const [confirmLoading, setConfirmLoading] = useState(false);
   const { amount, totalPrice } = watch();
-  const dotaBalance = trpc.account.tick.useQuery({ account, tick });
+  const [assetBalance, setAssetBalance] = useState<Decimal>(new Decimal(0));
   const [balance, setBalance] = useState<Decimal>(new Decimal(0));
   const [balanceValidMsg, setBalanceValidMsg] = useState<string | undefined>();
   const sell = trpc.order.sell.useMutation();
 
+  async function refreshAssetBalance() {
+    if (!account || !assetId) {
+      return;
+    }
+    const api = await getApi();
+    setAssetBalance(
+      planck2Dot(
+        await getAssetBalance(api, assetId, account),
+        assetInfo?.decimals,
+      ),
+    );
+  }
+
   useEffect(() => {
+    if (!isOpen) {
+      return;
+    }
     setValue('amount', 0);
     setValue('totalPrice', 0);
     wallet.getBalance(account).then((balance) => {
       setBalance(new Decimal(balance.toString()));
     });
-  }, [account]);
+    refreshAssetBalance();
+  }, [isOpen]);
 
   const amountValid = (value: number): string | undefined => {
-    if (!value || value.toString().includes('.')) {
-      return 'Amount must be a positive integer';
-    }
-    if ((dotaBalance?.data?.balance ?? 0) < value) {
+    if (assetBalance.lt(value)) {
       return 'Amount exceeds the available balance';
+    }
+    // 检查小数点位数是否超过资产精度
+    const assetDecimals = assetInfo?.decimals || 0;
+    if (new Decimal(value).dp() > assetDecimals) {
+      return `List amount must be a number with at most ${assetDecimals} decimal places`;
     }
   };
 
@@ -82,9 +113,9 @@ export const SellModal: FC<SellModalContext> = ({
     if (value < minTotalPrice) {
       return `Total price at least ${minTotalPrice} DOT`;
     }
-    // 检查小数点位数是否超过4位
+    // 检查小数点位数是否超过4
     if (new Decimal(value).dp() > 4) {
-      return 'Total price must be a number with at most 4 decimal places';
+      return `Total price must be a number with at most 4 decimal places`;
     }
   };
 
@@ -120,8 +151,8 @@ export const SellModal: FC<SellModalContext> = ({
         account,
         marker,
         serviceFeePlanck,
-        tick,
-        data.amount,
+        assetId,
+        dot2Planck(data.amount, assetInfo!.decimals),
       );
       const { id } = await sell.mutateAsync({
         seller: account,
@@ -130,9 +161,7 @@ export const SellModal: FC<SellModalContext> = ({
       });
       onClose();
       onSuccess(id);
-      toast.success(
-        'Listing success, please wait for DOT20 index update, it may take a few minutes.',
-      );
+      toast.success('Listing successfully!');
     } catch (e) {
       console.error(e);
       const error = assertError(e);
@@ -169,12 +198,14 @@ export const SellModal: FC<SellModalContext> = ({
             </ModalHeader>
             <ModalBody>
               <Input
+                type="number"
                 {...register('amount', {
                   valueAsNumber: true,
                   validate: { amountValid },
                 })}
                 autoFocus
                 isRequired
+                autoComplete="off"
                 label="List Amount"
                 variant="bordered"
                 isInvalid={!!errors.amount}
@@ -187,10 +218,7 @@ export const SellModal: FC<SellModalContext> = ({
                       radius="full"
                       color="primary"
                       onPress={() => {
-                        setValue(
-                          'amount',
-                          Number(dotaBalance.data?.balance || 0),
-                        );
+                        setValue('amount', assetBalance?.toNumber() || 0);
                       }}
                     >
                       Max
@@ -200,18 +228,18 @@ export const SellModal: FC<SellModalContext> = ({
               />
               <div className="flex justify-end text-small">
                 <span className="text-primary">
-                  Available {tick.toLocaleUpperCase()}
+                  Available {assetInfo?.symbol}
                 </span>
-                <span className="ml-2 italic">
-                  {dotaBalance.data?.balance?.toLocaleString() || 0}
-                </span>
+                <span className="ml-2 italic">{fmtDecimal(assetBalance)}</span>
               </div>
               <Input
+                type="number"
                 {...register('totalPrice', {
                   valueAsNumber: true,
                   validate: { totalPriceValid },
                 })}
                 isRequired
+                autoComplete="off"
                 label="Total Price"
                 variant="bordered"
                 isInvalid={!!errors.totalPrice}
@@ -225,9 +253,11 @@ export const SellModal: FC<SellModalContext> = ({
                       radius="full"
                       color="primary"
                       onPress={() => {
-                        if (floorPrice && amount) {
+                        if (assetInfo && amount) {
                           const totalPrice = planck2Dot(
-                            toDecimal(floorPrice).mul(amount),
+                            toDecimal(assetInfo.floorPrice).mul(
+                              dot2Planck(amount, assetInfo.decimals),
+                            ),
                           ).toNumber();
                           setValue(
                             'totalPrice',
@@ -243,7 +273,7 @@ export const SellModal: FC<SellModalContext> = ({
               />
 
               <div className="flex justify-between mt-4">
-                <span>Unit Price (10k)</span>
+                <span>Unit Price</span>
                 <span>
                   {fmtDot(unitPricePlanck)} DOT ≈{' '}
                   {toUsd(unitPricePlanck, globalState.dotPrice)}

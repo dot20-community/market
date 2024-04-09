@@ -9,10 +9,9 @@ import {
   Image,
 } from '@nextui-org/react';
 import { Order, Status } from '@prisma/client';
-import { calcUnitPrice, fmtDot, toUsd } from '@utils/calc';
-import { assertError, trpc } from '@utils/trpc';
-import { FC, useState } from 'react';
-import { toast } from 'react-toastify';
+import { calcUnitPrice, fmtDecimal, fmtDot, toUsd } from '@utils/calc';
+import { planck2Dot } from 'apps/libs/util';
+import { FC } from 'react';
 
 const statusText: Record<Status, string | undefined> = {
   PENDING: 'Indexing',
@@ -26,52 +25,40 @@ const statusText: Record<Status, string | undefined> = {
 
 export interface MyListCardContext {
   order: Order;
-  onUpdate: (id: bigint) => void;
   onOpenCancelModal: () => void;
 }
 
 export const MyListCard: FC<MyListCardContext> = ({
   order,
-  onUpdate,
   onOpenCancelModal,
 }) => {
   const globalState = useGlobalStateStore();
-  const [cancelLoading, setCancelLoading] = useState(false);
-  const cancel = trpc.order.cancel.useMutation();
-
-  async function handleCancel() {
-    if (!confirm('Please confirm that you want to cancel the listing.')) {
-      return;
-    }
-    setCancelLoading(true);
-    try {
-      await cancel.mutateAsync(order.id);
-      onUpdate(order.id);
-      toast.success(
-        'Cancel success, please wait for DOT20 index update, it may take a few minutes.',
-      );
-    } catch (e) {
-      console.error(e);
-      const err = assertError(e);
-      toast.error(err.code);
-    } finally {
-      setCancelLoading(false);
-    }
-  }
+  const assetInfo = globalState.assetInfos.find(
+    (asset) => asset.id === order.assetId,
+  );
 
   return (
     <Card className="w-[166px] xxs:w-44 xs:w-56">
       <CardHeader>
         <div>
-          <div className="text-xs">{order.tick.toUpperCase()}</div>
+          <div className="text-xs">{assetInfo?.symbol.toUpperCase()}</div>
           <div className="text-2xl mt-2 flex w-[142px] xxs:w-[152px]  xs:w-[200px] justify-center">
-            {order.amount.toLocaleString()}
+            {fmtDecimal(planck2Dot(order.amount, assetInfo?.decimals))}
           </div>
-          <div className="text-xs text-primary mt-2 flex w-[142px] xxs:w-[152px]  xs:w-[200px] justify-center">
-            {toUsd(
-              calcUnitPrice(order.totalPrice, order.amount),
-              globalState.dotPrice,
-            )}
+          <div className="flex justify-center w-[142px] xxs:w-[152px] xs:w-[200px]">
+            <div className="text-xs text-primary mt-2 flex ">
+              {toUsd(
+                calcUnitPrice(
+                  order.totalPrice,
+                  order.amount,
+                  assetInfo?.decimals,
+                ),
+                globalState.dotPrice,
+              )}
+            </div>
+            <div className="text-xs mt-2 flex ml-1">
+              1 / {assetInfo?.symbol}
+            </div>
           </div>
         </div>
       </CardHeader>
@@ -91,10 +78,9 @@ export const MyListCard: FC<MyListCardContext> = ({
       <CardFooter>
         <div>
           <Button
-            className="w-[142px] xxs:w-[152px]  xs:w-[200px] mt-3"
+            className="w-[142px] xxs:w-[152px] xs:w-[200px] mt-3"
             color={!statusText[order.status] ? 'primary' : 'default'}
             disabled={!!statusText[order.status]}
-            isLoading={cancelLoading}
             onClick={onOpenCancelModal}
           >
             {statusText[order.status] || 'Cancel'}

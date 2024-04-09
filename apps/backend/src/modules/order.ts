@@ -12,7 +12,6 @@ import Decimal from 'decimal.js';
 import { LRUCache } from 'lru-cache';
 import { PageReq, PageRes, noAuthProcedure, router } from '../server/trpc';
 import { signExtrinsic, submitSignedExtrinsicAndWait } from '../util/dapp';
-import { getAccountTick } from './account';
 
 /**
  * 卖单请求参数
@@ -79,7 +78,7 @@ export type ListReq = PageReq & {
   /**
    * 铭文币种名称
    */
-  tick?: string;
+  assetId?: string;
   /**
    * 买家地址过滤条件
    */
@@ -100,12 +99,12 @@ export type ListReq = PageReq & {
    * 排序方式
    */
   orderBy?:
-  | 'price_asc'
-  | 'price_desc'
-  | 'create_asc'
-  | 'create_desc'
-  | 'update_asc'
-  | 'update_desc';
+    | 'price_asc'
+    | 'price_desc'
+    | 'create_asc'
+    | 'create_desc'
+    | 'update_asc'
+    | 'update_desc';
 };
 /**
  * 查询订单列表响应参数
@@ -195,34 +194,24 @@ export const orderRouter = router({
         );
       }
       // 检查是否转账给平台地址
-      if (inscribeTransfer.to !== ctx.opts.marketAccount) {
+      if (
+        inscribeTransfer.transfer.to !== ctx.opts.marketAccount ||
+        inscribeTransfer.assetTransfer.to !== ctx.opts.marketAccount
+      ) {
         throw BizError.ofTrpc(
           'INVALID_TRANSACTION',
-          `Invalid receiver address: expect ${ctx.opts.marketAccount} but got ${inscribeTransfer.to}`,
+          `Invalid receiver address: expect ${ctx.opts.marketAccount} but got ${inscribeTransfer.transfer.to}`,
         );
       }
       // 检查手续费否足够
       const needPayPrice = totalPriceDecimal.mul(ctx.opts.serverFeeRate);
-      const realPayPrice = inscribeTransfer.value;
+      const realPayPrice = inscribeTransfer.transfer.value;
       if (realPayPrice.lt(needPayPrice)) {
         throw BizError.ofTrpc(
           'INVALID_TRANSACTION',
           `Insufficient service fee: expect at least ${needPayPrice} Planck but got ${realPayPrice}`,
         );
       }
-      // 校验用户铭文数量是否足够
-      const accountTick = await getAccountTick(
-        ctx.opts.dotaApiUrl,
-        input.seller,
-        inscribeTransfer.inscribeTick,
-      );
-      if (accountTick.balance < inscribeTransfer.inscribeAmt) {
-        throw BizError.ofTrpc(
-          'INVALID_TRANSACTION',
-          `Insufficient inscribe amount: expect at least ${inscribeTransfer.inscribeAmt} but got ${accountTick.balance}`,
-        );
-      }
-
       // 查询用户是否有待确认的订单
       const runningCount = await ctx.prisma.order.count({
         where: {
@@ -244,12 +233,12 @@ export const orderRouter = router({
       const order = await ctx.prisma.order.create({
         data: {
           seller: input.seller,
-          totalPrice: BigInt(totalPriceDecimal.toFixed()),
-          sellServiceFee: BigInt(needPayPrice.toFixed()),
-          sellPayPrice: BigInt(realPayPrice.toFixed()),
+          totalPrice: totalPriceDecimal,
+          sellServiceFee: needPayPrice,
+          sellPayPrice: realPayPrice,
           sellHash: extrinsic.hash.toString(),
-          tick: inscribeTransfer.inscribeTick,
-          amount: inscribeTransfer.inscribeAmt,
+          assetId: inscribeTransfer.assetTransfer.assetId,
+          amount: inscribeTransfer.assetTransfer.value,
           createdAt: now,
           updatedAt: now,
         },
@@ -282,6 +271,7 @@ export const orderRouter = router({
           id: order.id,
         },
         data: {
+          status: 'LISTING',
           chainStatus: 'SELL_BLOCK_CONFIRMED',
           updatedAt: now,
         },
@@ -317,8 +307,8 @@ export const orderRouter = router({
       const extrinsic = await signExtrinsic(
         buildInscribeTransfer(
           ctx.api,
-          order.tick,
-          Number(order.amount),
+          order.assetId,
+          new Decimal(order.amount.toString()),
           order.seller,
           realRefundAmount,
         ),
@@ -363,6 +353,7 @@ export const orderRouter = router({
           id: input,
         },
         data: {
+          status: 'CANCELED',
           chainStatus: 'CANCEL_BLOCK_CONFIRMED',
           updatedAt: new Date(),
         },
@@ -398,9 +389,9 @@ export const orderRouter = router({
     .query(async ({ input, ctx }): Promise<ListRes> => {
       let whereSql = ' 1=1';
       let values = [];
-      if (input.tick) {
-        values.push(input.tick.toLowerCase());
-        whereSql += ` AND tick = ?`;
+      if (input.assetId) {
+        values.push(input.assetId.toLowerCase());
+        whereSql += ` AND asset_id = ?`;
       }
       if (input.buyer) {
         values.push(input.buyer);
@@ -433,32 +424,32 @@ export const orderRouter = router({
         total === 0
           ? []
           : await (async function () {
-            // 排序方式
-            let orderBySql = '';
-            if (input.orderBy === 'price_asc') {
-              orderBySql = '(total_price/amount) asc, id desc';
-            } else if (input.orderBy === 'price_desc') {
-              orderBySql = '(total_price/amount) desc, id desc';
-            } else if (input.orderBy === 'create_asc') {
-              orderBySql = 'id asc';
-            } else if (input.orderBy === 'create_desc') {
-              orderBySql = 'id desc';
-            } else if (input.orderBy === 'update_asc') {
-              orderBySql = 'updated_at asc, id desc';
-            } else if (input.orderBy === 'update_desc') {
-              orderBySql = 'updated_at desc, id desc';
-            } else {
-              orderBySql = 'id desc';
-            }
-            values.push((page - 1) * input.limit);
-            values.push(input.limit);
-            return await ctx.prisma.$queryRawUnsafe<Order[]>(
-              `
+              // 排序方式
+              let orderBySql = '';
+              if (input.orderBy === 'price_asc') {
+                orderBySql = '(total_price/amount) asc, id desc';
+              } else if (input.orderBy === 'price_desc') {
+                orderBySql = '(total_price/amount) desc, id desc';
+              } else if (input.orderBy === 'create_asc') {
+                orderBySql = 'id asc';
+              } else if (input.orderBy === 'create_desc') {
+                orderBySql = 'id desc';
+              } else if (input.orderBy === 'update_asc') {
+                orderBySql = 'updated_at asc, id desc';
+              } else if (input.orderBy === 'update_desc') {
+                orderBySql = 'updated_at desc, id desc';
+              } else {
+                orderBySql = 'id desc';
+              }
+              values.push((page - 1) * input.limit);
+              values.push(input.limit);
+              return await ctx.prisma.$queryRawUnsafe<Order[]>(
+                `
      select * from orders where ${whereSql} order by ${orderBySql} limit ?,?
        `,
-              ...values,
-            );
-          })();
+                ...values,
+              );
+            })();
 
       const totalPage = Math.ceil(Number(total) / input.limit);
       const nextCursor = page < totalPage ? (page + 1).toString() : undefined;
@@ -563,8 +554,8 @@ export const orderRouter = router({
           status: 'LOCKED',
           buyHash: extrinsic.hash.toString(),
           buyer: buyer,
-          buyServiceFee: BigInt(realServiceFeeDecimal.toFixed()),
-          buyPayPrice: BigInt(realTotalPriceDecimal.toFixed()),
+          buyServiceFee: realServiceFeeDecimal,
+          buyPayPrice: realTotalPriceDecimal,
           updatedAt: new Date(),
         },
       });

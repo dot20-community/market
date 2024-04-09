@@ -9,77 +9,71 @@ import {
   PopoverTrigger,
 } from '@nextui-org/react';
 import { fmtDecimal, toDecimal, toUsd } from '@utils/calc';
+import { AssetInfo } from 'apps/backend/src/modules/asset';
 import { planck2Dot } from 'apps/libs/util';
 import { FC, useState } from 'react';
 import { MdInfoOutline, MdOutlineVerified } from 'react-icons/md';
 
-const veryfyTicks = ['dota'];
+const veryfyAssets = ['18', '2633'];
 
-export interface TickCardContext {
-  item: {
-    tick: string;
-    floorPrice: bigint;
-    totalAmt: bigint;
-    totalVol: bigint;
-  };
-  tickInfo:
-    | {
-        tick: string;
-        holder: number;
-        startBlock: number;
-        totalBlock: number;
-        totalSupply: bigint;
-        circulatingSupply: bigint;
-      }
-    | undefined;
-  changeTick: (tick: string) => Promise<void>;
+export interface AssetCardContext {
+  asset: AssetInfo;
   selected: boolean;
+  changeAsset: (assetId: string) => Promise<void>;
 }
 
-export const TickCard: FC<TickCardContext> = ({
-  item,
-  changeTick,
+export const AssetCard: FC<AssetCardContext> = ({
+  asset,
   selected,
-  tickInfo,
+  changeAsset,
 }) => {
   const globalState = useGlobalStateStore();
   const [isOpenPopover, setIsOpenPopover] = useState(false);
   return (
     <Card
-      key={item.tick}
+      key={asset.id}
       isPressable={true}
       className={`w-[260px] cursor-pointer border-1 hover:border-primary ${
         selected && 'border-primary'
       }`}
       onClick={() => {
-        changeTick(item.tick);
+        changeAsset(asset.id);
       }}
     >
       <CardHeader className="flex gap-3 content-center justify-center items-center">
-        <span className="text-xl font-bold">{item.tick.toUpperCase()}</span>
-        {veryfyTicks.includes(item.tick) && (
+        <span className="text-xl font-bold">{asset.symbol}</span>
+        {veryfyAssets.includes(asset.id) && (
           <MdOutlineVerified color="#4C6FFF" />
         )}
-        <Popover placement="bottom" showArrow={true} isOpen={isOpenPopover}>
+        <Popover
+          placement="right"
+          showArrow={true}
+          isOpen={isOpenPopover}
+          onOpenChange={(open) => setIsOpenPopover(open)}
+          onClick={(e) => e.stopPropagation()}
+        >
           <PopoverTrigger>
-            <button
+            <div
               className="absolute top-0 right-0 p-2"
               onMouseEnter={() => setIsOpenPopover(true)}
-              onMouseLeave={() => setIsOpenPopover(false)}
             >
-              <MdInfoOutline fill-opacity="0.3" />
-            </button>
+              <MdInfoOutline fillOpacity="0.3" />
+            </div>
           </PopoverTrigger>
           <PopoverContent>
             <div className="px-1 py-2">
               <div className="text-small font-bold">INFO</div>
               <div className="text-small mt-2">
+                <div className="px-1 py-2">ID: {asset.id}</div>
+                <div className="px-1 py-2">Name: {asset.name}</div>
                 <div className="px-1 py-2">
-                  Holders: {tickInfo?.holder.toLocaleString()}
+                  Holders: {asset.holder.toLocaleString()}
                 </div>
                 <div className="px-1 py-2">
-                  Total Supply: {tickInfo?.totalSupply.toLocaleString()}
+                  Total Supply:{' '}
+                  {fmtDecimal(planck2Dot(asset.supply, asset.decimals))}
                 </div>
+                <div className="px-1 py-2">Decimals: {asset.decimals}</div>
               </div>
             </div>
           </PopoverContent>
@@ -91,7 +85,7 @@ export const TickCard: FC<TickCardContext> = ({
           <div className="flex flex-col items-center justify-center w-full">
             <span>
               {toUsd(
-                toDecimal(item.floorPrice).mul(10000),
+                toDecimal(asset.floorPrice).mul(10000),
                 globalState.dotPrice,
               )}
             </span>
@@ -99,7 +93,7 @@ export const TickCard: FC<TickCardContext> = ({
           </div>
           <Divider orientation="vertical" />
           <div className="flex flex-col items-center justify-center w-full">
-            <span>{fmtDecimal(planck2Dot(Number(item.totalVol)), 2)} DOT</span>
+            <span>{fmtDecimal(planck2Dot(asset.totalVol), 2)} DOT</span>
             <span className="text-foreground-400">Total Vol</span>
           </div>
         </div>

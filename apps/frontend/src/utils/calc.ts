@@ -8,24 +8,34 @@ export function toDecimal(value: Decimal | bigint) {
 export function calcUnitPrice(
   totalPrice: Decimal | bigint,
   amount: Decimal | bigint,
+  dp?: number,
 ): Decimal {
   const totalPriceDec = toDecimal(totalPrice);
-  return totalPriceDec.mul(10000).div(toDecimal(amount));
+  return totalPriceDec.mul(Math.pow(10, dp || 0)).div(toDecimal(amount));
 }
 
-export function fmtDecimal(value: Decimal, dp?: number) {
-  const showDp = dp ?? 4;
-  if (value.dp() > showDp) {
-    return value.toFixed(showDp, Decimal.ROUND_UP);
+export function fmtDecimal(value?: Decimal, dp?: number) {
+  if (!value) {
+    return '0';
   }
-  return value.toFixed();
+  const part1 = BigInt(value.trunc().toFixed()).toLocaleString();
+  // 如果有小数部分，则再拼接上小数部分
+  let part2 = '';
+  if (value.dp() > 0) {
+    const temp =
+      dp && value.dp() > dp
+        ? value.toFixed(dp, Decimal.ROUND_FLOOR)
+        : value.toFixed();
+    part2 = '.' + temp.split('.')[1];
+  }
+  return part1 + part2;
 }
 
 export function fmtDot(dotPlanck: Decimal | bigint) {
   const dotAmt = planck2Dot(toDecimal(dotPlanck));
-  return fmtDecimal(dotAmt);
+  return fmtDecimal(dotAmt, 4);
 }
 
 export function toUsd(dotPlanck: Decimal | bigint, price: number, dp?: number) {
-  return '$' + fmtDecimal(planck2Dot(toDecimal(dotPlanck)).mul(price), dp);
+  return '$' + fmtDecimal(planck2Dot(toDecimal(dotPlanck)).mul(price), dp || 4);
 }
