@@ -11,7 +11,7 @@ import {
 } from '@nextui-org/react';
 import { fmtDot } from '@utils/calc';
 import { wallet } from '@utils/wallet';
-import { dot2Planck, getPolkadotDecimals } from 'apps/libs/util';
+import { dot2Planck, getPolkadotDecimals, isSS58Address } from 'apps/libs/util';
 import Decimal from 'decimal.js';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -19,6 +19,7 @@ import { FaArrowRightArrowLeft } from 'react-icons/fa6';
 
 type FormType = {
   amount: number;
+  destAddress: string;
 };
 
 const chains = [
@@ -77,8 +78,8 @@ export function CrossChain() {
     setValue,
     formState: { errors },
     resetField,
-  } = useForm<FormType>();
-  const { amount } = watch();
+  } = useForm<FormType>({ defaultValues: { destAddress: account } });
+  const { amount, destAddress } = watch();
 
   const amountValid = (value: number): string | undefined => {
     if (balance.lt(value)) {
@@ -90,15 +91,21 @@ export function CrossChain() {
       return `List amount must be a number with at most ${assetDecimals} decimal places`;
     }
   };
+  const destAddressValid = (value: string): string | undefined => {
+    if (isSS58Address(value)) {
+      return 'Invalid address';
+    }
+  };
   useEffect(() => {
     if (sourceChainIndex === destChainIndex) {
       setInvalidMsg('Transfer');
     } else {
       if (amount) {
-        const dotBalance = parseFloat(fmtDot(balance));
-        const chain = sourcechain;
-        const isInvalid =
-          dotBalance < amount + chain.transferFee + chain.minBalance;
+        const isInvalid = dot2Planck(amount).gt(
+          balance
+            .sub(dot2Planck(sourcechain.minBalance))
+            .sub(dot2Planck(sourcechain.transferFee)),
+        );
         if (isInvalid) {
           setInvalidMsg('Insufficient Balance');
         } else {
@@ -203,6 +210,22 @@ export function CrossChain() {
               }
             />
           </div>
+          <div className="flex justify-center mt-4">
+            <Input
+              className="w-11/12"
+              {...register('destAddress', {
+                validate: { destAddressValid },
+              })}
+              autoFocus
+              isRequired
+              autoComplete="off"
+              label="Destination address"
+              variant="bordered"
+              isInvalid={!!errors.destAddress}
+              errorMessage={errors.destAddress?.message?.toString()}
+              value={destAddress}
+            />
+          </div>
           <div className="flex justify-end text-small mt-3 text-default-500">
             <span className="text-primary">Available DOT</span>
             <span className="ml-2 mr-6 italic">{fmtDot(balance)}</span>
@@ -225,17 +248,27 @@ export function CrossChain() {
             onClick={handleSubmit((data) => {
               setIsLoading(true);
               if (sourcechain.id === 0) {
-                wallet.dot2AssetHub(account, account, data.amount, () => {
-                  refreshBalance();
-                  resetField('amount');
-                  setIsLoading(false);
-                });
+                wallet.dot2AssetHub(
+                  account,
+                  data.destAddress,
+                  data.amount,
+                  () => {
+                    refreshBalance();
+                    resetField('amount');
+                    setIsLoading(false);
+                  },
+                );
               } else if (sourcechain.id === 1000) {
-                wallet.assetHub2Dot(account, account, data.amount, () => {
-                  refreshBalance();
-                  resetField('amount');
-                  setIsLoading(false);
-                });
+                wallet.assetHub2Dot(
+                  account,
+                  data.destAddress,
+                  data.amount,
+                  () => {
+                    refreshBalance();
+                    resetField('amount');
+                    setIsLoading(false);
+                  },
+                );
               }
             })}
           >
