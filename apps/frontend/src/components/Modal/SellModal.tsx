@@ -96,8 +96,11 @@ export const SellModal: FC<SellModalContext> = ({
   }, [isOpen]);
 
   const amountValid = (value: number): string | undefined => {
+    if (!value) {
+      return 'List amount is required';
+    }
     if (assetBalance.lt(value)) {
-      return 'Amount exceeds the available balance';
+      return 'List amount exceeds the available balance';
     }
     // 检查小数点位数是否超过资产精度
     const assetDecimals = assetInfo?.decimals || 0;
@@ -108,14 +111,15 @@ export const SellModal: FC<SellModalContext> = ({
 
   const totalPriceValid = (value: number): string | undefined => {
     if (!value) {
-      return 'Total price must be a number';
-    }
-    if (value < minTotalPrice) {
-      return `Total price at least ${minTotalPrice} DOT`;
+      return 'Total price is required';
     }
     // 检查小数点位数是否超过4
-    if (new Decimal(value).dp() > 4) {
+    const decVal = new Decimal(value);
+    if (decVal.dp() > 4) {
       return `Total price must be a number with at most 4 decimal places`;
+    }
+    if (decVal.lt(minTotalPrice)) {
+      return `Total price at least ${minTotalPrice} DOT`;
     }
   };
 
@@ -200,7 +204,6 @@ export const SellModal: FC<SellModalContext> = ({
               <Input
                 type="number"
                 {...register('amount', {
-                  valueAsNumber: true,
                   validate: { amountValid },
                 })}
                 autoFocus
@@ -235,7 +238,6 @@ export const SellModal: FC<SellModalContext> = ({
               <Input
                 type="number"
                 {...register('totalPrice', {
-                  valueAsNumber: true,
                   validate: { totalPriceValid },
                 })}
                 isRequired
@@ -273,7 +275,7 @@ export const SellModal: FC<SellModalContext> = ({
               />
 
               <div className="flex justify-between mt-4">
-                <span>Unit Price</span>
+                <span>Unit Price (10k)</span>
                 <span>
                   {fmtDot(unitPricePlanck)} DOT ≈{' '}
                   {toUsd(unitPricePlanck, globalState.dotPrice)}

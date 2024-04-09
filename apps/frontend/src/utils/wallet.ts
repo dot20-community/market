@@ -96,7 +96,6 @@ export class Wallet {
   /**
    * 签署DOT转账
    * @param buyer  买方地址
-   * @param seller  卖方地址
    * @param marker  市场方地址
    * @param dotAmt  转账的 DOT 数量
    * @param serviceFee 转账手续费
@@ -104,7 +103,6 @@ export class Wallet {
    */
   async signTransfer(
     buyer: string,
-    seller: string,
     marker: string,
     dotAmt: Decimal,
     serviceFee: Decimal,
@@ -112,13 +110,13 @@ export class Wallet {
     const api = await getApi();
 
     const injected = await this.request(buyer);
-    // 转账给卖方
-    const tx1 = api.tx.balances.transferKeepAlive(seller, dotAmt.toFixed());
-    // 转账手续费给平台
-    const tx2 = api.tx.balances.transferKeepAlive(marker, serviceFee.toFixed());
-    const transfer = api.tx.utility.batchAll([tx1, tx2]);
+    // 转账 总价+服务费 给平台
+    const tx = api.tx.balances.transferKeepAlive(
+      marker,
+      dotAmt.add(serviceFee).toFixed(),
+    );
     try {
-      const signedTransfer = await transfer.signAsync(buyer, {
+      const signedTransfer = await tx.signAsync(buyer, {
         signer: injected.signer,
       });
       return signedTransfer.toHex();

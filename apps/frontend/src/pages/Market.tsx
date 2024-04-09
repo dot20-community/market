@@ -17,10 +17,11 @@ import {
   useDisclosure,
 } from '@nextui-org/react';
 import { Order, Status } from '@prisma/client';
-import { calcUnitPrice, toUsd } from '@utils/calc';
+import { calcUnitPrice, fmtDecimal, toUsd } from '@utils/calc';
 import { assertError, trpc } from '@utils/trpc';
 import { desensitizeAddress } from '@utils/wallet';
 import { ListRes } from 'apps/backend/src/modules/order';
+import { planck2Dot } from 'apps/libs/util';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
 import { LuRefreshCw } from 'react-icons/lu';
@@ -82,7 +83,9 @@ export function Market() {
     onOpen: onOpenBuyModal,
     onOpenChange: onOpenChangeBuyModal,
   } = useDisclosure();
-  const [buyModalOrderInfo, setBuyModalOrderInfo] = useState<Order>({} as any);
+  const [buyModalOrderInfo, setBuyModalOrderInfo] = useState<Order>(
+    {} as Order,
+  );
   const {
     isOpen: isSellOpen,
     onOpen: onSellOpen,
@@ -395,7 +398,7 @@ export function Market() {
                     <TableColumn>Date Time</TableColumn>
                     <TableColumn>Status</TableColumn>
                     <TableColumn>Amount</TableColumn>
-                    <TableColumn>Unit Price</TableColumn>
+                    <TableColumn>Unit Price (10k)</TableColumn>
                     <TableColumn>Total Value</TableColumn>
                     <TableColumn>Buyer</TableColumn>
                     <TableColumn>Seller</TableColumn>
@@ -410,7 +413,16 @@ export function Market() {
                         <TableCell>
                           <Chip>{statusText[order.status]}</Chip>
                         </TableCell>
-                        <TableCell>{order.amount.toLocaleString()}</TableCell>
+                        <TableCell>
+                          {fmtDecimal(
+                            planck2Dot(
+                              order.amount,
+                              assetInfos.find(
+                                (asset) => asset.id === order.assetId,
+                              )?.decimals,
+                            ),
+                          )}
+                        </TableCell>
                         <TableCell>
                           {toUsd(
                             calcUnitPrice(

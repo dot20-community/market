@@ -92,7 +92,7 @@ export function str2Planck(value?: string): Decimal {
  * @returns
  */
 export function isNumber(value: string) {
-  return /^-?\d+\.?\d*$/.test(value);
+  return /^\d+(\.\d+)?$/.test(value);
 }
 
 export async function getAssetBalance(
@@ -130,8 +130,9 @@ export function buildInscribeTransfer(
   amt: Decimal,
   to: string,
   dotAmt: Decimal,
+  dotTo?: string,
 ): SubmittableExtrinsic<'promise'> {
-  const tx1 = api.tx.balances.transferKeepAlive(to, dotAmt.toFixed());
+  const tx1 = api.tx.balances.transferKeepAlive(dotTo || to, dotAmt.toFixed());
   const tx2 = api.tx.assets.transferKeepAlive(
     parseInt(assetId),
     to,
@@ -166,9 +167,8 @@ export type InscribeTransfer = {
   assetTransfer: TransferAssetCall;
 };
 
-export type BatchTransfer = {
+export type Transfer = TransferCall & {
   from: string;
-  list: TransferCall[];
 };
 
 /**
@@ -205,29 +205,16 @@ export function parseInscribeTransfer(ex: Extrinsic): InscribeTransfer | null {
 /**
  * 解析转账记录
  */
-export function parseBatchTransfer(ex: Extrinsic): BatchTransfer | null {
-  if (!verifyIsBatchUtil(ex)) {
-    return null;
-  }
-  const methodJson = ex.method.toHuman() as any;
-  if (!methodJson?.args?.calls || methodJson.args.calls.length !== 2) {
-    return null;
-  }
-
-  const call0 = methodJson.args.calls[0];
-  const call0Transfer = verifyIsBalanceTransferKeepAlive(call0);
-  if (!call0Transfer) {
-    return null;
-  }
-  const call1 = methodJson.args.calls[1];
-  const call1Transfer = verifyIsBalanceTransferKeepAlive(call1);
-  if (!call1Transfer) {
+export function parseTransfer(ex: Extrinsic): Transfer | null {
+  const call = ex.method.toHuman() as any;
+  const callTransfer = verifyIsBalanceTransferKeepAlive(call);
+  if (!callTransfer) {
     return null;
   }
 
   return {
     from: fmtAddress(ex.signer.toString()),
-    list: [call0Transfer, call1Transfer],
+    ...callTransfer,
   };
 }
 

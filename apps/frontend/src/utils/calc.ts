@@ -1,17 +1,27 @@
 import { planck2Dot } from 'apps/libs/util';
 import Decimal from 'decimal.js';
 
-export function toDecimal(value: Decimal | bigint) {
+export function toDecimal(value: Decimal | bigint | string) {
   return value instanceof Decimal ? value : new Decimal(value.toString());
 }
 
+/**
+ * 计算每10k个token的价格
+ * @param totalPrice 总价（单位：planck）
+ * @param amount
+ * @param dp
+ * @returns
+ */
 export function calcUnitPrice(
-  totalPrice: Decimal | bigint,
+  totalPrice: Decimal | bigint | string,
   amount: Decimal | bigint,
   dp?: number,
 ): Decimal {
   const totalPriceDec = toDecimal(totalPrice);
-  return totalPriceDec.mul(Math.pow(10, dp || 0)).div(toDecimal(amount));
+  return totalPriceDec
+    .mul(10000)
+    .mul(Math.pow(10, dp || 0))
+    .div(toDecimal(amount));
 }
 
 export function fmtDecimal(value?: Decimal, dp?: number) {

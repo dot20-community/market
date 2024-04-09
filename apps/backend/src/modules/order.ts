@@ -4,8 +4,8 @@ import {
   buildInscribeTransfer,
   dot2Planck,
   fmtAddress,
-  parseBatchTransfer,
   parseInscribeTransfer,
+  parseTransfer,
   toCamelCase,
 } from 'apps/libs/util';
 import Decimal from 'decimal.js';
@@ -497,28 +497,15 @@ export const orderRouter = router({
         );
       }
       // 校验是否为合法的转账交易
-      const batchTransfer = parseBatchTransfer(extrinsic as any);
-      if (!batchTransfer) {
+      const transfer = parseTransfer(extrinsic as any);
+      if (!transfer) {
         throw BizError.ofTrpc(
           'INVALID_TRANSACTION',
           'Invalid extrinsic format',
         );
       }
-      // 检查是否转账给卖家地址
-      const transferToSeller = batchTransfer.list.filter(
-        (transfer) => transfer.to === order.seller,
-      )[0];
-      if (!transferToSeller) {
-        throw BizError.ofTrpc(
-          'INVALID_TRANSACTION',
-          `Invalid receiver address: not found seller address ${order.seller}`,
-        );
-      }
       // 检查是否转账给平台地址
-      const transferToMarket = batchTransfer.list.filter(
-        (transfer) => transfer.to === ctx.opts.marketAccount,
-      )[0];
-      if (!transferToMarket) {
+      if (transfer.to !== ctx.opts.marketAccount) {
         throw BizError.ofTrpc(
           'INVALID_TRANSACTION',
           `Invalid receiver address: not found seller address ${ctx.opts.marketAccount}`,
@@ -529,18 +516,14 @@ export const orderRouter = router({
       const needServiceFeeDecimal = needTotalPriceDecimal
         .mul(new Decimal(ctx.opts.serverFeeRate))
         .ceil();
-      const realTotalPriceDecimal = transferToSeller.value;
-      const realServiceFeeDecimal = transferToMarket.value;
-      if (realTotalPriceDecimal.lt(needTotalPriceDecimal)) {
+      const needTransferPriceDecimal = needTotalPriceDecimal.add(
+        needServiceFeeDecimal,
+      );
+      const realTransferPriceDecimal = transfer.value;
+      if (realTransferPriceDecimal.lt(needTransferPriceDecimal)) {
         throw BizError.ofTrpc(
           'INVALID_TRANSACTION',
-          `Invalid total price transfer amount: expect at least ${needTotalPriceDecimal} Planck but got ${realTotalPriceDecimal}`,
-        );
-      }
-      if (realServiceFeeDecimal.lt(needServiceFeeDecimal)) {
-        throw BizError.ofTrpc(
-          'INVALID_TRANSACTION',
-          `Invalid service fee transfer amount: expect at least ${needServiceFeeDecimal} Planck but got ${realServiceFeeDecimal}`,
+          `Invalid transfer amount: expect at least ${needTotalPriceDecimal} Planck but got ${realTransferPriceDecimal}`,
         );
       }
 
@@ -554,8 +537,8 @@ export const orderRouter = router({
           status: 'LOCKED',
           buyHash: extrinsic.hash.toString(),
           buyer: buyer,
-          buyServiceFee: realServiceFeeDecimal,
-          buyPayPrice: realTotalPriceDecimal,
+          buyServiceFee: needServiceFeeDecimal,
+          buyPayPrice: realTransferPriceDecimal.sub(needServiceFeeDecimal),
           updatedAt: new Date(),
         },
       });

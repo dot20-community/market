@@ -24,10 +24,10 @@ import { FC, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 
 export interface BuyModalContext {
+  order: Order;
   isOpen: boolean;
   onOpenChange: () => void;
   onSuccess: (id: bigint) => void;
-  order: Order;
 }
 
 const marker = import.meta.env.VITE_MARKET_ACCOUNT;
@@ -65,7 +65,7 @@ export const BuyModal: FC<BuyModalContext> = ({
   );
   const serviceFeePlanck = totalPricePlanck.mul(serviceFeeRate);
   const gasFeePlanck = dot2Planck(globalState.gasFee);
-  // 实际需支付价格(总价+ 服务费+gas费)
+  // 实际需支付价格(总价+服务费+gas费)
   const payPricePlanck = totalPricePlanck
     .add(serviceFeePlanck)
     .add(gasFeePlanck);
@@ -82,7 +82,6 @@ export const BuyModal: FC<BuyModalContext> = ({
       await wallet.open();
       const signedExtrinsic = await wallet.signTransfer(
         account!,
-        order.seller,
         marker,
         totalPricePlanck,
         serviceFeePlanck,
@@ -93,7 +92,9 @@ export const BuyModal: FC<BuyModalContext> = ({
       });
       onClose();
       onSuccess(order.id);
-      toast.success('Purchase success, please wait a moment for block confim!');
+      toast.success(
+        'Purchase success, please wait a moment for block confirm!',
+      );
     } catch (e) {
       console.error(e);
       const error = assertError(e);
@@ -131,7 +132,7 @@ export const BuyModal: FC<BuyModalContext> = ({
                 </span>
               </div>
               <div className="flex justify-between mt-4">
-                <span>Unit Price</span>
+                <span>Unit Price (10k)</span>
                 <span>
                   {fmtDot(unitPricePlanck)} DOT ≈{' '}
                   {toUsd(unitPricePlanck, globalState.dotPrice)}

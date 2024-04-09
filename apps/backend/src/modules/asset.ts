@@ -8,7 +8,7 @@ export type AssetInfo = {
   decimals: number;
   supply: bigint;
   holder: number;
-  floorPrice: bigint;
+  floorPrice: string;
   totalAmt: bigint;
   totalVol: bigint;
 };
@@ -28,7 +28,7 @@ export const assetRouter = router({
           a.decimals,
           a.supply,
           a.holder,
-          ifnull(min(if(o.status = ${listingStatus}, o.total_price / o.amount, null)), 0) floorPrice,
+          ifnull(min(if(o.status = ${listingStatus}, o.total_price * POW(10,a.decimals) / o.amount, null)), 0) floorPrice,
           sum(o.amount)                                                                   totalAmt,
           sum(if(o.status = ${soldStatus}, o.total_price, 0))                             totalVol
     from assets a

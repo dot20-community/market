@@ -2,3 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 @tailwind screens;
+
+/* 去掉数字输入框上下调整按钮 */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+}
