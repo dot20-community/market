@@ -395,7 +395,7 @@ export function Market() {
                     <TableColumn>Date Time</TableColumn>
                     <TableColumn>Status</TableColumn>
                     <TableColumn>Amount</TableColumn>
-                    <TableColumn>Unit Price (10k)</TableColumn>
+                    <TableColumn>Unit Price</TableColumn>
                     <TableColumn>Total Value</TableColumn>
                     <TableColumn>Buyer</TableColumn>
                     <TableColumn>Seller</TableColumn>
@@ -413,7 +413,13 @@ export function Market() {
                         <TableCell>{order.amount.toLocaleString()}</TableCell>
                         <TableCell>
                           {toUsd(
-                            calcUnitPrice(order.totalPrice, order.amount),
+                            calcUnitPrice(
+                              order.totalPrice,
+                              order.amount,
+                              assetInfos.find(
+                                (asset) => asset.id === order.assetId,
+                              )?.decimals,
+                            ),
                             dotPrice,
                           )}
                         </TableCell>

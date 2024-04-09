@@ -1,5 +1,6 @@
 import { serverConfig } from './configs/server.config';
 import { createServer } from './server/server';
+import { syncAssets } from './service/asset';
 import { buyBlockCheck } from './service/trade';
 
 console.log('================== start server ==================');
@@ -23,5 +24,17 @@ createServer(serverConfig).then((server) => server.start());
     }
   }
 
-  Promise.all([buyBlockCheckTask()]);
+  async function syncAssetsTask() {
+    while (true) {
+      try {
+        await syncAssets();
+      } catch (e) {
+        console.error('syncAssetsTask error', e);
+      } finally {
+        await new Promise((resolve) => setTimeout(resolve, 60000));
+      }
+    }
+  }
+
+  Promise.all([buyBlockCheckTask(), syncAssetsTask()]);
 })();

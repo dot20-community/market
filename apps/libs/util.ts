@@ -23,14 +23,6 @@ export function getPolkadotEndpoint() {
   return POLKADOT_ENDPOINT;
 }
 
-let ASSET_IDS: number[];
-export function setAssetIds(ids: number[]) {
-  ASSET_IDS = ids;
-}
-export function getAssetIds() {
-  return ASSET_IDS;
-}
-
 let api: ApiPromise;
 export async function getApi(): Promise<ApiPromise> {
   if (!api) {
@@ -38,6 +30,18 @@ export async function getApi(): Promise<ApiPromise> {
     api = await ApiPromise.create({ provider });
   }
   return api;
+}
+
+/**
+ * 校验是否为ss58地址
+ */
+export function isSS58Address(address: string): boolean {
+  try {
+    decodeAddress(address);
+    return true;
+  } catch (e) {
+    return false;
+  }
 }
 
 /**
@@ -91,19 +95,33 @@ export function isNumber(value: string) {
   return /^-?\d+\.?\d*$/.test(value);
 }
 
-/**
- * 获取账户指定资产余额，单位: planck
- * @param api
- * @param account
- */
 export async function getAssetBalance(
   api: ApiPromise,
   assetId: string,
   account: string,
 ) {
-  const data = await api.query.assets.account(new BN(assetId), account);
-  const json = data.toHuman() as any;
-  return str2Planck(json?.balance);
+  const data = await getAssetsBalance(api, [assetId], account);
+  return data[0].balance;
+}
+
+/**
+ * 批量获取账户指定资产余额，单位: planck
+ * @param api
+ * @param assetIds
+ * @param account
+ */
+export async function getAssetsBalance(
+  api: ApiPromise,
+  assetIds: string[],
+  account: string,
+) {
+  const data = await api.query.assets.account.multi(
+    assetIds.map((id) => [new BN(id), account]),
+  );
+  return assetIds.map((id, index) => ({
+    assetId: id,
+    balance: str2Planck((data[index]?.toHuman() as any)?.balance),
+  }));
 }
 
 export function buildInscribeTransfer(
@@ -222,7 +240,7 @@ function verifyIsBalanceTransferKeepAlive(call: any): TransferCall | null {
     call?.method !== 'transferKeepAlive' ||
     call?.section !== 'balances' ||
     !call?.args?.dest?.Id ||
-    call.args.dest.Id.length < 40 ||
+    !isSS58Address(call.args.dest.Id) ||
     !call?.args?.value
   ) {
     return null;
@@ -240,7 +258,7 @@ function verifyIsAssetTransferKeepAlive(call: any): TransferAssetCall | null {
     call?.section !== 'assets' ||
     !call?.args?.id ||
     !call?.args?.target?.Id ||
-    call.args.target.Id.length < 40 ||
+    !isSS58Address(call.args.target.Id) ||
     !call?.args?.amount
   ) {
     return null;

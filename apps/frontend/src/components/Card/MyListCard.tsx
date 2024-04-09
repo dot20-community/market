@@ -9,7 +9,8 @@ import {
   Image,
 } from '@nextui-org/react';
 import { Order, Status } from '@prisma/client';
-import { calcUnitPrice, fmtDot, toUsd } from '@utils/calc';
+import { calcUnitPrice, fmtDecimal, fmtDot, toUsd } from '@utils/calc';
+import { planck2Dot } from 'apps/libs/util';
 import { FC } from 'react';
 
 const statusText: Record<Status, string | undefined> = {
@@ -42,13 +43,22 @@ export const MyListCard: FC<MyListCardContext> = ({
         <div>
           <div className="text-xs">{assetInfo?.symbol.toUpperCase()}</div>
           <div className="text-2xl mt-2 flex w-[142px] xxs:w-[152px]  xs:w-[200px] justify-center">
-            {order.amount.toLocaleString()}
+            {fmtDecimal(planck2Dot(order.amount, assetInfo?.decimals))}
           </div>
-          <div className="text-xs text-primary mt-2 flex w-[142px] xxs:w-[152px]  xs:w-[200px] justify-center">
-            {toUsd(
-              calcUnitPrice(order.totalPrice, order.amount),
-              globalState.dotPrice,
-            )}
+          <div className="flex justify-center w-[142px] xxs:w-[152px] xs:w-[200px]">
+            <div className="text-xs text-primary mt-2 flex ">
+              {toUsd(
+                calcUnitPrice(
+                  order.totalPrice,
+                  order.amount,
+                  assetInfo?.decimals,
+                ),
+                globalState.dotPrice,
+              )}
+            </div>
+            <div className="text-xs mt-2 flex ml-1">
+              1 / {assetInfo?.symbol}
+            </div>
           </div>
         </div>
       </CardHeader>

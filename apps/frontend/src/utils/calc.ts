@@ -18,7 +18,7 @@ export function fmtDecimal(value?: Decimal, dp?: number) {
   if (!value) {
     return '0';
   }
-  const part1 = BigInt(value.trunc().toString()).toLocaleString();
+  const part1 = BigInt(value.trunc().toFixed()).toLocaleString();
   // 如果有小数部分，则再拼接上小数部分
   let part2 = '';
   if (value.dp() > 0) {

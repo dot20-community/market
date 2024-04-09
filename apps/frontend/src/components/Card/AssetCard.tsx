@@ -45,12 +45,17 @@ export const AssetCard: FC<AssetCardContext> = ({
         {veryfyAssets.includes(asset.id) && (
           <MdOutlineVerified color="#4C6FFF" />
         )}
-        <Popover placement="bottom" showArrow={true} isOpen={isOpenPopover}>
+        <Popover
+          placement="right"
+          showArrow={true}
+          isOpen={isOpenPopover}
+          onOpenChange={(open) => setIsOpenPopover(open)}
+          onClick={(e) => e.stopPropagation()}
+        >
           <PopoverTrigger>
             <div
               className="absolute top-0 right-0 p-2"
               onMouseEnter={() => setIsOpenPopover(true)}
-              onMouseLeave={() => setIsOpenPopover(false)}
             >
               <MdInfoOutline fillOpacity="0.3" />
             </div>

@@ -233,12 +233,12 @@ export const orderRouter = router({
       const order = await ctx.prisma.order.create({
         data: {
           seller: input.seller,
-          totalPrice: BigInt(totalPriceDecimal.toFixed()),
-          sellServiceFee: BigInt(needPayPrice.toFixed()),
-          sellPayPrice: BigInt(realPayPrice.toFixed()),
+          totalPrice: totalPriceDecimal,
+          sellServiceFee: needPayPrice,
+          sellPayPrice: realPayPrice,
           sellHash: extrinsic.hash.toString(),
           assetId: inscribeTransfer.assetTransfer.assetId,
-          amount: BigInt(inscribeTransfer.assetTransfer.value.toFixed()),
+          amount: inscribeTransfer.assetTransfer.value,
           createdAt: now,
           updatedAt: now,
         },
@@ -554,8 +554,8 @@ export const orderRouter = router({
           status: 'LOCKED',
           buyHash: extrinsic.hash.toString(),
           buyer: buyer,
-          buyServiceFee: BigInt(realServiceFeeDecimal.toFixed()),
-          buyPayPrice: BigInt(realTotalPriceDecimal.toFixed()),
+          buyServiceFee: realServiceFeeDecimal,
+          buyPayPrice: realTotalPriceDecimal,
           updatedAt: new Date(),
         },
       });

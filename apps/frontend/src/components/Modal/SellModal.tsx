@@ -255,7 +255,9 @@ export const SellModal: FC<SellModalContext> = ({
                       onPress={() => {
                         if (assetInfo && amount) {
                           const totalPrice = planck2Dot(
-                            toDecimal(assetInfo.floorPrice).mul(amount),
+                            toDecimal(assetInfo.floorPrice).mul(
+                              dot2Planck(amount, assetInfo.decimals),
+                            ),
                           ).toNumber();
                           setValue(
                             'totalPrice',
@@ -271,7 +273,7 @@ export const SellModal: FC<SellModalContext> = ({
               />
 
               <div className="flex justify-between mt-4">
-                <span>Unit Price (10k)</span>
+                <span>Unit Price</span>
                 <span>
                   {fmtDot(unitPricePlanck)} DOT ≈{' '}
                   {toUsd(unitPricePlanck, globalState.dotPrice)}
