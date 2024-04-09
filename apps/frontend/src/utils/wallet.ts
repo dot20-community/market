@@ -262,7 +262,7 @@ export class Wallet {
     transferTick: string,
     transferAmt: Decimal,
   ): Promise<string> {
-    const api = await getApi();
+    const api = await getAssetHubApi();
 
     const injected = await this.request(seller);
     const transfer = buildInscribeTransfer(
@@ -299,7 +299,7 @@ export class Wallet {
     dotAmt: Decimal,
     serviceFee: Decimal,
   ): Promise<string> {
-    const api = await getApi();
+    const api = await getAssetHubApi();
 
     const injected = await this.request(buyer);
     // 转账 总价+服务费 给平台
@@ -340,7 +340,7 @@ export const wallet = new Wallet();
  * 查询当前gas费用(单位: planck)
  */
 export async function getGas(): Promise<u128> {
-  const api = await getApi();
+  const api = await getAssetHubApi();
 
   const testAddress = import.meta.env.VITE_MARKET_ACCOUNT;
   const transfer = buildInscribeTransfer(

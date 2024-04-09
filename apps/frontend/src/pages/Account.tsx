@@ -12,7 +12,7 @@ import {
 } from '@nextui-org/react';
 import { fmtDecimal } from '@utils/calc';
 import { AssetInfo } from 'apps/backend/src/modules/asset';
-import { getApi, getAssetsBalance, planck2Dot } from 'apps/libs/util';
+import { getAssetHubApi, getAssetsBalance, planck2Dot } from 'apps/libs/util';
 import Decimal from 'decimal.js';
 import { useEffect, useState } from 'react';
 import { SellModal } from '../components/Modal/SellModal';
@@ -38,7 +38,7 @@ export function Account() {
     (async function () {
       setLoading(true);
       try {
-        const api = await getApi();
+        const api = await getAssetHubApi();
         const assetList = await getAssetsBalance(
           api,
           globalState.assetInfos.map((item) => item.id),

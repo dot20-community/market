@@ -1,4 +1,4 @@
-import { buildInscribeTransfer, getApi } from 'apps/libs/util';
+import { buildInscribeTransfer, getAssetHubApi } from 'apps/libs/util';
 import Decimal from 'decimal.js';
 import { serverConfig } from '../configs/server.config';
 import { prisma } from '../server/context';
@@ -22,7 +22,7 @@ export async function buyBlockCheck() {
     return;
   }
 
-  const api = await getApi();
+  const api = await getAssetHubApi();
 
   for (const order of needCheckOrderList) {
     // 如果已经转账过了，跳过，防止重复转账

@@ -20,8 +20,8 @@ import { assertError, trpc } from '@utils/trpc';
 import { wallet } from '@utils/wallet';
 import {
   dot2Planck,
-  getApi,
   getAssetBalance,
+  getAssetHubApi,
   planck2Dot,
 } from 'apps/libs/util';
 import Decimal from 'decimal.js';
@@ -74,7 +74,7 @@ export const SellModal: FC<SellModalContext> = ({
     if (!account || !assetId) {
       return;
     }
-    const api = await getApi();
+    const api = await getAssetHubApi();
     setAssetBalance(
       planck2Dot(
         await getAssetBalance(api, assetId, account),
@@ -89,7 +89,7 @@ export const SellModal: FC<SellModalContext> = ({
     }
     setValue('amount', 0);
     setValue('totalPrice', 0);
-    wallet.getBalance(account).then((balance) => {
+    wallet.getAssetHubBalance(account).then((balance) => {
       setBalance(new Decimal(balance.toString()));
     });
     refreshAssetBalance();

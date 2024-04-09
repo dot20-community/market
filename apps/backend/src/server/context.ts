@@ -2,7 +2,7 @@ import { ApiPromise } from '@polkadot/api';
 import { PrismaClient } from '@prisma/client';
 import { TRPCError, inferAsyncReturnType } from '@trpc/server';
 import { CreateFastifyContextOptions } from '@trpc/server/adapters/fastify';
-import { getApi } from 'apps/libs/util';
+import { getAssetHubApi } from 'apps/libs/util';
 import { verify } from 'jsonwebtoken';
 import { authConfig } from '../configs/auth.config';
 import { ServerOptions } from './server';
@@ -46,7 +46,7 @@ export async function createContextProxy(
     return {
       ...(await createContext(args)),
       opts,
-      api: await getApi(),
+      api: await getAssetHubApi(),
     };
   };
 }

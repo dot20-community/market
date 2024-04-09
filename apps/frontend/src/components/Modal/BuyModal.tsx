@@ -52,7 +52,7 @@ export const BuyModal: FC<BuyModalContext> = ({
   const buy = trpc.order.buy.useMutation();
 
   useEffect(() => {
-    wallet.getBalance(account).then((balance) => {
+    wallet.getAssetHubBalance(account).then((balance) => {
       setBalance(new Decimal(balance.toString()));
     });
   }, [account]);

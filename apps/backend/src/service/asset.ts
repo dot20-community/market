@@ -1,5 +1,5 @@
 import { BN } from '@polkadot/util';
-import { getApi } from 'apps/libs/util';
+import { getAssetHubApi } from 'apps/libs/util';
 import Decimal from 'decimal.js';
 import { prisma } from '../server/context';
 
@@ -12,7 +12,7 @@ export async function syncAssets() {
     return;
   }
 
-  const api = await getApi();
+  const api = await getAssetHubApi();
   for (const asset of assets) {
     try {
       const assetsMetadata = (

@@ -1,7 +1,7 @@
 import cors from '@fastify/cors';
 import { fastifyTRPCPlugin } from '@trpc/server/adapters/fastify';
 import {
-  getApi,
+  getAssetHubApi,
   setPolkadotDecimals,
   setPolkadotEndpoint,
 } from 'apps/libs/util';
@@ -55,7 +55,7 @@ export async function createServer(opts: ServerOptions) {
   });
 
   // 初始化波卡rpc api
-  await getApi();
+  await getAssetHubApi();
 
   const createContext = await createContextProxy(opts);
   server.register(fastifyTRPCPlugin, {
