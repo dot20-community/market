@@ -257,9 +257,7 @@ export const SellModal: FC<SellModalContext> = ({
                       onPress={() => {
                         if (assetInfo && amount) {
                           const totalPrice = planck2Dot(
-                            toDecimal(assetInfo.floorPrice).mul(
-                              dot2Planck(amount, assetInfo.decimals),
-                            ),
+                            toDecimal(assetInfo.floorPrice).mul(amount),
                           ).toNumber();
                           setValue(
                             'totalPrice',

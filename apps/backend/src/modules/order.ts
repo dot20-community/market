@@ -80,6 +80,10 @@ export type ListReq = PageReq & {
    */
   assetId?: string;
   /**
+   * 参与交易的钱包地址
+   */
+  account?: string;
+  /**
    * 买家地址过滤条件
    */
   buyer?: string;
@@ -392,6 +396,11 @@ export const orderRouter = router({
       if (input.assetId) {
         values.push(input.assetId.toLowerCase());
         whereSql += ` AND asset_id = ?`;
+      }
+      if (input.account) {
+        values.push(input.account);
+        values.push(input.account);
+        whereSql += ` AND (buyer = ? OR seller = ?)`;
       }
       if (input.buyer) {
         values.push(input.buyer);
