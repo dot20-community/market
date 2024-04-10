@@ -75,7 +75,7 @@ export function Market() {
   const { account, dotPrice, assetInfos } = useGlobalStateStore();
   const [selectAssetId, setSelectAssetId] = useState<string>('');
   const [selectTab, setSelectTab] = useState<string>('Listed');
-  const [selectStatus, setSelectStatus] = useState<string>('All');
+  const [selectStatus, setSelectStatus] = useState<string>('ALL');
   const [listRefresh, setListRefresh] = useState(false);
   const [autoRefresh, setAutoRefresh] = useState<AutoRefresh | null>(null);
   const { client } = trpc.useUtils();
@@ -260,7 +260,8 @@ export function Market() {
       cursor: orderList.next,
       limit: pageSize,
       statues: (Object.keys(statusText) as Status[]).filter(
-        (e) => statusText[e],
+        (e) =>
+          statusText[e] && (selectStatus === 'ALL' ? true : e === selectStatus),
       ),
       orderBy: 'update_desc',
     });
@@ -400,16 +401,19 @@ export function Market() {
                   selectedKeys={[selectStatus]}
                   onChange={(e) => setSelectStatus(e.target.value)}
                 >
-                  <SelectItem key={'All'} value={'All'}>
+                  <SelectItem key={'ALL'} value={'ALL'}>
                     All
                   </SelectItem>
-                  <SelectItem key={'listing'} value={'listing'}>
+                  <SelectItem key={'PENDING'} value={'PENDING'}>
+                    Pending
+                  </SelectItem>
+                  <SelectItem key={'LISTING'} value={'LISTING'}>
                     Listing
                   </SelectItem>
-                  <SelectItem key={'sold'} value={'sold'}>
+                  <SelectItem key={'SOLD'} value={'SOLD'}>
                     Sold
                   </SelectItem>
-                  <SelectItem key={'canceled'} value={'canceled'}>
+                  <SelectItem key={'CANCELED'} value={'CANCELED'}>
                     Canceled
                   </SelectItem>
                 </Select>
