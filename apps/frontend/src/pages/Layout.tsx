@@ -75,13 +75,21 @@ export function Layout() {
           <Image src="/logo.svg" alt="logo" width={120} height={40} />
         </NavbarBrand>
         <NavbarContent className="hidden gap-12 md:flex" justify="center">
-          <NavbarItem isActive>
-            <Link href="/market" aria-current="page">
+          <NavbarItem isActive={location.pathname === '/market'}>
+            <Link
+              href="/market"
+              color={location.pathname === '/market' ? 'primary' : 'foreground'}
+            >
               MARKETPLACE
             </Link>
           </NavbarItem>
-          <NavbarItem>
-            <Link href="/cross-chain" color="foreground">
+          <NavbarItem isActive={location.pathname === '/cross-chain'}>
+            <Link
+              href="/cross-chain"
+              color={
+                location.pathname === '/cross-chain' ? 'primary' : 'foreground'
+              }
+            >
               CROSS-CHAIN
             </Link>
           </NavbarItem>
