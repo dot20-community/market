@@ -9,6 +9,8 @@ import {
   Select,
   SelectItem,
 } from '@nextui-org/react';
+import { u128 } from '@polkadot/types';
+import { BN } from '@polkadot/util';
 import { fmtDot } from '@utils/calc';
 import { wallet } from '@utils/wallet';
 import { dot2Planck, getPolkadotDecimals, isSS58Address } from 'apps/libs/util';
@@ -53,24 +55,6 @@ export function CrossChain() {
   const sourcechain = chains[parseInt(sourceChainIndex)];
   const destChain = chains[parseInt(destChainIndex)];
 
-  async function refreshBalance() {
-    if (!account) {
-      return;
-    }
-    if (sourcechain.id === 0) {
-      wallet.getBalance(account).then((balance) => {
-        setBalance(new Decimal(balance.toString()));
-      });
-    } else if (sourcechain.id === 1000) {
-      wallet.getAssetHubBalance(account).then((balance) => {
-        setBalance(new Decimal(balance.toString()));
-      });
-    }
-  }
-  useEffect(() => {
-    refreshBalance();
-  }, [account, sourceChainIndex]);
-
   const {
     register,
     handleSubmit,
@@ -81,14 +65,34 @@ export function CrossChain() {
   } = useForm<FormType>({ defaultValues: { destAddress: account } });
   const { amount, destAddress } = watch();
 
+  async function refreshBalance() {
+    if (!account) {
+      return;
+    }
+    let _balance: u128 = new BN(0) as u128;
+    if (sourcechain.id === 0) {
+      _balance = await wallet.getBalance(account);
+    } else if (sourcechain.id === 1000) {
+      _balance = await wallet.getAssetHubBalance(account);
+    }
+    setBalance(new Decimal(_balance.toString()));
+    resetField('amount');
+  }
+  useEffect(() => {
+    refreshBalance();
+  }, [account, sourceChainIndex]);
+
   const amountValid = (value: number): string | undefined => {
     if (!value) {
       return 'Amount is required';
     }
-    const availableTransfer = balance
+    let availableTransfer = balance
       .sub(dot2Planck(sourcechain.minBalance))
       .sub(dot2Planck(sourcechain.transferFee));
     if (dot2Planck(value).gt(availableTransfer)) {
+      if (availableTransfer.lt(0)) {
+        availableTransfer = new Decimal(0);
+      }
       return `The maximum transferable amount is ${fmtDot(
         availableTransfer,
       )} DOT.`;
@@ -108,17 +112,15 @@ export function CrossChain() {
     if (sourceChainIndex === destChainIndex) {
       setInvalidMsg('Transfer');
     } else {
-      if (amount) {
-        const isInvalid = dot2Planck(amount).gt(
-          balance
-            .sub(dot2Planck(sourcechain.minBalance))
-            .sub(dot2Planck(sourcechain.transferFee)),
-        );
-        if (isInvalid) {
-          setInvalidMsg('Insufficient Balance');
-        } else {
-          setInvalidMsg(undefined);
-        }
+      const isInvalid = dot2Planck(amount || 0).gt(
+        balance
+          .sub(dot2Planck(sourcechain.minBalance))
+          .sub(dot2Planck(sourcechain.transferFee)),
+      );
+      if (isInvalid) {
+        setInvalidMsg('Insufficient Balance');
+      } else {
+        setInvalidMsg(undefined);
       }
     }
   }, [balance, amount, sourceChainIndex, destChainIndex]);
@@ -180,11 +182,16 @@ export function CrossChain() {
           <div className="flex justify-center mt-10">
             <Input
               type="number"
-              className="w-11/12"
+              className="w-11/12 text-default-500"
               {...register('amount', {
                 valueAsNumber: true,
                 validate: { amountValid },
               })}
+              onChange={(e) =>
+                setValue('amount', e.target.valueAsNumber, {
+                  shouldValidate: true,
+                })
+              }
               autoFocus
               isRequired
               autoComplete="off"
@@ -195,7 +202,7 @@ export function CrossChain() {
               value={amount ? String(amount) : ''}
               endContent={
                 <div className="flex items-center z-50 gap-2">
-                  <span className="text-default-400 text-small">DOT</span>
+                  <span className="text-default-500 text-small">DOT</span>
                   <Button
                     size="sm"
                     radius="full"
@@ -221,7 +228,7 @@ export function CrossChain() {
           </div>
           <div className="flex justify-center mt-4">
             <Input
-              className="w-11/12"
+              className="w-11/12 text-default-500"
               {...register('destAddress', {
                 validate: { destAddressValid },
               })}
@@ -264,7 +271,6 @@ export function CrossChain() {
                     data.amount,
                     () => {
                       refreshBalance();
-                      resetField('amount');
                       setIsLoading(false);
                     },
                   );
@@ -275,7 +281,6 @@ export function CrossChain() {
                     data.amount,
                     () => {
                       refreshBalance();
-                      resetField('amount');
                       setIsLoading(false);
                     },
                   );
