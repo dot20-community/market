@@ -150,7 +150,7 @@ export const SellModal: FC<SellModalContext> = ({
   async function onConfirm(data: FormType, onClose: () => void) {
     setConfirmLoading(true);
     try {
-      await wallet.open();
+      // await wallet.open();
       const signedExtrinsic = await wallet.signTransferInscribe(
         account,
         marker,

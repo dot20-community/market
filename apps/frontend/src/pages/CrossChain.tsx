@@ -1,5 +1,7 @@
 import { useGlobalStateStore } from '@GlobalState';
 import {
+  Autocomplete,
+  AutocompleteItem,
   Button,
   Card,
   CardBody,
@@ -12,7 +14,7 @@ import {
 import { u128 } from '@polkadot/types';
 import { BN } from '@polkadot/util';
 import { fmtDot } from '@utils/calc';
-import { wallet } from '@utils/wallet';
+import { desensitizeAddress, wallet } from '@utils/wallet';
 import { dot2Planck, getPolkadotDecimals, isSS58Address } from 'apps/libs/util';
 import Decimal from 'decimal.js';
 import { useEffect, useState } from 'react';
@@ -46,6 +48,7 @@ const chains = [
 export function CrossChain() {
   const globalState = useGlobalStateStore();
   const account = globalState.account ?? '';
+  const accounts = globalState.accounts || [];
   const [sourceChainIndex, setSourceChainIndex] = useState<string>('0');
   const [destChainIndex, setDestChainIndex] = useState<string>('1');
   const [balance, setBalance] = useState<Decimal>(new Decimal(0));
@@ -181,8 +184,10 @@ export function CrossChain() {
           </div>
           <div className="flex justify-center mt-10">
             <Input
+              size="lg"
               type="number"
-              className="w-11/12 text-default-500"
+              placeholder="0.00"
+              className="w-11/12"
               {...register('amount', {
                 valueAsNumber: true,
                 validate: { amountValid },
@@ -226,21 +231,56 @@ export function CrossChain() {
               }
             />
           </div>
-          <div className="flex justify-center mt-4">
-            <Input
+          <div className="flex justify-center mt-4 text-default-500">
+            {/* <Input
+              size="lg"
               className="w-11/12 text-default-500"
               {...register('destAddress', {
                 validate: { destAddressValid },
               })}
               autoFocus
               isRequired
-              autoComplete="off"
+              autoComplete="on"
               label="Destination address"
               variant="bordered"
               isInvalid={!!errors.destAddress}
               errorMessage={errors.destAddress?.message?.toString()}
               value={destAddress}
-            />
+            /> */}
+            <Autocomplete
+              size="lg"
+              className="w-11/12"
+              {...register('destAddress', {
+                validate: { destAddressValid },
+              })}
+              isRequired
+              allowsCustomValue
+              defaultItems={accounts}
+              label="Destination address"
+              variant="bordered"
+              isInvalid={!!errors.destAddress}
+              errorMessage={errors.destAddress?.message?.toString()}
+              onInputChange={(value) =>
+                setValue('destAddress', value?.toString(), {
+                  shouldValidate: true,
+                })
+              }
+              onSelectionChange={(value) => {
+                if (value) {
+                  setValue('destAddress', value.toString(), {
+                    shouldValidate: true,
+                  });
+                }
+              }}
+              inputValue={destAddress}
+              selectedKey={destAddress}
+            >
+              {(item) => (
+                <AutocompleteItem key={item.address}>
+                  {item.meta.name} [{desensitizeAddress(item.address)}]
+                </AutocompleteItem>
+              )}
+            </Autocomplete>
           </div>
           <div className="flex justify-end text-small mt-3 text-default-500">
             <span className="text-primary">Available DOT</span>
