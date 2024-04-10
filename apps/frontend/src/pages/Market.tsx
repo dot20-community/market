@@ -3,6 +3,7 @@ import {
   Button,
   Card,
   CardBody,
+  Checkbox,
   Chip,
   Divider,
   Link,
@@ -77,6 +78,7 @@ export function Market() {
   const [selectTab, setSelectTab] = useState<string>('Listed');
   const [selectStatus, setSelectStatus] = useState<string>('ALL');
   const [listRefresh, setListRefresh] = useState(false);
+  const [myOrdersSelected, setMyOrdersSelected] = useState(false);
   const [autoRefresh, setAutoRefresh] = useState<AutoRefresh | null>(null);
   const { client } = trpc.useUtils();
   const cancelOrder = trpc.order.cancel.useMutation();
@@ -257,6 +259,7 @@ export function Market() {
   async function fetchOrderList() {
     const resp = await client.order.list.query({
       assetId: selectAssetId,
+      account: myOrdersSelected ? account : undefined,
       cursor: orderList.next,
       limit: pageSize,
       statues: (Object.keys(statusText) as Status[]).filter(
@@ -393,11 +396,18 @@ export function Market() {
               </InfiniteScroll>
             </Tab>
             <Tab key="Orders" title="Orders">
-              <div className="flex justify-end">
+              <div className="flex justify-end gap-6 mb-4 -mt-12">
+                <Checkbox
+                  size="sm"
+                  isSelected={myOrdersSelected}
+                  onValueChange={setMyOrdersSelected}
+                >
+                  My orders
+                </Checkbox>
                 <Select
                   size="sm"
                   label="Filter status"
-                  className="w-40 mb-4 -mt-12"
+                  className="w-40"
                   selectedKeys={[selectStatus]}
                   onChange={(e) => setSelectStatus(e.target.value)}
                 >

@@ -82,8 +82,16 @@ export function CrossChain() {
   const { amount, destAddress } = watch();
 
   const amountValid = (value: number): string | undefined => {
-    if (balance.lt(value)) {
-      return 'Amount exceeds the available balance';
+    if (!value) {
+      return 'Amount is required';
+    }
+    const availableTransfer = balance
+      .sub(dot2Planck(sourcechain.minBalance))
+      .sub(dot2Planck(sourcechain.transferFee));
+    if (dot2Planck(value).gt(availableTransfer)) {
+      return `The maximum transferable amount is ${fmtDot(
+        availableTransfer,
+      )} DOT.`;
     }
     // 检查小数点位数是否超过资产精度
     const assetDecimals = getPolkadotDecimals();
@@ -92,7 +100,7 @@ export function CrossChain() {
     }
   };
   const destAddressValid = (value: string): string | undefined => {
-    if (isSS58Address(value)) {
+    if (!isSS58Address(value)) {
       return 'Invalid address';
     }
   };
@@ -201,7 +209,8 @@ export function CrossChain() {
                               .sub(dot2Planck(sourcechain.transferFee)),
                           ),
                         ) || 0;
-                      maxAmount > 0 && setValue('amount', maxAmount);
+                      maxAmount > 0 &&
+                        setValue('amount', maxAmount, { shouldValidate: true });
                     }}
                   >
                     Max
@@ -245,30 +254,35 @@ export function CrossChain() {
             className="w-11/12"
             color={invalidMsg ? 'default' : 'primary'}
             disabled={!!invalidMsg}
-            onClick={handleSubmit((data) => {
+            onClick={handleSubmit(async (data) => {
               setIsLoading(true);
-              if (sourcechain.id === 0) {
-                wallet.dot2AssetHub(
-                  account,
-                  data.destAddress,
-                  data.amount,
-                  () => {
-                    refreshBalance();
-                    resetField('amount');
-                    setIsLoading(false);
-                  },
-                );
-              } else if (sourcechain.id === 1000) {
-                wallet.assetHub2Dot(
-                  account,
-                  data.destAddress,
-                  data.amount,
-                  () => {
-                    refreshBalance();
-                    resetField('amount');
-                    setIsLoading(false);
-                  },
-                );
+              try {
+                if (sourcechain.id === 0) {
+                  await wallet.dot2AssetHub(
+                    account,
+                    data.destAddress,
+                    data.amount,
+                    () => {
+                      refreshBalance();
+                      resetField('amount');
+                      setIsLoading(false);
+                    },
+                  );
+                } else if (sourcechain.id === 1000) {
+                  await wallet.assetHub2Dot(
+                    account,
+                    data.destAddress,
+                    data.amount,
+                    () => {
+                      refreshBalance();
+                      resetField('amount');
+                      setIsLoading(false);
+                    },
+                  );
+                }
+              } catch (error) {
+                console.error(error);
+                setIsLoading(false);
               }
             })}
           >
