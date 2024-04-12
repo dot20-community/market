@@ -9,7 +9,7 @@ import {
   Image,
   Link,
 } from '@nextui-org/react';
-import { Order, Status } from '@prisma/client';
+import { Order } from '@prisma/client';
 import { calcUnitPrice, fmtDecimal, fmtDot, toUsd } from '@utils/calc';
 import { desensitizeAddress } from '@utils/wallet';
 import { planck2Dot } from 'apps/libs/util';
@@ -27,8 +27,14 @@ export const ListCard: FC<ListCardContext> = ({ onOpenBuyModal, order }) => {
   const assetInfo = globalState.assetInfos.find(
     (asset) => asset.id === order.assetId,
   );
-  function isLocked(status: Status) {
-    return status === 'LOCKED';
+  function isLocked(): string | undefined {
+    if (order.status === 'LOCKED') {
+      return 'Trading';
+    }
+    // 确保之前的订单在 utc+8 2024年4月15日之前不会被购买
+    if (order.id <= 1185 && new Date().getTime() < 1713110400000) {
+      return 'Frozen';
+    }
   }
 
   return (
@@ -84,16 +90,14 @@ export const ListCard: FC<ListCardContext> = ({ onOpenBuyModal, order }) => {
           <Button
             className="w-[142px] xxs:w-[152px] xs:w-[200px] mt-3"
             color={
-              order.seller == globalState.account || isLocked(order.status)
+              order.seller == globalState.account || !!isLocked()
                 ? 'default'
                 : 'primary'
             }
-            disabled={
-              order.seller == globalState.account || isLocked(order.status)
-            }
+            disabled={order.seller == globalState.account || !!isLocked()}
             onClick={onOpenBuyModal}
           >
-            {isLocked(order.status) ? 'Trading' : 'Buy'}
+            {isLocked() || 'Buy'}
           </Button>
         </div>
       </CardFooter>
