@@ -1,5 +1,7 @@
 import { useGlobalStateStore } from '@GlobalState';
 import {
+  Autocomplete,
+  AutocompleteItem,
   Button,
   Card,
   CardBody,
@@ -9,8 +11,10 @@ import {
   Select,
   SelectItem,
 } from '@nextui-org/react';
+import { u128 } from '@polkadot/types';
+import { BN } from '@polkadot/util';
 import { fmtDot } from '@utils/calc';
-import { wallet } from '@utils/wallet';
+import { desensitizeAddress, wallet } from '@utils/wallet';
 import { dot2Planck, getPolkadotDecimals, isSS58Address } from 'apps/libs/util';
 import Decimal from 'decimal.js';
 import { useEffect, useState } from 'react';
@@ -44,6 +48,7 @@ const chains = [
 export function CrossChain() {
   const globalState = useGlobalStateStore();
   const account = globalState.account ?? '';
+  const accounts = globalState.accounts || [];
   const [sourceChainIndex, setSourceChainIndex] = useState<string>('0');
   const [destChainIndex, setDestChainIndex] = useState<string>('1');
   const [balance, setBalance] = useState<Decimal>(new Decimal(0));
@@ -52,24 +57,6 @@ export function CrossChain() {
 
   const sourcechain = chains[parseInt(sourceChainIndex)];
   const destChain = chains[parseInt(destChainIndex)];
-
-  async function refreshBalance() {
-    if (!account) {
-      return;
-    }
-    if (sourcechain.id === 0) {
-      wallet.getBalance(account).then((balance) => {
-        setBalance(new Decimal(balance.toString()));
-      });
-    } else if (sourcechain.id === 1000) {
-      wallet.getAssetHubBalance(account).then((balance) => {
-        setBalance(new Decimal(balance.toString()));
-      });
-    }
-  }
-  useEffect(() => {
-    refreshBalance();
-  }, [account, sourceChainIndex]);
 
   const {
     register,
@@ -81,9 +68,37 @@ export function CrossChain() {
   } = useForm<FormType>({ defaultValues: { destAddress: account } });
   const { amount, destAddress } = watch();
 
+  async function refreshBalance() {
+    if (!account) {
+      return;
+    }
+    let _balance: u128 = new BN(0) as u128;
+    if (sourcechain.id === 0) {
+      _balance = await wallet.getBalance(account);
+    } else if (sourcechain.id === 1000) {
+      _balance = await wallet.getAssetHubBalance(account);
+    }
+    setBalance(new Decimal(_balance.toString()));
+    resetField('amount');
+  }
+  useEffect(() => {
+    refreshBalance();
+  }, [account, sourceChainIndex]);
+
   const amountValid = (value: number): string | undefined => {
-    if (balance.lt(value)) {
-      return 'Amount exceeds the available balance';
+    if (!value) {
+      return 'Amount is required';
+    }
+    let availableTransfer = balance
+      .sub(dot2Planck(sourcechain.minBalance))
+      .sub(dot2Planck(sourcechain.transferFee));
+    if (dot2Planck(value).gt(availableTransfer)) {
+      if (availableTransfer.lt(0)) {
+        availableTransfer = new Decimal(0);
+      }
+      return `The maximum transferable amount is ${fmtDot(
+        availableTransfer,
+      )} DOT.`;
     }
     // 检查小数点位数是否超过资产精度
     const assetDecimals = getPolkadotDecimals();
@@ -92,7 +107,7 @@ export function CrossChain() {
     }
   };
   const destAddressValid = (value: string): string | undefined => {
-    if (isSS58Address(value)) {
+    if (!isSS58Address(value)) {
       return 'Invalid address';
     }
   };
@@ -100,17 +115,15 @@ export function CrossChain() {
     if (sourceChainIndex === destChainIndex) {
       setInvalidMsg('Transfer');
     } else {
-      if (amount) {
-        const isInvalid = dot2Planck(amount).gt(
-          balance
-            .sub(dot2Planck(sourcechain.minBalance))
-            .sub(dot2Planck(sourcechain.transferFee)),
-        );
-        if (isInvalid) {
-          setInvalidMsg('Insufficient Balance');
-        } else {
-          setInvalidMsg(undefined);
-        }
+      const isInvalid = dot2Planck(amount || 0).gt(
+        balance
+          .sub(dot2Planck(sourcechain.minBalance))
+          .sub(dot2Planck(sourcechain.transferFee)),
+      );
+      if (isInvalid) {
+        setInvalidMsg('Insufficient Balance');
+      } else {
+        setInvalidMsg(undefined);
       }
     }
   }, [balance, amount, sourceChainIndex, destChainIndex]);
@@ -171,12 +184,19 @@ export function CrossChain() {
           </div>
           <div className="flex justify-center mt-10">
             <Input
+              size="lg"
               type="number"
+              placeholder="0.00"
               className="w-11/12"
               {...register('amount', {
                 valueAsNumber: true,
                 validate: { amountValid },
               })}
+              onChange={(e) =>
+                setValue('amount', e.target.valueAsNumber, {
+                  shouldValidate: true,
+                })
+              }
               autoFocus
               isRequired
               autoComplete="off"
@@ -187,7 +207,7 @@ export function CrossChain() {
               value={amount ? String(amount) : ''}
               endContent={
                 <div className="flex items-center z-50 gap-2">
-                  <span className="text-default-400 text-small">DOT</span>
+                  <span className="text-default-500 text-small">DOT</span>
                   <Button
                     size="sm"
                     radius="full"
@@ -201,7 +221,8 @@ export function CrossChain() {
                               .sub(dot2Planck(sourcechain.transferFee)),
                           ),
                         ) || 0;
-                      maxAmount > 0 && setValue('amount', maxAmount);
+                      maxAmount > 0 &&
+                        setValue('amount', maxAmount, { shouldValidate: true });
                     }}
                   >
                     Max
@@ -210,21 +231,56 @@ export function CrossChain() {
               }
             />
           </div>
-          <div className="flex justify-center mt-4">
-            <Input
-              className="w-11/12"
+          <div className="flex justify-center mt-4 text-default-500">
+            {/* <Input
+              size="lg"
+              className="w-11/12 text-default-500"
               {...register('destAddress', {
                 validate: { destAddressValid },
               })}
               autoFocus
               isRequired
-              autoComplete="off"
+              autoComplete="on"
               label="Destination address"
               variant="bordered"
               isInvalid={!!errors.destAddress}
               errorMessage={errors.destAddress?.message?.toString()}
               value={destAddress}
-            />
+            /> */}
+            <Autocomplete
+              size="lg"
+              className="w-11/12"
+              {...register('destAddress', {
+                validate: { destAddressValid },
+              })}
+              isRequired
+              allowsCustomValue
+              defaultItems={accounts}
+              label="Destination address"
+              variant="bordered"
+              isInvalid={!!errors.destAddress}
+              errorMessage={errors.destAddress?.message?.toString()}
+              onInputChange={(value) =>
+                setValue('destAddress', value?.toString(), {
+                  shouldValidate: true,
+                })
+              }
+              onSelectionChange={(value) => {
+                if (value) {
+                  setValue('destAddress', value.toString(), {
+                    shouldValidate: true,
+                  });
+                }
+              }}
+              inputValue={destAddress}
+              selectedKey={destAddress}
+            >
+              {(item) => (
+                <AutocompleteItem key={item.address}>
+                  {item.meta.name} [{desensitizeAddress(item.address)}]
+                </AutocompleteItem>
+              )}
+            </Autocomplete>
           </div>
           <div className="flex justify-end text-small mt-3 text-default-500">
             <span className="text-primary">Available DOT</span>
@@ -245,30 +301,33 @@ export function CrossChain() {
             className="w-11/12"
             color={invalidMsg ? 'default' : 'primary'}
             disabled={!!invalidMsg}
-            onClick={handleSubmit((data) => {
+            onClick={handleSubmit(async (data) => {
               setIsLoading(true);
-              if (sourcechain.id === 0) {
-                wallet.dot2AssetHub(
-                  account,
-                  data.destAddress,
-                  data.amount,
-                  () => {
-                    refreshBalance();
-                    resetField('amount');
-                    setIsLoading(false);
-                  },
-                );
-              } else if (sourcechain.id === 1000) {
-                wallet.assetHub2Dot(
-                  account,
-                  data.destAddress,
-                  data.amount,
-                  () => {
-                    refreshBalance();
-                    resetField('amount');
-                    setIsLoading(false);
-                  },
-                );
+              try {
+                if (sourcechain.id === 0) {
+                  await wallet.dot2AssetHub(
+                    account,
+                    data.destAddress,
+                    data.amount,
+                    () => {
+                      refreshBalance();
+                      setIsLoading(false);
+                    },
+                  );
+                } else if (sourcechain.id === 1000) {
+                  await wallet.assetHub2Dot(
+                    account,
+                    data.destAddress,
+                    data.amount,
+                    () => {
+                      refreshBalance();
+                      setIsLoading(false);
+                    },
+                  );
+                }
+              } catch (error) {
+                console.error(error);
+                setIsLoading(false);
               }
             })}
           >

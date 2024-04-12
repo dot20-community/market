@@ -79,7 +79,7 @@ export const BuyModal: FC<BuyModalContext> = ({
   async function handleConfirm(onClose: () => void) {
     setConfirmLoading(true);
     try {
-      await wallet.open();
+      // await wallet.open();
       const signedExtrinsic = await wallet.signTransfer(
         account!,
         marker,

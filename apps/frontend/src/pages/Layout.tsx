@@ -11,7 +11,6 @@ import {
   NavbarContent,
   NavbarItem,
 } from '@nextui-org/react';
-import type { InjectedAccountWithMeta } from '@polkadot/extension-inject/types';
 // eslint-disable-next-line @nx/enforce-module-boundaries
 import { useGlobalStateStore } from '@GlobalState';
 import { assertError } from '@utils/trpc';
@@ -24,9 +23,8 @@ import { toast } from 'react-toastify';
 import { desensitizeAddress, wallet } from '../utils/wallet';
 
 export function Layout() {
-  const { account, setAccount } = useGlobalStateStore();
+  const { account, setAccount, accounts, setAccounts } = useGlobalStateStore();
   const [connectLoading, setConnectLoading] = useState(false);
-  const [accounts, setAccounts] = useState<InjectedAccountWithMeta[]>([]);
 
   useEffect(() => {
     void loadAccounts();
@@ -75,13 +73,21 @@ export function Layout() {
           <Image src="/logo.svg" alt="logo" width={120} height={40} />
         </NavbarBrand>
         <NavbarContent className="hidden gap-12 md:flex" justify="center">
-          <NavbarItem isActive>
-            <Link href="/market" aria-current="page">
+          <NavbarItem isActive={location.pathname === '/market'}>
+            <Link
+              href="/market"
+              color={location.pathname === '/market' ? 'primary' : 'foreground'}
+            >
               MARKETPLACE
             </Link>
           </NavbarItem>
-          <NavbarItem>
-            <Link href="/cross-chain" color="foreground">
+          <NavbarItem isActive={location.pathname === '/cross-chain'}>
+            <Link
+              href="/cross-chain"
+              color={
+                location.pathname === '/cross-chain' ? 'primary' : 'foreground'
+              }
+            >
               CROSS-CHAIN
             </Link>
           </NavbarItem>
@@ -178,7 +184,7 @@ export function Layout() {
                           color="primary"
                           key={address}
                           showDivider={index == accounts.length - 1}
-                        >{`Account${index + 1} [${desensitizeAddress(
+                        >{`${account.meta.name} [${desensitizeAddress(
                           address,
                         )}]`}</DropdownItem>
                       );

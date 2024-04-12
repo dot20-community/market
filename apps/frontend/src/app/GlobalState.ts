@@ -1,12 +1,15 @@
+import { InjectedAccountWithMeta } from '@polkadot/extension-inject/types';
 import { AssetInfo } from 'apps/backend/src/modules/asset';
 import { create } from 'zustand';
 
 export type GlobalState = {
   account?: string;
+  accounts: InjectedAccountWithMeta[];
   dotPrice: number;
   gasFee: number;
   assetInfos: AssetInfo[];
   setAccount: (account?: string) => void;
+  setAccounts: (accounts: InjectedAccountWithMeta[]) => void;
   setDotPrice: (dotPrice: number) => void;
   setGasFee: (gasFee: number) => void;
   setAssetInfo: (assetInfo: AssetInfo) => void;
@@ -16,6 +19,7 @@ const defaultState = {
   dotPrice: 10,
   gasFee: 0.02,
   assetInfos: [] as AssetInfo[],
+  accounts: [] as InjectedAccountWithMeta[],
 };
 
 const SOTRAGE_KEY_ACCOUNT = 'SELECT_ACCOUNT';
@@ -39,6 +43,9 @@ export const useGlobalStateStore = create<GlobalState>((set) => {
         localStorage.setItem(SOTRAGE_KEY_ACCOUNT, account);
       }
       set({ account: account });
+    },
+    setAccounts: (accounts: InjectedAccountWithMeta[]) => {
+      set({ accounts });
     },
     setAssetInfo: (assetInfo: AssetInfo) => {
       set((state) => {
