@@ -409,7 +409,16 @@ export function Market() {
                   label="Filter status"
                   className="w-40"
                   selectedKeys={[selectStatus]}
-                  onChange={(e) => setSelectStatus(e.target.value)}
+                  onChange={(e) => {
+                    setSelectStatus(e.target.value);
+                    setOrderList({
+                      total: -1,
+                      list: [],
+                    });
+                    setTimeout(() => {
+                      fetchOrderList();
+                    }, 100);
+                  }}
                 >
                   <SelectItem key={'ALL'} value={'ALL'}>
                     All

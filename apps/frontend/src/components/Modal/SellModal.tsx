@@ -221,7 +221,9 @@ export const SellModal: FC<SellModalContext> = ({
                       radius="full"
                       color="primary"
                       onPress={() => {
-                        setValue('amount', assetBalance?.toNumber() || 0);
+                        if (assetBalance) {
+                          setValue('amount', assetBalance.toNumber() - 1);
+                        }
                       }}
                     >
                       Max
