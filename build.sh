@@ -13,7 +13,7 @@ VITE_POLKADOT_ENDPOINT="wss://rpc.polkadot.io"
 VITE_ASSET_HUB_ENDPOINT="wss://polkadot-asset-hub-rpc.polkadot.io"
 VITE_POLKADOT_DECIMALS=10
 VITE_MIN_SELL_TOTAL_PRICE=1
-VITE_SERVER_FEE_RATE=0.02
+VITE_SERVER_FEE_RATE=0.008
 EOF
   npm run build:frontend
 fi
