@@ -238,6 +238,9 @@ export function Market() {
   }
 
   async function fetchListedOrderList() {
+    if (!selectAssetId) {
+      return;
+    }
     const resp = await client.order.list.query({
       assetId: selectAssetId,
       cursor: listedOrderList.next,
