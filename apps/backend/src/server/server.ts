@@ -17,7 +17,6 @@ export interface ServerOptions {
   port?: number;
   prefix?: string;
   environment: 'development' | 'production' | 'test' | 'local';
-  dotaApiUrl: string;
   marketAccountMnemonic: string;
   marketAccount: string;
   assetHubEndpoint: string;
