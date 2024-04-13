@@ -217,9 +217,9 @@ export function Layout() {
           </NavbarItem>
         </NavbarContent>
       </Navbar>
-      <div className="py-1 w-full bg-stone-600 flex justify-center ">
+      {/*     <div className="py-1 w-full bg-stone-600 flex justify-center ">
         Maket is being upgraded for AssetHub $DOTA, will be back soon.
-      </div>
+      </div> */}
 
       <main className="flex-grow">
         <Outlet />
