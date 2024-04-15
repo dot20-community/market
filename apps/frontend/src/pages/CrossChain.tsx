@@ -10,6 +10,7 @@ import {
   Input,
   Select,
   SelectItem,
+  useDisclosure,
 } from '@nextui-org/react';
 import { u128 } from '@polkadot/types';
 import { BN } from '@polkadot/util';
@@ -20,6 +21,7 @@ import Decimal from 'decimal.js';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { FaArrowRightArrowLeft } from 'react-icons/fa6';
+import { AlertModal } from '../components/Modal/AlertModal';
 
 type FormType = {
   amount: number;
@@ -54,6 +56,11 @@ export function CrossChain() {
   const [balance, setBalance] = useState<Decimal>(new Decimal(0));
   const [invalidMsg, setInvalidMsg] = useState<string | undefined>();
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const {
+    isOpen: isModalOpen,
+    onOpen: onOpenModal,
+    onOpenChange: onModalOpenChange,
+  } = useDisclosure();
 
   const sourcechain = chains[parseInt(sourceChainIndex)];
   const destChain = chains[parseInt(destChainIndex)];
@@ -129,212 +136,208 @@ export function CrossChain() {
   }, [balance, amount, sourceChainIndex, destChainIndex]);
 
   return (
-    <div className="flex justify-center">
-      <Card className="w-[480px] mt-14">
-        <CardHeader>
-          <p className="ml-4 mt-2 text-primary">
-            <b>CROSS-CHAIN</b>
-          </p>
-        </CardHeader>
-        <CardBody>
-          <div className="flex justify-between">
-            <Select
-              size="lg"
-              label="Source chain"
-              className="w-2/5 ml-4"
-              onChange={(e) => setSourceChainIndex(e.target.value)}
-              selectedKeys={[sourceChainIndex]}
-              startContent={<img width="24px" src={sourcechain.icon} />}
-            >
-              {chains.map((chain, index) => (
-                <SelectItem
-                  key={index}
-                  value={index}
-                  startContent={<img width="24px" src={chain.icon} />}
-                >
-                  {chain.name}
-                </SelectItem>
-              ))}
-            </Select>
-            <FaArrowRightArrowLeft
-              className="mt-5 cursor-pointer"
-              onClick={() => {
-                setSourceChainIndex(destChainIndex);
-                setDestChainIndex(sourceChainIndex);
-              }}
-            />
-            <Select
-              size="lg"
-              label="Destination chain"
-              className="w-2/5 mr-4"
-              onChange={(e) => setDestChainIndex(e.target.value)}
-              selectedKeys={[destChainIndex]}
-              startContent={<img width="24px" src={destChain.icon} />}
-            >
-              {chains.map((chain, index) => (
-                <SelectItem
-                  key={index}
-                  value={index}
-                  startContent={<img width="24px" src={chain.icon} />}
-                >
-                  {chain.name}
-                </SelectItem>
-              ))}
-            </Select>
-          </div>
-          <div className="flex justify-center mt-10">
-            <Input
-              size="lg"
-              type="number"
-              placeholder="0.00"
-              className="w-11/12"
-              {...register('amount', {
-                valueAsNumber: true,
-                validate: { amountValid },
-              })}
-              onChange={(e) =>
-                setValue('amount', e.target.valueAsNumber, {
-                  shouldValidate: true,
-                })
-              }
-              autoFocus
-              isRequired
-              autoComplete="off"
-              label="Amount"
-              variant="bordered"
-              isInvalid={!!errors.amount}
-              errorMessage={errors.amount?.message?.toString()}
-              value={amount ? String(amount) : ''}
-              endContent={
-                <div className="flex items-center z-50 gap-2">
-                  <span className="text-default-500 text-small">DOT</span>
-                  <Button
-                    size="sm"
-                    radius="full"
-                    color="primary"
-                    onPress={() => {
-                      const maxAmount =
-                        parseFloat(
-                          fmtDot(
-                            balance
-                              .sub(dot2Planck(sourcechain.minBalance))
-                              .sub(dot2Planck(sourcechain.transferFee)),
-                          ),
-                        ) || 0;
-                      maxAmount > 0 &&
-                        setValue('amount', maxAmount, { shouldValidate: true });
-                    }}
+    <>
+      <div className="flex justify-center">
+        <Card className="w-[480px] mt-14">
+          <CardHeader>
+            <p className="ml-4 mt-2 text-primary">
+              <b>CROSS-CHAIN</b>
+            </p>
+          </CardHeader>
+          <CardBody>
+            <div className="flex justify-between">
+              <Select
+                size="lg"
+                label="Source chain"
+                className="w-2/5 ml-4"
+                onChange={(e) => setSourceChainIndex(e.target.value)}
+                selectedKeys={[sourceChainIndex]}
+                startContent={<img width="24px" src={sourcechain.icon} />}
+              >
+                {chains.map((chain, index) => (
+                  <SelectItem
+                    key={index}
+                    value={index}
+                    startContent={<img width="24px" src={chain.icon} />}
                   >
-                    Max
-                  </Button>
-                </div>
-              }
-            />
-          </div>
-          <div className="flex justify-center mt-4 text-default-500">
-            {/* <Input
-              size="lg"
-              className="w-11/12 text-default-500"
-              {...register('destAddress', {
-                validate: { destAddressValid },
-              })}
-              autoFocus
-              isRequired
-              autoComplete="on"
-              label="Destination address"
-              variant="bordered"
-              isInvalid={!!errors.destAddress}
-              errorMessage={errors.destAddress?.message?.toString()}
-              value={destAddress}
-            /> */}
-            <Autocomplete
-              size="lg"
-              className="w-11/12"
-              {...register('destAddress', {
-                validate: { destAddressValid },
-              })}
-              isRequired
-              allowsCustomValue
-              defaultItems={accounts}
-              label="Destination address"
-              variant="bordered"
-              isInvalid={!!errors.destAddress}
-              errorMessage={errors.destAddress?.message?.toString()}
-              onInputChange={(value) =>
-                setValue('destAddress', value?.toString(), {
-                  shouldValidate: true,
-                })
-              }
-              onSelectionChange={(value) => {
-                if (value) {
-                  setValue('destAddress', value.toString(), {
+                    {chain.name}
+                  </SelectItem>
+                ))}
+              </Select>
+              <FaArrowRightArrowLeft
+                className="mt-5 cursor-pointer"
+                onClick={() => {
+                  setSourceChainIndex(destChainIndex);
+                  setDestChainIndex(sourceChainIndex);
+                }}
+              />
+              <Select
+                size="lg"
+                label="Destination chain"
+                className="w-2/5 mr-4"
+                onChange={(e) => setDestChainIndex(e.target.value)}
+                selectedKeys={[destChainIndex]}
+                startContent={<img width="24px" src={destChain.icon} />}
+              >
+                {chains.map((chain, index) => (
+                  <SelectItem
+                    key={index}
+                    value={index}
+                    startContent={<img width="24px" src={chain.icon} />}
+                  >
+                    {chain.name}
+                  </SelectItem>
+                ))}
+              </Select>
+            </div>
+            <div className="flex justify-center mt-10">
+              <Input
+                size="lg"
+                type="number"
+                placeholder="0.00"
+                className="w-11/12"
+                {...register('amount', {
+                  valueAsNumber: true,
+                  validate: { amountValid },
+                })}
+                onChange={(e) =>
+                  setValue('amount', e.target.valueAsNumber, {
                     shouldValidate: true,
-                  });
+                  })
                 }
-              }}
-              inputValue={destAddress}
-              selectedKey={destAddress}
+                autoFocus
+                isRequired
+                autoComplete="off"
+                label="Amount"
+                variant="bordered"
+                isInvalid={!!errors.amount}
+                errorMessage={errors.amount?.message?.toString()}
+                value={amount ? String(amount) : ''}
+                endContent={
+                  <div className="flex items-center z-50 gap-2">
+                    <span className="text-default-500 text-small">DOT</span>
+                    <Button
+                      size="sm"
+                      radius="full"
+                      color="primary"
+                      onPress={() => {
+                        const maxAmount =
+                          parseFloat(
+                            fmtDot(
+                              balance
+                                .sub(dot2Planck(sourcechain.minBalance))
+                                .sub(dot2Planck(sourcechain.transferFee)),
+                            ),
+                          ) || 0;
+                        maxAmount > 0 &&
+                          setValue('amount', maxAmount, {
+                            shouldValidate: true,
+                          });
+                      }}
+                    >
+                      Max
+                    </Button>
+                  </div>
+                }
+              />
+            </div>
+            <div className="flex justify-center mt-4 text-default-500">
+              <Autocomplete
+                size="lg"
+                className="w-11/12"
+                {...register('destAddress', {
+                  validate: { destAddressValid },
+                })}
+                isRequired
+                allowsCustomValue
+                defaultItems={accounts}
+                label="Destination address"
+                variant="bordered"
+                isInvalid={!!errors.destAddress}
+                errorMessage={errors.destAddress?.message?.toString()}
+                onInputChange={(value) =>
+                  setValue('destAddress', value?.toString(), {
+                    shouldValidate: true,
+                  })
+                }
+                onSelectionChange={(value) => {
+                  if (value) {
+                    setValue('destAddress', value.toString(), {
+                      shouldValidate: true,
+                    });
+                  }
+                }}
+                inputValue={destAddress}
+                selectedKey={destAddress}
+              >
+                {(item) => (
+                  <AutocompleteItem key={item.address}>
+                    {item.meta.name} [{desensitizeAddress(item.address)}]
+                  </AutocompleteItem>
+                )}
+              </Autocomplete>
+            </div>
+            <div className="flex justify-end text-small mt-3 text-default-500">
+              <span className="text-primary">Available DOT</span>
+              <span className="ml-2 mr-6 italic">{fmtDot(balance)}</span>
+            </div>
+            <div className="flex justify-between text-tiny text-default-500 mt-4 mx-6">
+              <span>Source Chain Fee</span>
+              <span>{sourcechain.transferFee} DOT</span>
+            </div>
+            <div className="flex justify-between text-tiny text-default-500 mt-1 mx-6">
+              <span>Destination Chain Fee</span>
+              <span>{destChain.receiveFee} DOT</span>
+            </div>
+          </CardBody>
+          <CardFooter className="w-full flex justify-center">
+            <Button
+              isLoading={isLoading}
+              className="w-11/12"
+              color={invalidMsg ? 'default' : 'primary'}
+              disabled={!!invalidMsg}
+              onClick={handleSubmit(async (data) => {
+                setIsLoading(true);
+                try {
+                  if (sourcechain.id === 0) {
+                    await wallet.dot2AssetHub(
+                      account,
+                      data.destAddress,
+                      data.amount,
+                      () => {
+                        refreshBalance();
+                        setIsLoading(false);
+                        onOpenModal();
+                      },
+                    );
+                  } else if (sourcechain.id === 1000) {
+                    await wallet.assetHub2Dot(
+                      account,
+                      data.destAddress,
+                      data.amount,
+                      () => {
+                        refreshBalance();
+                        setIsLoading(false);
+                        onOpenModal();
+                      },
+                    );
+                  }
+                } catch (error) {
+                  console.error(error);
+                  setIsLoading(false);
+                }
+              })}
             >
-              {(item) => (
-                <AutocompleteItem key={item.address}>
-                  {item.meta.name} [{desensitizeAddress(item.address)}]
-                </AutocompleteItem>
-              )}
-            </Autocomplete>
-          </div>
-          <div className="flex justify-end text-small mt-3 text-default-500">
-            <span className="text-primary">Available DOT</span>
-            <span className="ml-2 mr-6 italic">{fmtDot(balance)}</span>
-          </div>
-          <div className="flex justify-between text-tiny text-default-500 mt-4 mx-6">
-            <span>Source Chain Fee</span>
-            <span>{sourcechain.transferFee} DOT</span>
-          </div>
-          <div className="flex justify-between text-tiny text-default-500 mt-1 mx-6">
-            <span>Destination Chain Fee</span>
-            <span>{destChain.receiveFee} DOT</span>
-          </div>
-        </CardBody>
-        <CardFooter className="w-full flex justify-center">
-          <Button
-            isLoading={isLoading}
-            className="w-11/12"
-            color={invalidMsg ? 'default' : 'primary'}
-            disabled={!!invalidMsg}
-            onClick={handleSubmit(async (data) => {
-              setIsLoading(true);
-              try {
-                if (sourcechain.id === 0) {
-                  await wallet.dot2AssetHub(
-                    account,
-                    data.destAddress,
-                    data.amount,
-                    () => {
-                      refreshBalance();
-                      setIsLoading(false);
-                    },
-                  );
-                } else if (sourcechain.id === 1000) {
-                  await wallet.assetHub2Dot(
-                    account,
-                    data.destAddress,
-                    data.amount,
-                    () => {
-                      refreshBalance();
-                      setIsLoading(false);
-                    },
-                  );
-                }
-              } catch (error) {
-                console.error(error);
-                setIsLoading(false);
-              }
-            })}
-          >
-            {invalidMsg || 'Transfer'}
-          </Button>
-        </CardFooter>
-      </Card>
-    </div>
+              {invalidMsg || 'Transfer'}
+            </Button>
+          </CardFooter>
+        </Card>
+      </div>
+      <AlertModal
+        text="Transfer completed!"
+        isOpen={isModalOpen}
+        onOpenChange={onModalOpenChange}
+      />
+    </>
   );
 }
