@@ -337,17 +337,31 @@ export const orderRouter = router({
 
       const errMsg = await submitSignedExtrinsicAndWait(ctx.api, extrinsic);
       if (errMsg) {
-        await ctx.prisma.order.update({
-          where: {
-            id: input,
-          },
-          data: {
-            status: 'FAILED',
-            chainStatus: 'CANCEL_BLOCK_FAILED',
-            failReason: errMsg,
-            updatedAt: new Date(),
-          },
-        });
+        if (errMsg.includes('bad signature')) {
+          await ctx.prisma.order.update({
+            where: {
+              id: input,
+            },
+            data: {
+              status: 'LISTING',
+              chainStatus: 'SELL_BLOCK_CONFIRMED',
+              failReason: errMsg,
+              updatedAt: new Date(),
+            },
+          });
+        } else {
+          await ctx.prisma.order.update({
+            where: {
+              id: input,
+            },
+            data: {
+              status: 'FAILED',
+              chainStatus: 'CANCEL_BLOCK_FAILED',
+              failReason: errMsg,
+              updatedAt: new Date(),
+            },
+          });
+        }
         throw BizError.ofTrpc('TRANSFER_FAILED', errMsg);
       }
 
@@ -359,6 +373,7 @@ export const orderRouter = router({
         data: {
           status: 'CANCELED',
           chainStatus: 'CANCEL_BLOCK_CONFIRMED',
+          canceledAt: new Date(),
           updatedAt: new Date(),
         },
       });
