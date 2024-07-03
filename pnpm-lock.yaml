@@ -15,11 +15,11 @@ importers:
         specifier: ^2.2.10
         version: https://registry.npmmirror.com/@nextui-org/react/-/react-2.2.10.tgz(@types/react@https://registry.npmmirror.com/@types/react/-/react-18.2.33.tgz)(framer-motion@https://registry.npmmirror.com/framer-motion/-/framer-motion-11.0.8.tgz(react-dom@https://registry.npmmirror.com/react-dom/-/react-dom-18.2.0.tgz(react@https://registry.npmmirror.com/react/-/react-18.2.0.tgz))(react@https://registry.npmmirror.com/react/-/react-18.2.0.tgz))(react-dom@https://registry.npmmirror.com/react-dom/-/react-dom-18.2.0.tgz(react@https://registry.npmmirror.com/react/-/react-18.2.0.tgz))(react@https://registry.npmmirror.com/react/-/react-18.2.0.tgz)(tailwind-variants@0.2.0(tailwindcss@https://registry.npmmirror.com/tailwindcss/-/tailwindcss-3.4.1.tgz(ts-node@https://registry.npmmirror.com/ts-node/-/ts-node-10.9.1.tgz(@types/node@https://registry.npmmirror.com/@types/node/-/node-18.14.2.tgz)(typescript@https://registry.npmmirror.com/typescript/-/typescript-5.2.2.tgz))))(tailwindcss@https://registry.npmmirror.com/tailwindcss/-/tailwindcss-3.4.1.tgz(ts-node@https://registry.npmmirror.com/ts-node/-/ts-node-10.9.1.tgz(@types/node@https://registry.npmmirror.com/@types/node/-/node-18.14.2.tgz)(typescript@https://registry.npmmirror.com/typescript/-/typescript-5.2.2.tgz)))
       '@polkadot/api':
-        specifier: ^10.11.3
-        version: https://registry.npmmirror.com/@polkadot/api/-/api-10.11.3.tgz
+        specifier: ^12.1.1
+        version: 12.1.1
       '@polkadot/extension-dapp':
-        specifier: ^0.46.7
-        version: https://registry.npmmirror.com/@polkadot/extension-dapp/-/extension-dapp-0.46.7.tgz(@polkadot/api@https://registry.npmmirror.com/@polkadot/api/-/api-10.11.3.tgz)(@polkadot/util-crypto@https://registry.npmmirror.com/@polkadot/util-crypto/-/util-crypto-12.6.2.tgz(@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz))(@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz)
+        specifier: ^0.48.1
+        version: 0.48.1(@polkadot/api@12.1.1)(@polkadot/util-crypto@https://registry.npmmirror.com/@polkadot/util-crypto/-/util-crypto-12.6.2.tgz(@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz))(@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz)
       '@polkadot/util':
         specifier: ^12.6.2
         version: https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz
@@ -158,7 +158,7 @@ importers:
         version: https://registry.npmmirror.com/@pmmmwh/react-refresh-webpack-plugin/-/react-refresh-webpack-plugin-0.5.11.tgz(react-refresh@https://registry.npmmirror.com/react-refresh/-/react-refresh-0.14.0.tgz)(type-fest@0.21.3)(webpack@5.90.3(esbuild@https://registry.npmmirror.com/esbuild/-/esbuild-0.18.20.tgz))
       '@polkadot/extension-inject':
         specifier: ^0.46.7
-        version: https://registry.npmmirror.com/@polkadot/extension-inject/-/extension-inject-0.46.7.tgz(@polkadot/api@https://registry.npmmirror.com/@polkadot/api/-/api-10.11.3.tgz)(@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz)
+        version: https://registry.npmmirror.com/@polkadot/extension-inject/-/extension-inject-0.46.7.tgz(@polkadot/api@12.1.1)(@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz)
       '@polkadot/types':
         specifier: ^10.12.1
         version: https://registry.npmmirror.com/@polkadot/types/-/types-10.12.1.tgz
@@ -2132,9 +2132,16 @@ packages:
       react: '>=18'
       react-dom: '>=18'
 
+  '@noble/curves@1.3.0':
+    resolution: {integrity: sha512-t01iSXPuN+Eqzb4eBX0S5oubSqXbK/xXa1Ne18Hj8f9pStxztHCE2gfboSp/dZRLSqfuLpRK2nDXDK+W9puocA==}
+
   '@noble/curves@https://registry.npmmirror.com/@noble/curves/-/curves-1.3.0.tgz':
     resolution: {integrity: sha512-t01iSXPuN+Eqzb4eBX0S5oubSqXbK/xXa1Ne18Hj8f9pStxztHCE2gfboSp/dZRLSqfuLpRK2nDXDK+W9puocA==, tarball: https://registry.npmmirror.com/@noble/curves/-/curves-1.3.0.tgz}
     version: 1.3.0
+
+  '@noble/hashes@1.3.3':
+    resolution: {integrity: sha512-V7/fPHgl+jsVPXqqeOzT8egNj2iBIVt+ECeMMG8TdcnTikP3oaBtUVqpT/gYCR68aEBJSF+XbYUxStjbFMqIIA==}
+    engines: {node: '>= 16'}
 
   '@noble/hashes@https://registry.npmmirror.com/@noble/hashes/-/hashes-1.3.3.tgz':
     resolution: {integrity: sha512-V7/fPHgl+jsVPXqqeOzT8egNj2iBIVt+ECeMMG8TdcnTikP3oaBtUVqpT/gYCR68aEBJSF+XbYUxStjbFMqIIA==, tarball: https://registry.npmmirror.com/@noble/hashes/-/hashes-1.3.3.tgz}
@@ -2382,58 +2389,85 @@ packages:
     peerDependencies:
       rxjs: '>=7.8.0'
 
+  '@polkadot-api/json-rpc-provider-proxy@0.0.1':
+    resolution: {integrity: sha512-gmVDUP8LpCH0BXewbzqXF2sdHddq1H1q+XrAW2of+KZj4woQkIGBRGTJHeBEVHe30EB+UejR1N2dT4PO/RvDdg==}
+
   '@polkadot-api/json-rpc-provider-proxy@https://registry.npmmirror.com/@polkadot-api/json-rpc-provider-proxy/-/json-rpc-provider-proxy-0.0.1-12c4b0432a814086c3c1a3b8052b31c72c2c9ad3.1.0.tgz':
     resolution: {integrity: sha512-hzupcyUtObK6W1dyyeEp4BJBHRiGecB6t6YJQPk78UY1PnLsqFiboNh5doAywf+DoGBT1YXlxbYBAE3Wg43c9w==, tarball: https://registry.npmmirror.com/@polkadot-api/json-rpc-provider-proxy/-/json-rpc-provider-proxy-0.0.1-12c4b0432a814086c3c1a3b8052b31c72c2c9ad3.1.0.tgz}
     version: 0.0.1-12c4b0432a814086c3c1a3b8052b31c72c2c9ad3.1.0
+
+  '@polkadot-api/json-rpc-provider@0.0.1':
+    resolution: {integrity: sha512-/SMC/l7foRjpykLTUTacIH05H3mr9ip8b5xxfwXlVezXrNVLp3Cv0GX6uItkKd+ZjzVPf3PFrDF2B2/HLSNESA==}
 
   '@polkadot-api/json-rpc-provider@https://registry.npmmirror.com/@polkadot-api/json-rpc-provider/-/json-rpc-provider-0.0.1-12c4b0432a814086c3c1a3b8052b31c72c2c9ad3.1.0.tgz':
     resolution: {integrity: sha512-772gcl5MXdmIvXuhJwVqM/APp+6f6ocRGfzcYoFfdghJ4A68l9ir1SDny691vcJXE8CQ7NAcz5Gl3t1Gz1MIqg==, tarball: https://registry.npmmirror.com/@polkadot-api/json-rpc-provider/-/json-rpc-provider-0.0.1-12c4b0432a814086c3c1a3b8052b31c72c2c9ad3.1.0.tgz}
     version: 0.0.1-12c4b0432a814086c3c1a3b8052b31c72c2c9ad3.1.0
 
+  '@polkadot-api/metadata-builders@0.0.1':
+    resolution: {integrity: sha512-GCI78BHDzXAF/L2pZD6Aod/yl82adqQ7ftNmKg51ixRL02JpWUA+SpUKTJE5MY1p8kiJJIo09P2um24SiJHxNA==}
+
   '@polkadot-api/metadata-builders@https://registry.npmmirror.com/@polkadot-api/metadata-builders/-/metadata-builders-0.0.1-12c4b0432a814086c3c1a3b8052b31c72c2c9ad3.1.0.tgz':
     resolution: {integrity: sha512-T4t2O5Nhr8yrfJtKF5+JaxGO2TY7uFxQK0N/gDp7rDglvluiWiAl5nRvXhFzI03JOAtJ7Ey6O+ezEL1YwCjbwA==, tarball: https://registry.npmmirror.com/@polkadot-api/metadata-builders/-/metadata-builders-0.0.1-12c4b0432a814086c3c1a3b8052b31c72c2c9ad3.1.0.tgz}
     version: 0.0.1-12c4b0432a814086c3c1a3b8052b31c72c2c9ad3.1.0
+
+  '@polkadot-api/observable-client@0.1.0':
+    resolution: {integrity: sha512-GBCGDRztKorTLna/unjl/9SWZcRmvV58o9jwU2Y038VuPXZcr01jcw/1O3x+yeAuwyGzbucI/mLTDa1QoEml3A==}
+    peerDependencies:
+      rxjs: '>=7.8.0'
+
+  '@polkadot-api/substrate-bindings@0.0.1':
+    resolution: {integrity: sha512-bAe7a5bOPnuFVmpv7y4BBMRpNTnMmE0jtTqRUw/+D8ZlEHNVEJQGr4wu3QQCl7k1GnSV1wfv3mzIbYjErEBocg==}
 
   '@polkadot-api/substrate-bindings@https://registry.npmmirror.com/@polkadot-api/substrate-bindings/-/substrate-bindings-0.0.1-12c4b0432a814086c3c1a3b8052b31c72c2c9ad3.1.0.tgz':
     resolution: {integrity: sha512-oAOAwYG7iW2BUgLMzCo//pq+8X/zm5BxDUgJFtG0vPb3leUMd5kKnJcn7hWv9H4vLhyicAVoOPJrEPd/Kzocag==, tarball: https://registry.npmmirror.com/@polkadot-api/substrate-bindings/-/substrate-bindings-0.0.1-12c4b0432a814086c3c1a3b8052b31c72c2c9ad3.1.0.tgz}
     version: 0.0.1-12c4b0432a814086c3c1a3b8052b31c72c2c9ad3.1.0
 
+  '@polkadot-api/substrate-client@0.0.1':
+    resolution: {integrity: sha512-9Bg9SGc3AwE+wXONQoW8GC00N3v6lCZLW74HQzqB6ROdcm5VAHM4CB/xRzWSUF9CXL78ugiwtHx3wBcpx4H4Wg==}
+
   '@polkadot-api/substrate-client@https://registry.npmmirror.com/@polkadot-api/substrate-client/-/substrate-client-0.0.1-12c4b0432a814086c3c1a3b8052b31c72c2c9ad3.1.0.tgz':
     resolution: {integrity: sha512-rHLhKLJxv9CSplu+tXOgpxBwYDXCh32xwbJcZqxMWlXkjoNI2OB9hulX/3GJ0NE/ngMh3DV1hrqNLmyc/8PU+A==, tarball: https://registry.npmmirror.com/@polkadot-api/substrate-client/-/substrate-client-0.0.1-12c4b0432a814086c3c1a3b8052b31c72c2c9ad3.1.0.tgz}
     version: 0.0.1-12c4b0432a814086c3c1a3b8052b31c72c2c9ad3.1.0
+
+  '@polkadot-api/utils@0.0.1':
+    resolution: {integrity: sha512-3j+pRmlF9SgiYDabSdZsBSsN5XHbpXOAce1lWj56IEEaFZVjsiCaxDOA7C9nCcgfVXuvnbxqqEGQvnY+QfBAUw==}
 
   '@polkadot-api/utils@https://registry.npmmirror.com/@polkadot-api/utils/-/utils-0.0.1-12c4b0432a814086c3c1a3b8052b31c72c2c9ad3.1.0.tgz':
     resolution: {integrity: sha512-H7hOfilvx65wYxMjAI130rK34GcAPzMEuoP5W693N0PsXYc1QeoEHSza5NSgoN1U4jGNzDBoxu0al2WGKo1B5g==, tarball: https://registry.npmmirror.com/@polkadot-api/utils/-/utils-0.0.1-12c4b0432a814086c3c1a3b8052b31c72c2c9ad3.1.0.tgz}
     version: 0.0.1-12c4b0432a814086c3c1a3b8052b31c72c2c9ad3.1.0
 
-  '@polkadot/api-augment@https://registry.npmmirror.com/@polkadot/api-augment/-/api-augment-10.11.3.tgz':
-    resolution: {integrity: sha512-1D4KewvtWnq1nrmeaAbidhcmJnsPxEpSVklp+Or9qXJVQE/E7J0D57PD/TYg3Ti6gvzyDQdpOlp71PJU52aCJQ==, tarball: https://registry.npmmirror.com/@polkadot/api-augment/-/api-augment-10.11.3.tgz}
-    version: 10.11.3
+  '@polkadot/api-augment@12.1.1':
+    resolution: {integrity: sha512-x2cI4mt4y2DZ8b8BoxchlkkpdmvhmOqCLr7IHPcQGaHsA/oLYSgZk8YSvUFb6+W3WjnIZiNMzv/+UB9jQuGQ2Q==}
     engines: {node: '>=18'}
 
-  '@polkadot/api-base@https://registry.npmmirror.com/@polkadot/api-base/-/api-base-10.11.3.tgz':
-    resolution: {integrity: sha512-HNK0MxD+6dwUuZtMDnU2E7TtMxTPqvXPxeDixBThMpX72XgTE1NkM2X8pwdEw0ElgBvbJ3cRqMDZyHfKM90ydg==, tarball: https://registry.npmmirror.com/@polkadot/api-base/-/api-base-10.11.3.tgz}
-    version: 10.11.3
+  '@polkadot/api-base@12.1.1':
+    resolution: {integrity: sha512-/zLnekv5uFnjzYWhjUf6m0WOJorA0Qm/CWg7z6V+INnacDmVD+WIgYW+XLka90KXpW92sN5ycZEdcQGKBxSJOg==}
     engines: {node: '>=18'}
 
-  '@polkadot/api-derive@https://registry.npmmirror.com/@polkadot/api-derive/-/api-derive-10.11.3.tgz':
-    resolution: {integrity: sha512-pnhnDCPEwneWrLgsMGNDm0ZM2imrDzHou7CPxWoyxWS5adyrYl7Ckat9Bs0D86bqh/Hj0w0+yzWmCN9YJgB/cQ==, tarball: https://registry.npmmirror.com/@polkadot/api-derive/-/api-derive-10.11.3.tgz}
-    version: 10.11.3
+  '@polkadot/api-derive@12.1.1':
+    resolution: {integrity: sha512-VMwHcQY8gU/fhwgRICs9/EwTZVMSWW9Gf1ktwsWQmNM1RnrR6oN4/hvzsQor4Be/mC93w2f8bX/71QVmOgL5NA==}
     engines: {node: '>=18'}
 
-  '@polkadot/api@https://registry.npmmirror.com/@polkadot/api/-/api-10.11.3.tgz':
-    resolution: {integrity: sha512-V+zOMhDvH1g1WtWh0EN9nUQ/aJ9KItubzCbD9CTGHk/W8ZiYsTbKK0lT9C3itQV54d4GViXwIrylGjogKZGTXg==, tarball: https://registry.npmmirror.com/@polkadot/api/-/api-10.11.3.tgz}
-    version: 10.11.3
+  '@polkadot/api@12.1.1':
+    resolution: {integrity: sha512-XvX1gRUsnHDkEARBS1TAFCXncp6YABf/NCtOBt8FohokSzvB6Kxrcb6zurMbUm2piOdjgW5xsG3TCDRw6vACLA==}
     engines: {node: '>=18'}
 
-  '@polkadot/extension-dapp@https://registry.npmmirror.com/@polkadot/extension-dapp/-/extension-dapp-0.46.7.tgz':
-    resolution: {integrity: sha512-J/lGBwUfmXDHuzV14P3kBE8gPlWU0GCVvpfhw28qwaASgKHuWUxzoBoMnMT79VyXSsI5P7riU/x1pD/u1mjjyw==, tarball: https://registry.npmmirror.com/@polkadot/extension-dapp/-/extension-dapp-0.46.7.tgz}
-    version: 0.46.7
+  '@polkadot/extension-dapp@0.48.1':
+    resolution: {integrity: sha512-lEEqthIEepx6HeysSBNkiar/gi4T9k65setbxBQhAb97aEuxzlrnqmcVQMX44Hf+efkiADLEIchlVsnoMiUTSQ==}
+    version: 0.48.1
     engines: {node: '>=18'}
     peerDependencies:
       '@polkadot/api': '*'
       '@polkadot/util': '*'
       '@polkadot/util-crypto': '*'
+
+  '@polkadot/extension-inject@0.48.1':
+    resolution: {integrity: sha512-siv3YN/Cj6t01PFT5tfzB2p8UryhpV1cEWMViHxvoHL3Y9D6lCQDBTKkUSAUEG7dqczwHnizvdXBvF5HpZ42Ug==}
+    version: 0.48.1
+    engines: {node: '>=18'}
+    peerDependencies:
+      '@polkadot/api': '*'
+      '@polkadot/util': '*'
 
   '@polkadot/extension-inject@https://registry.npmmirror.com/@polkadot/extension-inject/-/extension-inject-0.46.7.tgz':
     resolution: {integrity: sha512-yyuofhnZe2ss0Avf1CGAo+7jqvDc0bg5X1hw6Yuc79LHOS6WCjCduFLaHoFW1yJBGQb4bt/U17VnUCIKbHvryA==, tarball: https://registry.npmmirror.com/@polkadot/extension-inject/-/extension-inject-0.46.7.tgz}
@@ -2443,6 +2477,13 @@ packages:
       '@polkadot/api': '*'
       '@polkadot/util': '*'
 
+  '@polkadot/keyring@12.6.2':
+    resolution: {integrity: sha512-O3Q7GVmRYm8q7HuB3S0+Yf/q/EB2egKRRU3fv9b3B7V+A52tKzA+vIwEmNVaD1g5FKW9oB97rmpggs0zaKFqHw==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      '@polkadot/util': 12.6.2
+      '@polkadot/util-crypto': 12.6.2
+
   '@polkadot/keyring@https://registry.npmmirror.com/@polkadot/keyring/-/keyring-12.6.2.tgz':
     resolution: {integrity: sha512-O3Q7GVmRYm8q7HuB3S0+Yf/q/EB2egKRRU3fv9b3B7V+A52tKzA+vIwEmNVaD1g5FKW9oB97rmpggs0zaKFqHw==, tarball: https://registry.npmmirror.com/@polkadot/keyring/-/keyring-12.6.2.tgz}
     version: 12.6.2
@@ -2451,24 +2492,25 @@ packages:
       '@polkadot/util': 12.6.2
       '@polkadot/util-crypto': 12.6.2
 
+  '@polkadot/networks@12.6.2':
+    resolution: {integrity: sha512-1oWtZm1IvPWqvMrldVH6NI2gBoCndl5GEwx7lAuQWGr7eNL+6Bdc5K3Z9T0MzFvDGoi2/CBqjX9dRKo39pDC/w==}
+    engines: {node: '>=18'}
+
   '@polkadot/networks@https://registry.npmmirror.com/@polkadot/networks/-/networks-12.6.2.tgz':
     resolution: {integrity: sha512-1oWtZm1IvPWqvMrldVH6NI2gBoCndl5GEwx7lAuQWGr7eNL+6Bdc5K3Z9T0MzFvDGoi2/CBqjX9dRKo39pDC/w==, tarball: https://registry.npmmirror.com/@polkadot/networks/-/networks-12.6.2.tgz}
     version: 12.6.2
     engines: {node: '>=18'}
 
-  '@polkadot/rpc-augment@https://registry.npmmirror.com/@polkadot/rpc-augment/-/rpc-augment-10.11.3.tgz':
-    resolution: {integrity: sha512-0WHFrI4XltVa7B97Hn+SNX+dPH+T3lj1Sgc5oQRnM0eb3MT2eOC4yTARZmA8sebd9raS5rTmLoxLDyOydprwtw==, tarball: https://registry.npmmirror.com/@polkadot/rpc-augment/-/rpc-augment-10.11.3.tgz}
-    version: 10.11.3
+  '@polkadot/rpc-augment@12.1.1':
+    resolution: {integrity: sha512-oDPn070l94pppXbuVk75BVsYgupdV8ndmslnUKWpPlfOeAU5SaBu4jMkj3eAi3VH0ersUpmlp1UuYN612//h8w==}
     engines: {node: '>=18'}
 
-  '@polkadot/rpc-core@https://registry.npmmirror.com/@polkadot/rpc-core/-/rpc-core-10.11.3.tgz':
-    resolution: {integrity: sha512-rqDvH/p4Si6wz77iGm2XG17AtGayLIZKSLhQ3Fyto/YKRBQBuJsPn2id8b4gKsJ6pj70tb3C3y8F73NT73KY2g==, tarball: https://registry.npmmirror.com/@polkadot/rpc-core/-/rpc-core-10.11.3.tgz}
-    version: 10.11.3
+  '@polkadot/rpc-core@12.1.1':
+    resolution: {integrity: sha512-NB4BZo9RdAZPBfZ11NoujB8+SDkDgvlrSiiv9FPMhfvTJo0Sr5FAq0Wd2aSC4D/6qbt5e89CHOW+0gBEm9d6dw==}
     engines: {node: '>=18'}
 
-  '@polkadot/rpc-provider@https://registry.npmmirror.com/@polkadot/rpc-provider/-/rpc-provider-10.11.3.tgz':
-    resolution: {integrity: sha512-W9qf84KIqDCwGtE2hNEjpjfJxCB0ccvgbrFjLGQJ5qcoVQbfLaFIa6NkdLVX2mFYbT0/NPs02VcyBFY8NBG/ug==, tarball: https://registry.npmmirror.com/@polkadot/rpc-provider/-/rpc-provider-10.11.3.tgz}
-    version: 10.11.3
+  '@polkadot/rpc-provider@12.1.1':
+    resolution: {integrity: sha512-nDr0Qb5sIzTTx6qmgr9ibNcQs/VDoPzZ+49kcltf0A6BdSytGy532Yhf2A158aD41324V9YPAzxVRLxZyJzhkw==}
     engines: {node: '>=18'}
 
   '@polkadot/rpc-provider@https://registry.npmmirror.com/@polkadot/rpc-provider/-/rpc-provider-10.12.1.tgz':
@@ -2476,9 +2518,8 @@ packages:
     version: 10.12.1
     engines: {node: '>=18'}
 
-  '@polkadot/types-augment@https://registry.npmmirror.com/@polkadot/types-augment/-/types-augment-10.11.3.tgz':
-    resolution: {integrity: sha512-QVWvLnoK9qfJhWxV7E+itWo4zpQjz7Aco+Jmfdta/qKS4juYZQx8TGmxJfvB+p/xI/o8QewQh2lg3jlO5v2WOA==, tarball: https://registry.npmmirror.com/@polkadot/types-augment/-/types-augment-10.11.3.tgz}
-    version: 10.11.3
+  '@polkadot/types-augment@12.1.1':
+    resolution: {integrity: sha512-HdzjaXapcmNAdT6TWJOuv124PTKbAf5+5JldQ7oPZFaCEhaOTazZYiZ27nqLaj0l4rG7wWzFMiGqjbHwAvtmlg==}
     engines: {node: '>=18'}
 
   '@polkadot/types-augment@https://registry.npmmirror.com/@polkadot/types-augment/-/types-augment-10.12.1.tgz':
@@ -2486,9 +2527,8 @@ packages:
     version: 10.12.1
     engines: {node: '>=18'}
 
-  '@polkadot/types-codec@https://registry.npmmirror.com/@polkadot/types-codec/-/types-codec-10.11.3.tgz':
-    resolution: {integrity: sha512-N2uEko2X7CixqFrF/sbmBi0T0UAfWca3t3HecpFIjn3gMky8ki6C+mqs5XsqZt6B+7Kh+Xds7SSxZaXeU9q5Qw==, tarball: https://registry.npmmirror.com/@polkadot/types-codec/-/types-codec-10.11.3.tgz}
-    version: 10.11.3
+  '@polkadot/types-codec@12.1.1':
+    resolution: {integrity: sha512-Ob3nFptHT4dDvGc/3l4dBXmvsI3wDWS2oCOxACA+hYWufnlTIQ4M4sHI4kSBQvDoEmaFt8P2Be4SmtyT0VSd1w==}
     engines: {node: '>=18'}
 
   '@polkadot/types-codec@https://registry.npmmirror.com/@polkadot/types-codec/-/types-codec-10.12.1.tgz':
@@ -2496,9 +2536,8 @@ packages:
     version: 10.12.1
     engines: {node: '>=18'}
 
-  '@polkadot/types-create@https://registry.npmmirror.com/@polkadot/types-create/-/types-create-10.11.3.tgz':
-    resolution: {integrity: sha512-xb2MXcFxYar1DEpSRDunfMgfQoaSYyUcRr5TeFh1Zi0VZf3Zf3FsLKNfaEt3AFul1ZHwpIJO/R8KLeTSsgfK/A==, tarball: https://registry.npmmirror.com/@polkadot/types-create/-/types-create-10.11.3.tgz}
-    version: 10.11.3
+  '@polkadot/types-create@12.1.1':
+    resolution: {integrity: sha512-K/I4vCnmI7IbtQeURiRMONDqesIVcZp16KEduBcbJm/RWDj0D3mr71066Yr8OhrhteLvULJpViy7EK4ynPvmSw==}
     engines: {node: '>=18'}
 
   '@polkadot/types-create@https://registry.npmmirror.com/@polkadot/types-create/-/types-create-10.12.1.tgz':
@@ -2506,14 +2545,12 @@ packages:
     version: 10.12.1
     engines: {node: '>=18'}
 
-  '@polkadot/types-known@https://registry.npmmirror.com/@polkadot/types-known/-/types-known-10.11.3.tgz':
-    resolution: {integrity: sha512-Mhq5kWMx+HWPzWp4ZSwXtHimd6laY3NYsamhb18+8fHi1ieYCUNn7o1LoEBQiJ6N2vB3Iy5NrshAaVRh6gFpow==, tarball: https://registry.npmmirror.com/@polkadot/types-known/-/types-known-10.11.3.tgz}
-    version: 10.11.3
+  '@polkadot/types-known@12.1.1':
+    resolution: {integrity: sha512-4YxY7tB+BVX6k3ubrToYKyh2Jb4QvoLvzwNSGSjyj0RGwiQCu8anFGIzYdaUJ2iQlhLFb6P4AZWykVvhrXGmqg==}
     engines: {node: '>=18'}
 
-  '@polkadot/types-support@https://registry.npmmirror.com/@polkadot/types-support/-/types-support-10.11.3.tgz':
-    resolution: {integrity: sha512-YqPgLcSUTq63dAPxzn5JYLOUFO6EA2lDDehAJ60kEXwZ7v8iuow7hZo/V/z2VWE1u/LI3NczsvRbpzfhISaZyg==, tarball: https://registry.npmmirror.com/@polkadot/types-support/-/types-support-10.11.3.tgz}
-    version: 10.11.3
+  '@polkadot/types-support@12.1.1':
+    resolution: {integrity: sha512-mLXrbj0maKFWqV1+4QRzaNnZyV/rAQW0XSrIzfIZn//zSRSIUaXaVAZ62uzgdmzXXFH2qD3hpNlmvmjcEMm2Qg==}
     engines: {node: '>=18'}
 
   '@polkadot/types-support@https://registry.npmmirror.com/@polkadot/types-support/-/types-support-10.12.1.tgz':
@@ -2521,15 +2558,20 @@ packages:
     version: 10.12.1
     engines: {node: '>=18'}
 
-  '@polkadot/types@https://registry.npmmirror.com/@polkadot/types/-/types-10.11.3.tgz':
-    resolution: {integrity: sha512-SQGQp/MnNL1Cw+bqH2tyGpcQKa+up56p8rnRQYO8+yZVAjD+2digYQ0vYrVWZ3vwk0w0aiRc6MuIkOOq9KPU5A==, tarball: https://registry.npmmirror.com/@polkadot/types/-/types-10.11.3.tgz}
-    version: 10.11.3
+  '@polkadot/types@12.1.1':
+    resolution: {integrity: sha512-+b8v7ORjL20r6VvdWL/fPTHmDXtfAfqkQQxBB6exxOhqrnJfnhAYQjJomKcyj1VMTQiyyR9FBAc7vVvTEFX2ew==}
     engines: {node: '>=18'}
 
   '@polkadot/types@https://registry.npmmirror.com/@polkadot/types/-/types-10.12.1.tgz':
     resolution: {integrity: sha512-rQ3OdKPAw0YucjD+97dYoEmhKLPIGDj0jd2vIwvfazeowwy854Hp3uYcPyGBq74l5hPo+6xYMySEqq7o99Nc0Q==, tarball: https://registry.npmmirror.com/@polkadot/types/-/types-10.12.1.tgz}
     version: 10.12.1
     engines: {node: '>=18'}
+
+  '@polkadot/util-crypto@12.6.2':
+    resolution: {integrity: sha512-FEWI/dJ7wDMNN1WOzZAjQoIcCP/3vz3wvAp5QQm+lOrzOLj0iDmaIGIcBkz8HVm3ErfSe/uKP0KS4jgV/ib+Mg==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      '@polkadot/util': 12.6.2
 
   '@polkadot/util-crypto@https://registry.npmmirror.com/@polkadot/util-crypto/-/util-crypto-12.6.2.tgz':
     resolution: {integrity: sha512-FEWI/dJ7wDMNN1WOzZAjQoIcCP/3vz3wvAp5QQm+lOrzOLj0iDmaIGIcBkz8HVm3ErfSe/uKP0KS4jgV/ib+Mg==, tarball: https://registry.npmmirror.com/@polkadot/util-crypto/-/util-crypto-12.6.2.tgz}
@@ -2538,10 +2580,21 @@ packages:
     peerDependencies:
       '@polkadot/util': 12.6.2
 
+  '@polkadot/util@12.6.2':
+    resolution: {integrity: sha512-l8TubR7CLEY47240uki0TQzFvtnxFIO7uI/0GoWzpYD/O62EIAMRsuY01N4DuwgKq2ZWD59WhzsLYmA5K6ksdw==}
+    engines: {node: '>=18'}
+
   '@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz':
     resolution: {integrity: sha512-l8TubR7CLEY47240uki0TQzFvtnxFIO7uI/0GoWzpYD/O62EIAMRsuY01N4DuwgKq2ZWD59WhzsLYmA5K6ksdw==, tarball: https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz}
     version: 12.6.2
     engines: {node: '>=18'}
+
+  '@polkadot/wasm-bridge@7.3.2':
+    resolution: {integrity: sha512-AJEXChcf/nKXd5Q/YLEV5dXQMle3UNT7jcXYmIffZAo/KI394a+/24PaISyQjoNC0fkzS1Q8T5pnGGHmXiVz2g==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      '@polkadot/util': '*'
+      '@polkadot/x-randomvalues': '*'
 
   '@polkadot/wasm-bridge@https://registry.npmmirror.com/@polkadot/wasm-bridge/-/wasm-bridge-7.3.2.tgz':
     resolution: {integrity: sha512-AJEXChcf/nKXd5Q/YLEV5dXQMle3UNT7jcXYmIffZAo/KI394a+/24PaISyQjoNC0fkzS1Q8T5pnGGHmXiVz2g==, tarball: https://registry.npmmirror.com/@polkadot/wasm-bridge/-/wasm-bridge-7.3.2.tgz}
@@ -2551,12 +2604,25 @@ packages:
       '@polkadot/util': '*'
       '@polkadot/x-randomvalues': '*'
 
+  '@polkadot/wasm-crypto-asmjs@7.3.2':
+    resolution: {integrity: sha512-QP5eiUqUFur/2UoF2KKKYJcesc71fXhQFLT3D4ZjG28Mfk2ZPI0QNRUfpcxVQmIUpV5USHg4geCBNuCYsMm20Q==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      '@polkadot/util': '*'
+
   '@polkadot/wasm-crypto-asmjs@https://registry.npmmirror.com/@polkadot/wasm-crypto-asmjs/-/wasm-crypto-asmjs-7.3.2.tgz':
     resolution: {integrity: sha512-QP5eiUqUFur/2UoF2KKKYJcesc71fXhQFLT3D4ZjG28Mfk2ZPI0QNRUfpcxVQmIUpV5USHg4geCBNuCYsMm20Q==, tarball: https://registry.npmmirror.com/@polkadot/wasm-crypto-asmjs/-/wasm-crypto-asmjs-7.3.2.tgz}
     version: 7.3.2
     engines: {node: '>=18'}
     peerDependencies:
       '@polkadot/util': '*'
+
+  '@polkadot/wasm-crypto-init@7.3.2':
+    resolution: {integrity: sha512-FPq73zGmvZtnuJaFV44brze3Lkrki3b4PebxCy9Fplw8nTmisKo9Xxtfew08r0njyYh+uiJRAxPCXadkC9sc8g==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      '@polkadot/util': '*'
+      '@polkadot/x-randomvalues': '*'
 
   '@polkadot/wasm-crypto-init@https://registry.npmmirror.com/@polkadot/wasm-crypto-init/-/wasm-crypto-init-7.3.2.tgz':
     resolution: {integrity: sha512-FPq73zGmvZtnuJaFV44brze3Lkrki3b4PebxCy9Fplw8nTmisKo9Xxtfew08r0njyYh+uiJRAxPCXadkC9sc8g==, tarball: https://registry.npmmirror.com/@polkadot/wasm-crypto-init/-/wasm-crypto-init-7.3.2.tgz}
@@ -2566,12 +2632,25 @@ packages:
       '@polkadot/util': '*'
       '@polkadot/x-randomvalues': '*'
 
+  '@polkadot/wasm-crypto-wasm@7.3.2':
+    resolution: {integrity: sha512-15wd0EMv9IXs5Abp1ZKpKKAVyZPhATIAHfKsyoWCEFDLSOA0/K0QGOxzrAlsrdUkiKZOq7uzSIgIDgW8okx2Mw==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      '@polkadot/util': '*'
+
   '@polkadot/wasm-crypto-wasm@https://registry.npmmirror.com/@polkadot/wasm-crypto-wasm/-/wasm-crypto-wasm-7.3.2.tgz':
     resolution: {integrity: sha512-15wd0EMv9IXs5Abp1ZKpKKAVyZPhATIAHfKsyoWCEFDLSOA0/K0QGOxzrAlsrdUkiKZOq7uzSIgIDgW8okx2Mw==, tarball: https://registry.npmmirror.com/@polkadot/wasm-crypto-wasm/-/wasm-crypto-wasm-7.3.2.tgz}
     version: 7.3.2
     engines: {node: '>=18'}
     peerDependencies:
       '@polkadot/util': '*'
+
+  '@polkadot/wasm-crypto@7.3.2':
+    resolution: {integrity: sha512-+neIDLSJ6jjVXsjyZ5oLSv16oIpwp+PxFqTUaZdZDoA2EyFRQB8pP7+qLsMNk+WJuhuJ4qXil/7XiOnZYZ+wxw==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      '@polkadot/util': '*'
+      '@polkadot/x-randomvalues': '*'
 
   '@polkadot/wasm-crypto@https://registry.npmmirror.com/@polkadot/wasm-crypto/-/wasm-crypto-7.3.2.tgz':
     resolution: {integrity: sha512-+neIDLSJ6jjVXsjyZ5oLSv16oIpwp+PxFqTUaZdZDoA2EyFRQB8pP7+qLsMNk+WJuhuJ4qXil/7XiOnZYZ+wxw==, tarball: https://registry.npmmirror.com/@polkadot/wasm-crypto/-/wasm-crypto-7.3.2.tgz}
@@ -2581,6 +2660,12 @@ packages:
       '@polkadot/util': '*'
       '@polkadot/x-randomvalues': '*'
 
+  '@polkadot/wasm-util@7.3.2':
+    resolution: {integrity: sha512-bmD+Dxo1lTZyZNxbyPE380wd82QsX+43mgCm40boyKrRppXEyQmWT98v/Poc7chLuskYb6X8IQ6lvvK2bGR4Tg==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      '@polkadot/util': '*'
+
   '@polkadot/wasm-util@https://registry.npmmirror.com/@polkadot/wasm-util/-/wasm-util-7.3.2.tgz':
     resolution: {integrity: sha512-bmD+Dxo1lTZyZNxbyPE380wd82QsX+43mgCm40boyKrRppXEyQmWT98v/Poc7chLuskYb6X8IQ6lvvK2bGR4Tg==, tarball: https://registry.npmmirror.com/@polkadot/wasm-util/-/wasm-util-7.3.2.tgz}
     version: 7.3.2
@@ -2588,9 +2673,17 @@ packages:
     peerDependencies:
       '@polkadot/util': '*'
 
+  '@polkadot/x-bigint@12.6.2':
+    resolution: {integrity: sha512-HSIk60uFPX4GOFZSnIF7VYJz7WZA7tpFJsne7SzxOooRwMTWEtw3fUpFy5cYYOeLh17/kHH1Y7SVcuxzVLc74Q==}
+    engines: {node: '>=18'}
+
   '@polkadot/x-bigint@https://registry.npmmirror.com/@polkadot/x-bigint/-/x-bigint-12.6.2.tgz':
     resolution: {integrity: sha512-HSIk60uFPX4GOFZSnIF7VYJz7WZA7tpFJsne7SzxOooRwMTWEtw3fUpFy5cYYOeLh17/kHH1Y7SVcuxzVLc74Q==, tarball: https://registry.npmmirror.com/@polkadot/x-bigint/-/x-bigint-12.6.2.tgz}
     version: 12.6.2
+    engines: {node: '>=18'}
+
+  '@polkadot/x-fetch@12.6.2':
+    resolution: {integrity: sha512-8wM/Z9JJPWN1pzSpU7XxTI1ldj/AfC8hKioBlUahZ8gUiJaOF7K9XEFCrCDLis/A1BoOu7Ne6WMx/vsJJIbDWw==}
     engines: {node: '>=18'}
 
   '@polkadot/x-fetch@https://registry.npmmirror.com/@polkadot/x-fetch/-/x-fetch-12.6.2.tgz':
@@ -2598,10 +2691,21 @@ packages:
     version: 12.6.2
     engines: {node: '>=18'}
 
+  '@polkadot/x-global@12.6.2':
+    resolution: {integrity: sha512-a8d6m+PW98jmsYDtAWp88qS4dl8DyqUBsd0S+WgyfSMtpEXu6v9nXDgPZgwF5xdDvXhm+P0ZfVkVTnIGrScb5g==}
+    engines: {node: '>=18'}
+
   '@polkadot/x-global@https://registry.npmmirror.com/@polkadot/x-global/-/x-global-12.6.2.tgz':
     resolution: {integrity: sha512-a8d6m+PW98jmsYDtAWp88qS4dl8DyqUBsd0S+WgyfSMtpEXu6v9nXDgPZgwF5xdDvXhm+P0ZfVkVTnIGrScb5g==, tarball: https://registry.npmmirror.com/@polkadot/x-global/-/x-global-12.6.2.tgz}
     version: 12.6.2
     engines: {node: '>=18'}
+
+  '@polkadot/x-randomvalues@12.6.2':
+    resolution: {integrity: sha512-Vr8uG7rH2IcNJwtyf5ebdODMcr0XjoCpUbI91Zv6AlKVYOGKZlKLYJHIwpTaKKB+7KPWyQrk4Mlym/rS7v9feg==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      '@polkadot/util': 12.6.2
+      '@polkadot/wasm-util': '*'
 
   '@polkadot/x-randomvalues@https://registry.npmmirror.com/@polkadot/x-randomvalues/-/x-randomvalues-12.6.2.tgz':
     resolution: {integrity: sha512-Vr8uG7rH2IcNJwtyf5ebdODMcr0XjoCpUbI91Zv6AlKVYOGKZlKLYJHIwpTaKKB+7KPWyQrk4Mlym/rS7v9feg==, tarball: https://registry.npmmirror.com/@polkadot/x-randomvalues/-/x-randomvalues-12.6.2.tgz}
@@ -2611,14 +2715,26 @@ packages:
       '@polkadot/util': 12.6.2
       '@polkadot/wasm-util': '*'
 
+  '@polkadot/x-textdecoder@12.6.2':
+    resolution: {integrity: sha512-M1Bir7tYvNappfpFWXOJcnxUhBUFWkUFIdJSyH0zs5LmFtFdbKAeiDXxSp2Swp5ddOZdZgPac294/o2TnQKN1w==}
+    engines: {node: '>=18'}
+
   '@polkadot/x-textdecoder@https://registry.npmmirror.com/@polkadot/x-textdecoder/-/x-textdecoder-12.6.2.tgz':
     resolution: {integrity: sha512-M1Bir7tYvNappfpFWXOJcnxUhBUFWkUFIdJSyH0zs5LmFtFdbKAeiDXxSp2Swp5ddOZdZgPac294/o2TnQKN1w==, tarball: https://registry.npmmirror.com/@polkadot/x-textdecoder/-/x-textdecoder-12.6.2.tgz}
     version: 12.6.2
     engines: {node: '>=18'}
 
+  '@polkadot/x-textencoder@12.6.2':
+    resolution: {integrity: sha512-4N+3UVCpI489tUJ6cv3uf0PjOHvgGp9Dl+SZRLgFGt9mvxnvpW/7+XBADRMtlG4xi5gaRK7bgl5bmY6OMDsNdw==}
+    engines: {node: '>=18'}
+
   '@polkadot/x-textencoder@https://registry.npmmirror.com/@polkadot/x-textencoder/-/x-textencoder-12.6.2.tgz':
     resolution: {integrity: sha512-4N+3UVCpI489tUJ6cv3uf0PjOHvgGp9Dl+SZRLgFGt9mvxnvpW/7+XBADRMtlG4xi5gaRK7bgl5bmY6OMDsNdw==, tarball: https://registry.npmmirror.com/@polkadot/x-textencoder/-/x-textencoder-12.6.2.tgz}
     version: 12.6.2
+    engines: {node: '>=18'}
+
+  '@polkadot/x-ws@12.6.2':
+    resolution: {integrity: sha512-cGZWo7K5eRRQCRl2LrcyCYsrc3lRbTlixZh3AzgU8uX4wASVGRlNWi/Hf4TtHNe1ExCDmxabJzdIsABIfrr7xw==}
     engines: {node: '>=18'}
 
   '@polkadot/x-ws@https://registry.npmmirror.com/@polkadot/x-ws/-/x-ws-12.6.2.tgz':
@@ -3092,6 +3208,9 @@ packages:
     version: 4.2.1
     engines: {node: '>= 8.0.0'}
 
+  '@scure/base@1.1.5':
+    resolution: {integrity: sha512-Brj9FiG2W1MRQSTB212YVPRrcbjkv48FoZi/u4l/zds/ieRrqsh7aUf6CLwkAq61oKXr/ZlTzlY66gLIj3TFTQ==}
+
   '@scure/base@https://registry.npmmirror.com/@scure/base/-/base-1.1.5.tgz':
     resolution: {integrity: sha512-Brj9FiG2W1MRQSTB212YVPRrcbjkv48FoZi/u4l/zds/ieRrqsh7aUf6CLwkAq61oKXr/ZlTzlY66gLIj3TFTQ==, tarball: https://registry.npmmirror.com/@scure/base/-/base-1.1.5.tgz}
     version: 1.1.5
@@ -3111,22 +3230,40 @@ packages:
     resolution: {integrity: sha512-V4BG07kuYSUkTCSBHG8G8TNhM+F19jXFWnQtzj+we8DrkpSBCee9Z3Ms8yiGer/dlmhe35/Xdgyo3/0rQKg7YA==, tarball: https://registry.npmmirror.com/@sinonjs/fake-timers/-/fake-timers-10.3.0.tgz}
     version: 10.3.0
 
+  '@substrate/connect-extension-protocol@2.0.0':
+    resolution: {integrity: sha512-nKu8pDrE3LNCEgJjZe1iGXzaD6OSIDD4Xzz/yo4KO9mQ6LBvf49BVrt4qxBFGL6++NneLiWUZGoh+VSd4PyVIg==}
+
   '@substrate/connect-extension-protocol@https://registry.npmmirror.com/@substrate/connect-extension-protocol/-/connect-extension-protocol-2.0.0.tgz':
     resolution: {integrity: sha512-nKu8pDrE3LNCEgJjZe1iGXzaD6OSIDD4Xzz/yo4KO9mQ6LBvf49BVrt4qxBFGL6++NneLiWUZGoh+VSd4PyVIg==, tarball: https://registry.npmmirror.com/@substrate/connect-extension-protocol/-/connect-extension-protocol-2.0.0.tgz}
     version: 2.0.0
+
+  '@substrate/connect-known-chains@1.1.8':
+    resolution: {integrity: sha512-W0Cpnk//LoMTu5BGDCRRg5NHFR2aZ9OJtLGSgRyq1RP39dQGpoVZIgNC6z+SWRzlmOz3gIgkUCwGvOKVt2BabA==}
 
   '@substrate/connect-known-chains@https://registry.npmmirror.com/@substrate/connect-known-chains/-/connect-known-chains-1.1.0.tgz':
     resolution: {integrity: sha512-dTOZ8mnKfoFvsCwm81k8u/nVtctnuOk11QBu5itXDebW17LEzUGZ8uveYTOb+c5dqRHmXd48ZScPzvlhJVx1mw==, tarball: https://registry.npmmirror.com/@substrate/connect-known-chains/-/connect-known-chains-1.1.0.tgz}
     version: 1.1.0
 
+  '@substrate/connect@0.8.10':
+    resolution: {integrity: sha512-DIyQ13DDlXqVFnLV+S6/JDgiGowVRRrh18kahieJxhgvzcWicw5eLc6jpfQ0moVVLBYkO7rctB5Wreldwpva8w==}
+    deprecated: versions below 1.x are no longer maintained
+
   '@substrate/connect@0.8.7':
     resolution: {integrity: sha512-kJLSqiwsAC8eHsPBwUyVpp6cogs1b/4jxTiRfoWbbndmSSEqn3qkcwmYPmZud4pyJFX7FMXwzH28XaPRBGTaQQ==}
+
+  '@substrate/light-client-extension-helpers@0.0.6':
+    resolution: {integrity: sha512-girltEuxQ1BvkJWmc8JJlk4ZxnlGXc/wkLcNguhY+UoDEMBK0LsdtfzQKIfrIehi4QdeSBlFEFBoI4RqPmsZzA==}
+    peerDependencies:
+      smoldot: 2.x
 
   '@substrate/light-client-extension-helpers@https://registry.npmmirror.com/@substrate/light-client-extension-helpers/-/light-client-extension-helpers-0.0.3.tgz':
     resolution: {integrity: sha512-AkWX7Xpn0u8NdR7qAEwFzeobLvHiviqmsUTvN6wge8Rnlbk01Ftm2Ol8vdN6IhjWPTepF5MggibQVXKBUtZnZw==, tarball: https://registry.npmmirror.com/@substrate/light-client-extension-helpers/-/light-client-extension-helpers-0.0.3.tgz}
     version: 0.0.3
     peerDependencies:
       smoldot: 2.x
+
+  '@substrate/ss58-registry@1.46.0':
+    resolution: {integrity: sha512-rBvWnlrBeFTd5LVG7oX3rOHzR16yqyffOFHKmUiVcblpXI3D89CXOvAljW9tWlA1H/2/FegaZnHPhdObPsvi+w==}
 
   '@substrate/ss58-registry@https://registry.npmmirror.com/@substrate/ss58-registry/-/ss58-registry-1.46.0.tgz':
     resolution: {integrity: sha512-rBvWnlrBeFTd5LVG7oX3rOHzR16yqyffOFHKmUiVcblpXI3D89CXOvAljW9tWlA1H/2/FegaZnHPhdObPsvi+w==, tarball: https://registry.npmmirror.com/@substrate/ss58-registry/-/ss58-registry-1.46.0.tgz}
@@ -3349,6 +3486,9 @@ packages:
   '@types/bcryptjs@https://registry.npmmirror.com/@types/bcryptjs/-/bcryptjs-2.4.5.tgz':
     resolution: {integrity: sha512-tOF6TivOIvq+TWQm78335CMdyVJhpBG3NUdWQDAp95ax4E2rSKbws/ELHLk5EBoucwx/tHt3/hhLOHwWJgVrSw==, tarball: https://registry.npmmirror.com/@types/bcryptjs/-/bcryptjs-2.4.5.tgz}
     version: 2.4.5
+
+  '@types/bn.js@5.1.5':
+    resolution: {integrity: sha512-V46N0zwKRF5Q00AZ6hWtN0T8gGmDUaUzLWQvHFo5yThtVwK/VCenFY3wXVbOvNfajEpsTfQM4IN9k/d6gUVX3A==}
 
   '@types/bn.js@https://registry.npmmirror.com/@types/bn.js/-/bn.js-5.1.5.tgz':
     resolution: {integrity: sha512-V46N0zwKRF5Q00AZ6hWtN0T8gGmDUaUzLWQvHFo5yThtVwK/VCenFY3wXVbOvNfajEpsTfQM4IN9k/d6gUVX3A==, tarball: https://registry.npmmirror.com/@types/bn.js/-/bn.js-5.1.5.tgz}
@@ -4123,6 +4263,9 @@ packages:
     resolution: {integrity: sha512-1W07cM9gS6DcLperZfFSj+bWLtaPGSOHWhPiGzXmvVJbRLdG82sH/Kn8EtW1VqWVA54AKf2h5k5BbnIbwF3h6w==, tarball: https://registry.npmmirror.com/bl/-/bl-4.1.0.tgz}
     version: 4.1.0
 
+  bn.js@5.2.1:
+    resolution: {integrity: sha512-eXRvHzWyYPBuB4NBy0cmYQjGitUrtqwbvlzP3G6VFnNRbsZQIxQ10PbKKHt8gZ/HW/D/747aDl+QkDqg3KQLMQ==}
+
   bn.js@https://registry.npmmirror.com/bn.js/-/bn.js-5.2.1.tgz:
     resolution: {integrity: sha512-eXRvHzWyYPBuB4NBy0cmYQjGitUrtqwbvlzP3G6VFnNRbsZQIxQ10PbKKHt8gZ/HW/D/747aDl+QkDqg3KQLMQ==, tarball: https://registry.npmmirror.com/bn.js/-/bn.js-5.2.1.tgz}
     version: 5.2.1
@@ -4563,6 +4706,10 @@ packages:
   damerau-levenshtein@https://registry.npmmirror.com/damerau-levenshtein/-/damerau-levenshtein-1.0.8.tgz:
     resolution: {integrity: sha512-sdQSFB7+llfUcQHUQO3+B8ERRj0Oa4w9POWMI/puGtuf7gFywGmkaLCElnudfTiKZV+NvHqL0ifzdrI8Ro7ESA==, tarball: https://registry.npmmirror.com/damerau-levenshtein/-/damerau-levenshtein-1.0.8.tgz}
     version: 1.0.8
+
+  data-uri-to-buffer@4.0.1:
+    resolution: {integrity: sha512-0R9ikRb668HB7QDxT1vkpuUBtqc53YyAwMwGeUFKRojY/NWKvdZ+9UYtRfGmhqNbRkTSVpMbmyhXipFFv2cb/A==}
+    engines: {node: '>= 12'}
 
   data-uri-to-buffer@https://registry.npmmirror.com/data-uri-to-buffer/-/data-uri-to-buffer-4.0.1.tgz:
     resolution: {integrity: sha512-0R9ikRb668HB7QDxT1vkpuUBtqc53YyAwMwGeUFKRojY/NWKvdZ+9UYtRfGmhqNbRkTSVpMbmyhXipFFv2cb/A==, tarball: https://registry.npmmirror.com/data-uri-to-buffer/-/data-uri-to-buffer-4.0.1.tgz}
@@ -5106,6 +5253,9 @@ packages:
     version: 5.0.1
     engines: {node: '>=6'}
 
+  eventemitter3@5.0.1:
+    resolution: {integrity: sha512-GWkBvjiSZK87ELrYOSESUYeVIc9mvLLf/nXalMOS5dYrgZq9o5OVkbZAVM06CVxYsCwH9BDZFPlQTlPA1j4ahA==}
+
   eventemitter3@https://registry.npmmirror.com/eventemitter3/-/eventemitter3-4.0.7.tgz:
     resolution: {integrity: sha512-8guHBZCwKnFhYdHr2ysuRWErTwhoN2X8XELRlrRwpmfeY2jjuUN4taQMsULKUVo1K4DvZl+0pgfyoysHxvmvEw==, tarball: https://registry.npmmirror.com/eventemitter3/-/eventemitter3-4.0.7.tgz}
     version: 4.0.7
@@ -5214,6 +5364,10 @@ packages:
   fb-watchman@https://registry.npmmirror.com/fb-watchman/-/fb-watchman-2.0.2.tgz:
     resolution: {integrity: sha512-p5161BqbuCaSnB8jIbzQHOlpgsPmK5rJVDfDKO91Axs5NC1uu3HRQm6wt9cd9/+GtQQIO53JdGXXoyDpTAsgYA==, tarball: https://registry.npmmirror.com/fb-watchman/-/fb-watchman-2.0.2.tgz}
     version: 2.0.2
+
+  fetch-blob@3.2.0:
+    resolution: {integrity: sha512-7yAQpD2UMJzLi1Dqv7qFYnPbaPx7ZfFK6PiIxQ4PfkGPyNyl2Ugx+a/umUonmKqjhM4DnfbMvdX6otXq83soQQ==}
+    engines: {node: ^12.20 || >= 14.13}
 
   fetch-blob@https://registry.npmmirror.com/fetch-blob/-/fetch-blob-3.2.0.tgz:
     resolution: {integrity: sha512-7yAQpD2UMJzLi1Dqv7qFYnPbaPx7ZfFK6PiIxQ4PfkGPyNyl2Ugx+a/umUonmKqjhM4DnfbMvdX6otXq83soQQ==, tarball: https://registry.npmmirror.com/fetch-blob/-/fetch-blob-3.2.0.tgz}
@@ -5324,6 +5478,10 @@ packages:
     resolution: {integrity: sha512-ETEklSGi5t0QMZuiXoA/Q6vcnxcLQP5vdugSpuAyi6SVGi2clPPp+xgEhuMaHC+zGgn31Kd235W35f7Hykkaww==, tarball: https://registry.npmmirror.com/form-data/-/form-data-4.0.0.tgz}
     version: 4.0.0
     engines: {node: '>= 6'}
+
+  formdata-polyfill@4.0.10:
+    resolution: {integrity: sha512-buewHzMvYL29jdeQTVILecSaZKnt/RJWjoZCF5OW60Z67/GmSLBkOFM7qh1PI3zFNtJbaZL5eQu1vLfazOwj4g==}
+    engines: {node: '>=12.20.0'}
 
   formdata-polyfill@https://registry.npmmirror.com/formdata-polyfill/-/formdata-polyfill-4.0.10.tgz:
     resolution: {integrity: sha512-buewHzMvYL29jdeQTVILecSaZKnt/RJWjoZCF5OW60Z67/GmSLBkOFM7qh1PI3zFNtJbaZL5eQu1vLfazOwj4g==, tarball: https://registry.npmmirror.com/formdata-polyfill/-/formdata-polyfill-4.0.10.tgz}
@@ -6207,6 +6365,9 @@ packages:
     resolution: {integrity: sha512-Bdboy+l7tA3OGW6FjyFHWkP5LuByj1Tk33Ljyq0axyzdk9//JSi2u3fP1QSmd1KNwq6VOKYGlAu87CisVir6Pw==, tarball: https://registry.npmmirror.com/json-stable-stringify-without-jsonify/-/json-stable-stringify-without-jsonify-1.0.1.tgz}
     version: 1.0.1
 
+  json-stringify-safe@5.0.1:
+    resolution: {integrity: sha512-ZClg6AaYvamvYEE82d3Iyd3vSSIjQ+odgjaTzRuO3s7toCdFKczob2i0zCh7JE8kWn17yvAWhUVxvqGwUalsRA==}
+
   json-stringify-safe@https://registry.npmmirror.com/json-stringify-safe/-/json-stringify-safe-5.0.1.tgz:
     resolution: {integrity: sha512-ZClg6AaYvamvYEE82d3Iyd3vSSIjQ+odgjaTzRuO3s7toCdFKczob2i0zCh7JE8kWn17yvAWhUVxvqGwUalsRA==, tarball: https://registry.npmmirror.com/json-stringify-safe/-/json-stringify-safe-5.0.1.tgz}
     version: 5.0.1
@@ -6561,6 +6722,10 @@ packages:
     resolution: {integrity: sha512-FPUtkhtJ0efmEFGpU14x7jGbTB+s18LrzRL2KgoWz9YvcY3cPomz8tih01GbHwnGk/OmkOKfqd/RAQoc8Lm7DQ==, tarball: https://registry.npmmirror.com/mnemonist/-/mnemonist-0.39.5.tgz}
     version: 0.39.5
 
+  mock-socket@9.3.1:
+    resolution: {integrity: sha512-qxBgB7Qa2sEQgHFjj0dSigq7fX4k6Saisd5Nelwp2q8mlbAFh5dHV9JTTlF8viYJLSSWgMCZFUom8PJcMNBoJw==}
+    engines: {node: '>= 8'}
+
   mock-socket@https://registry.npmmirror.com/mock-socket/-/mock-socket-9.3.1.tgz:
     resolution: {integrity: sha512-qxBgB7Qa2sEQgHFjj0dSigq7fX4k6Saisd5Nelwp2q8mlbAFh5dHV9JTTlF8viYJLSSWgMCZFUom8PJcMNBoJw==, tarball: https://registry.npmmirror.com/mock-socket/-/mock-socket-9.3.1.tgz}
     version: 9.3.1
@@ -6624,15 +6789,27 @@ packages:
     resolution: {integrity: sha512-fgAN3jGAh+RoxUGZHTSOLJIqUc2wmoBwGR4tbpNAKmmovFoWq0OdRkb0VkldReO2a2iBT/OEulG9XSUc10r3zg==, tarball: https://registry.npmmirror.com/no-case/-/no-case-3.0.4.tgz}
     version: 3.0.4
 
+  nock@13.5.4:
+    resolution: {integrity: sha512-yAyTfdeNJGGBFxWdzSKCBYxs5FxLbCg5X5Q4ets974hcQzG1+qCxvIyOo4j2Ry6MUlhWVMX4OoYDefAIIwupjw==}
+    engines: {node: '>= 10.13'}
+
   nock@https://registry.npmmirror.com/nock/-/nock-13.5.4.tgz:
     resolution: {integrity: sha512-yAyTfdeNJGGBFxWdzSKCBYxs5FxLbCg5X5Q4ets974hcQzG1+qCxvIyOo4j2Ry6MUlhWVMX4OoYDefAIIwupjw==, tarball: https://registry.npmmirror.com/nock/-/nock-13.5.4.tgz}
     version: 13.5.4
     engines: {node: '>= 10.13'}
 
+  node-domexception@1.0.0:
+    resolution: {integrity: sha512-/jKZoMpw0F8GRwl4/eLROPA3cfcXtLApP0QzLmUT/HuPCZWyB7IY9ZrMeKw2O/nFIqPQB3PVM9aYm0F312AXDQ==}
+    engines: {node: '>=10.5.0'}
+
   node-domexception@https://registry.npmmirror.com/node-domexception/-/node-domexception-1.0.0.tgz:
     resolution: {integrity: sha512-/jKZoMpw0F8GRwl4/eLROPA3cfcXtLApP0QzLmUT/HuPCZWyB7IY9ZrMeKw2O/nFIqPQB3PVM9aYm0F312AXDQ==, tarball: https://registry.npmmirror.com/node-domexception/-/node-domexception-1.0.0.tgz}
     version: 1.0.0
     engines: {node: '>=10.5.0'}
+
+  node-fetch@3.3.2:
+    resolution: {integrity: sha512-dRB78srN/l6gqWulah9SrxeYnxeddIG30+GOqK/9OlLVyLg3HPnr6SqOWTWOXKRwC2eGYCkZ59NNuSgvSrpgOA==}
+    engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
 
   node-fetch@https://registry.npmmirror.com/node-fetch/-/node-fetch-3.3.2.tgz:
     resolution: {integrity: sha512-dRB78srN/l6gqWulah9SrxeYnxeddIG30+GOqK/9OlLVyLg3HPnr6SqOWTWOXKRwC2eGYCkZ59NNuSgvSrpgOA==, tarball: https://registry.npmmirror.com/node-fetch/-/node-fetch-3.3.2.tgz}
@@ -7073,6 +7250,10 @@ packages:
     resolution: {integrity: sha512-oj87CgZICdulUohogVAR7AjlC0327U4el4L6eAvOqCeudMDVU0NThNaV+b9Df4dXgSP1gXMTnPdhfe/2qDH5cg==, tarball: https://registry.npmmirror.com/prop-types/-/prop-types-15.8.1.tgz}
     version: 15.8.1
 
+  propagate@2.0.1:
+    resolution: {integrity: sha512-vGrhOavPSTz4QVNuBNdcNXePNdNMaO1xj9yBeH1ScQPjk/rhg9sSlCXPhMkFuaNNW/syTvYqsnbIJxMBfRbbag==}
+    engines: {node: '>= 8'}
+
   propagate@https://registry.npmmirror.com/propagate/-/propagate-2.0.1.tgz:
     resolution: {integrity: sha512-vGrhOavPSTz4QVNuBNdcNXePNdNMaO1xj9yBeH1ScQPjk/rhg9sSlCXPhMkFuaNNW/syTvYqsnbIJxMBfRbbag==, tarball: https://registry.npmmirror.com/propagate/-/propagate-2.0.1.tgz}
     version: 2.0.1
@@ -7417,6 +7598,9 @@ packages:
     resolution: {integrity: sha512-5l4VyZR86LZ/lDxZTR6jqL8AFE2S0IFLMP26AbjsLVADxHdhB/c0GUsH+y39UfCi3dzz8OlQuPmnaJOMoDHQBA==, tarball: https://registry.npmmirror.com/run-parallel/-/run-parallel-1.2.0.tgz}
     version: 1.2.0
 
+  rxjs@7.8.1:
+    resolution: {integrity: sha512-AA3TVj+0A2iuIoQkWEK/tqFjBq2j+6PO6Y0zJcvzLAFhEFIO3HL0vls9hWLncZbAAbK0mar7oZ4V079I/qPMxg==}
+
   rxjs@https://registry.npmmirror.com/rxjs/-/rxjs-7.8.1.tgz:
     resolution: {integrity: sha512-AA3TVj+0A2iuIoQkWEK/tqFjBq2j+6PO6Y0zJcvzLAFhEFIO3HL0vls9hWLncZbAAbK0mar7oZ4V079I/qPMxg==, tarball: https://registry.npmmirror.com/rxjs/-/rxjs-7.8.1.tgz}
     version: 7.8.1
@@ -7459,6 +7643,9 @@ packages:
     resolution: {integrity: sha512-xAg7SOnEhrm5zI3puOOKyy1OMcMlIJZYNJY7xLBwSze0UjhPLnWfj2GF2EpT0jmzaJKIWKHLsaSSajf35bcYnA==, tarball: https://registry.npmmirror.com/saxes/-/saxes-6.0.0.tgz}
     version: 6.0.0
     engines: {node: '>=v12.22.7'}
+
+  scale-ts@1.6.0:
+    resolution: {integrity: sha512-Ja5VCjNZR8TGKhUumy9clVVxcDpM+YFjAnkMuwQy68Hixio3VRRvWdE3g8T/yC+HXA0ZDQl2TGyUmtmbcVl40Q==}
 
   scale-ts@https://registry.npmmirror.com/scale-ts/-/scale-ts-1.6.0.tgz:
     resolution: {integrity: sha512-Ja5VCjNZR8TGKhUumy9clVVxcDpM+YFjAnkMuwQy68Hixio3VRRvWdE3g8T/yC+HXA0ZDQl2TGyUmtmbcVl40Q==, tarball: https://registry.npmmirror.com/scale-ts/-/scale-ts-1.6.0.tgz}
@@ -7573,6 +7760,9 @@ packages:
     resolution: {integrity: sha512-g9Q1haeby36OSStwb4ntCGGGaKsaVSjQ68fBxoQcutl5fS1vuY18H3wSt3jFyFtrkx+Kz0V1G85A4MyAdDMi2Q==, tarball: https://registry.npmmirror.com/slash/-/slash-3.0.0.tgz}
     version: 3.0.0
     engines: {node: '>=8'}
+
+  smoldot@2.0.22:
+    resolution: {integrity: sha512-B50vRgTY6v3baYH6uCgL15tfaag5tcS2o/P5q1OiXcKGv1axZDfz2dzzMuIkVpyMR2ug11F6EAtQlmYBQd292g==}
 
   smoldot@https://registry.npmmirror.com/smoldot/-/smoldot-2.0.21.tgz:
     resolution: {integrity: sha512-XFpf3CQZ2BbFwVqKSyJHP7mbTDJxT3saRr/WfnfgWv+pbmA/J0e/LdfV/3A+jg7gNTEG06EAiDPtzN8ouXTLLw==, tarball: https://registry.npmmirror.com/smoldot/-/smoldot-2.0.21.tgz}
@@ -8379,6 +8569,10 @@ packages:
     resolution: {integrity: sha512-XHPEwS0q6TaxcvG85+8EYkbiCux2XtWG2mkc47Ng2A77BQu9+DqIOJldST4HgPkuea7dvKSj5VgX3P1d4rW8Tg==, tarball: https://registry.npmmirror.com/wcwidth/-/wcwidth-1.0.1.tgz}
     version: 1.0.1
 
+  web-streams-polyfill@3.3.3:
+    resolution: {integrity: sha512-d2JWLCivmZYTSIoge9MsgFCZrt571BikcWGYkjC1khllbTeDlGqZ2D8vD8E/lJa8WGWbb7Plm8/XJYV7IJHZZw==}
+    engines: {node: '>= 8'}
+
   web-streams-polyfill@https://registry.npmmirror.com/web-streams-polyfill/-/web-streams-polyfill-3.3.3.tgz:
     resolution: {integrity: sha512-d2JWLCivmZYTSIoge9MsgFCZrt571BikcWGYkjC1khllbTeDlGqZ2D8vD8E/lJa8WGWbb7Plm8/XJYV7IJHZZw==, tarball: https://registry.npmmirror.com/web-streams-polyfill/-/web-streams-polyfill-3.3.3.tgz}
     version: 3.3.3
@@ -8477,6 +8671,18 @@ packages:
     resolution: {integrity: sha512-7KxauUdBmSdWnmpaGFg+ppNjKF8uNLry8LyzjauQDOVONfFLNKrKvQOxZ/VuTIcS/gge/YNahf5RIIQWTSarlg==, tarball: https://registry.npmmirror.com/write-file-atomic/-/write-file-atomic-4.0.2.tgz}
     version: 4.0.2
     engines: {node: ^12.13.0 || ^14.15.0 || >=16.0.0}
+
+  ws@8.16.0:
+    resolution: {integrity: sha512-HS0c//TP7Ina87TfiPUz1rQzMhHrl/SG2guqRcTOIUYD2q8uhUdNHZYJUaQ8aTGPzCh+c6oawMKW35nFl1dxyQ==}
+    engines: {node: '>=10.0.0'}
+    peerDependencies:
+      bufferutil: ^4.0.1
+      utf-8-validate: '>=5.0.2'
+    peerDependenciesMeta:
+      bufferutil:
+        optional: true
+      utf-8-validate:
+        optional: true
 
   ws@https://registry.npmmirror.com/ws/-/ws-8.16.0.tgz:
     resolution: {integrity: sha512-HS0c//TP7Ina87TfiPUz1rQzMhHrl/SG2guqRcTOIUYD2q8uhUdNHZYJUaQ8aTGPzCh+c6oawMKW35nFl1dxyQ==, tarball: https://registry.npmmirror.com/ws/-/ws-8.16.0.tgz}
@@ -10887,9 +11093,15 @@ snapshots:
       react: https://registry.npmmirror.com/react/-/react-18.2.0.tgz
       react-dom: https://registry.npmmirror.com/react-dom/-/react-dom-18.2.0.tgz(react@https://registry.npmmirror.com/react/-/react-18.2.0.tgz)
 
+  '@noble/curves@1.3.0':
+    dependencies:
+      '@noble/hashes': 1.3.3
+
   '@noble/curves@https://registry.npmmirror.com/@noble/curves/-/curves-1.3.0.tgz':
     dependencies:
       '@noble/hashes': https://registry.npmmirror.com/@noble/hashes/-/hashes-1.3.3.tgz
+
+  '@noble/hashes@1.3.3': {}
 
   '@noble/hashes@https://registry.npmmirror.com/@noble/hashes/-/hashes-1.3.3.tgz': {}
 
@@ -11469,16 +11681,45 @@ snapshots:
       rxjs: https://registry.npmmirror.com/rxjs/-/rxjs-7.8.1.tgz
     optional: true
 
+  '@polkadot-api/json-rpc-provider-proxy@0.0.1':
+    optional: true
+
   '@polkadot-api/json-rpc-provider-proxy@https://registry.npmmirror.com/@polkadot-api/json-rpc-provider-proxy/-/json-rpc-provider-proxy-0.0.1-12c4b0432a814086c3c1a3b8052b31c72c2c9ad3.1.0.tgz':
     optional: true
 
+  '@polkadot-api/json-rpc-provider@0.0.1':
+    optional: true
+
   '@polkadot-api/json-rpc-provider@https://registry.npmmirror.com/@polkadot-api/json-rpc-provider/-/json-rpc-provider-0.0.1-12c4b0432a814086c3c1a3b8052b31c72c2c9ad3.1.0.tgz':
+    optional: true
+
+  '@polkadot-api/metadata-builders@0.0.1':
+    dependencies:
+      '@polkadot-api/substrate-bindings': 0.0.1
+      '@polkadot-api/utils': 0.0.1
     optional: true
 
   '@polkadot-api/metadata-builders@https://registry.npmmirror.com/@polkadot-api/metadata-builders/-/metadata-builders-0.0.1-12c4b0432a814086c3c1a3b8052b31c72c2c9ad3.1.0.tgz':
     dependencies:
       '@polkadot-api/substrate-bindings': https://registry.npmmirror.com/@polkadot-api/substrate-bindings/-/substrate-bindings-0.0.1-12c4b0432a814086c3c1a3b8052b31c72c2c9ad3.1.0.tgz
       '@polkadot-api/utils': https://registry.npmmirror.com/@polkadot-api/utils/-/utils-0.0.1-12c4b0432a814086c3c1a3b8052b31c72c2c9ad3.1.0.tgz
+    optional: true
+
+  '@polkadot-api/observable-client@0.1.0(rxjs@7.8.1)':
+    dependencies:
+      '@polkadot-api/metadata-builders': 0.0.1
+      '@polkadot-api/substrate-bindings': 0.0.1
+      '@polkadot-api/substrate-client': 0.0.1
+      '@polkadot-api/utils': 0.0.1
+      rxjs: 7.8.1
+    optional: true
+
+  '@polkadot-api/substrate-bindings@0.0.1':
+    dependencies:
+      '@noble/hashes': 1.3.3
+      '@polkadot-api/utils': 0.0.1
+      '@scure/base': 1.1.5
+      scale-ts: 1.6.0
     optional: true
 
   '@polkadot-api/substrate-bindings@https://registry.npmmirror.com/@polkadot-api/substrate-bindings/-/substrate-bindings-0.0.1-12c4b0432a814086c3c1a3b8052b31c72c2c9ad3.1.0.tgz':
@@ -11489,94 +11730,114 @@ snapshots:
       scale-ts: https://registry.npmmirror.com/scale-ts/-/scale-ts-1.6.0.tgz
     optional: true
 
+  '@polkadot-api/substrate-client@0.0.1':
+    optional: true
+
   '@polkadot-api/substrate-client@https://registry.npmmirror.com/@polkadot-api/substrate-client/-/substrate-client-0.0.1-12c4b0432a814086c3c1a3b8052b31c72c2c9ad3.1.0.tgz':
+    optional: true
+
+  '@polkadot-api/utils@0.0.1':
     optional: true
 
   '@polkadot-api/utils@https://registry.npmmirror.com/@polkadot-api/utils/-/utils-0.0.1-12c4b0432a814086c3c1a3b8052b31c72c2c9ad3.1.0.tgz':
     optional: true
 
-  '@polkadot/api-augment@https://registry.npmmirror.com/@polkadot/api-augment/-/api-augment-10.11.3.tgz':
+  '@polkadot/api-augment@12.1.1':
     dependencies:
-      '@polkadot/api-base': https://registry.npmmirror.com/@polkadot/api-base/-/api-base-10.11.3.tgz
-      '@polkadot/rpc-augment': https://registry.npmmirror.com/@polkadot/rpc-augment/-/rpc-augment-10.11.3.tgz
-      '@polkadot/types': https://registry.npmmirror.com/@polkadot/types/-/types-10.11.3.tgz
-      '@polkadot/types-augment': https://registry.npmmirror.com/@polkadot/types-augment/-/types-augment-10.11.3.tgz
-      '@polkadot/types-codec': https://registry.npmmirror.com/@polkadot/types-codec/-/types-codec-10.11.3.tgz
-      '@polkadot/util': https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz
-      tslib: https://registry.npmmirror.com/tslib/-/tslib-2.6.2.tgz
+      '@polkadot/api-base': 12.1.1
+      '@polkadot/rpc-augment': 12.1.1
+      '@polkadot/types': 12.1.1
+      '@polkadot/types-augment': 12.1.1
+      '@polkadot/types-codec': 12.1.1
+      '@polkadot/util': 12.6.2
+      tslib: 2.6.2
     transitivePeerDependencies:
       - bufferutil
       - supports-color
       - utf-8-validate
 
-  '@polkadot/api-base@https://registry.npmmirror.com/@polkadot/api-base/-/api-base-10.11.3.tgz':
+  '@polkadot/api-base@12.1.1':
     dependencies:
-      '@polkadot/rpc-core': https://registry.npmmirror.com/@polkadot/rpc-core/-/rpc-core-10.11.3.tgz
-      '@polkadot/types': https://registry.npmmirror.com/@polkadot/types/-/types-10.11.3.tgz
-      '@polkadot/util': https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz
-      rxjs: https://registry.npmmirror.com/rxjs/-/rxjs-7.8.1.tgz
-      tslib: https://registry.npmmirror.com/tslib/-/tslib-2.6.2.tgz
+      '@polkadot/rpc-core': 12.1.1
+      '@polkadot/types': 12.1.1
+      '@polkadot/util': 12.6.2
+      rxjs: 7.8.1
+      tslib: 2.6.2
     transitivePeerDependencies:
       - bufferutil
       - supports-color
       - utf-8-validate
 
-  '@polkadot/api-derive@https://registry.npmmirror.com/@polkadot/api-derive/-/api-derive-10.11.3.tgz':
+  '@polkadot/api-derive@12.1.1':
     dependencies:
-      '@polkadot/api': https://registry.npmmirror.com/@polkadot/api/-/api-10.11.3.tgz
-      '@polkadot/api-augment': https://registry.npmmirror.com/@polkadot/api-augment/-/api-augment-10.11.3.tgz
-      '@polkadot/api-base': https://registry.npmmirror.com/@polkadot/api-base/-/api-base-10.11.3.tgz
-      '@polkadot/rpc-core': https://registry.npmmirror.com/@polkadot/rpc-core/-/rpc-core-10.11.3.tgz
-      '@polkadot/types': https://registry.npmmirror.com/@polkadot/types/-/types-10.11.3.tgz
-      '@polkadot/types-codec': https://registry.npmmirror.com/@polkadot/types-codec/-/types-codec-10.11.3.tgz
+      '@polkadot/api': 12.1.1
+      '@polkadot/api-augment': 12.1.1
+      '@polkadot/api-base': 12.1.1
+      '@polkadot/rpc-core': 12.1.1
+      '@polkadot/types': 12.1.1
+      '@polkadot/types-codec': 12.1.1
+      '@polkadot/util': 12.6.2
+      '@polkadot/util-crypto': 12.6.2(@polkadot/util@12.6.2)
+      rxjs: 7.8.1
+      tslib: 2.6.2
+    transitivePeerDependencies:
+      - bufferutil
+      - supports-color
+      - utf-8-validate
+
+  '@polkadot/api@12.1.1':
+    dependencies:
+      '@polkadot/api-augment': 12.1.1
+      '@polkadot/api-base': 12.1.1
+      '@polkadot/api-derive': 12.1.1
+      '@polkadot/keyring': 12.6.2(@polkadot/util-crypto@12.6.2(@polkadot/util@12.6.2))(@polkadot/util@12.6.2)
+      '@polkadot/rpc-augment': 12.1.1
+      '@polkadot/rpc-core': 12.1.1
+      '@polkadot/rpc-provider': 12.1.1
+      '@polkadot/types': 12.1.1
+      '@polkadot/types-augment': 12.1.1
+      '@polkadot/types-codec': 12.1.1
+      '@polkadot/types-create': 12.1.1
+      '@polkadot/types-known': 12.1.1
+      '@polkadot/util': 12.6.2
+      '@polkadot/util-crypto': 12.6.2(@polkadot/util@12.6.2)
+      eventemitter3: 5.0.1
+      rxjs: 7.8.1
+      tslib: 2.6.2
+    transitivePeerDependencies:
+      - bufferutil
+      - supports-color
+      - utf-8-validate
+
+  '@polkadot/extension-dapp@0.48.1(@polkadot/api@12.1.1)(@polkadot/util-crypto@https://registry.npmmirror.com/@polkadot/util-crypto/-/util-crypto-12.6.2.tgz(@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz))(@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz)':
+    dependencies:
+      '@polkadot/api': 12.1.1
+      '@polkadot/extension-inject': 0.48.1(@polkadot/api@12.1.1)(@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz)
       '@polkadot/util': https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz
       '@polkadot/util-crypto': https://registry.npmmirror.com/@polkadot/util-crypto/-/util-crypto-12.6.2.tgz(@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz)
-      rxjs: https://registry.npmmirror.com/rxjs/-/rxjs-7.8.1.tgz
-      tslib: https://registry.npmmirror.com/tslib/-/tslib-2.6.2.tgz
+      tslib: 2.6.2
     transitivePeerDependencies:
       - bufferutil
       - supports-color
       - utf-8-validate
 
-  '@polkadot/api@https://registry.npmmirror.com/@polkadot/api/-/api-10.11.3.tgz':
+  '@polkadot/extension-inject@0.48.1(@polkadot/api@12.1.1)(@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz)':
     dependencies:
-      '@polkadot/api-augment': https://registry.npmmirror.com/@polkadot/api-augment/-/api-augment-10.11.3.tgz
-      '@polkadot/api-base': https://registry.npmmirror.com/@polkadot/api-base/-/api-base-10.11.3.tgz
-      '@polkadot/api-derive': https://registry.npmmirror.com/@polkadot/api-derive/-/api-derive-10.11.3.tgz
-      '@polkadot/keyring': https://registry.npmmirror.com/@polkadot/keyring/-/keyring-12.6.2.tgz(@polkadot/util-crypto@https://registry.npmmirror.com/@polkadot/util-crypto/-/util-crypto-12.6.2.tgz(@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz))(@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz)
-      '@polkadot/rpc-augment': https://registry.npmmirror.com/@polkadot/rpc-augment/-/rpc-augment-10.11.3.tgz
-      '@polkadot/rpc-core': https://registry.npmmirror.com/@polkadot/rpc-core/-/rpc-core-10.11.3.tgz
-      '@polkadot/rpc-provider': https://registry.npmmirror.com/@polkadot/rpc-provider/-/rpc-provider-10.11.3.tgz
-      '@polkadot/types': https://registry.npmmirror.com/@polkadot/types/-/types-10.11.3.tgz
-      '@polkadot/types-augment': https://registry.npmmirror.com/@polkadot/types-augment/-/types-augment-10.11.3.tgz
-      '@polkadot/types-codec': https://registry.npmmirror.com/@polkadot/types-codec/-/types-codec-10.11.3.tgz
-      '@polkadot/types-create': https://registry.npmmirror.com/@polkadot/types-create/-/types-create-10.11.3.tgz
-      '@polkadot/types-known': https://registry.npmmirror.com/@polkadot/types-known/-/types-known-10.11.3.tgz
+      '@polkadot/api': 12.1.1
+      '@polkadot/rpc-provider': 12.1.1
+      '@polkadot/types': 12.1.1
       '@polkadot/util': https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz
-      '@polkadot/util-crypto': https://registry.npmmirror.com/@polkadot/util-crypto/-/util-crypto-12.6.2.tgz(@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz)
-      eventemitter3: https://registry.npmmirror.com/eventemitter3/-/eventemitter3-5.0.1.tgz
-      rxjs: https://registry.npmmirror.com/rxjs/-/rxjs-7.8.1.tgz
-      tslib: https://registry.npmmirror.com/tslib/-/tslib-2.6.2.tgz
+      '@polkadot/util-crypto': 12.6.2(@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz)
+      '@polkadot/x-global': 12.6.2
+      tslib: 2.6.2
     transitivePeerDependencies:
       - bufferutil
       - supports-color
       - utf-8-validate
 
-  '@polkadot/extension-dapp@https://registry.npmmirror.com/@polkadot/extension-dapp/-/extension-dapp-0.46.7.tgz(@polkadot/api@https://registry.npmmirror.com/@polkadot/api/-/api-10.11.3.tgz)(@polkadot/util-crypto@https://registry.npmmirror.com/@polkadot/util-crypto/-/util-crypto-12.6.2.tgz(@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz))(@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz)':
+  '@polkadot/extension-inject@https://registry.npmmirror.com/@polkadot/extension-inject/-/extension-inject-0.46.7.tgz(@polkadot/api@12.1.1)(@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz)':
     dependencies:
-      '@polkadot/api': https://registry.npmmirror.com/@polkadot/api/-/api-10.11.3.tgz
-      '@polkadot/extension-inject': https://registry.npmmirror.com/@polkadot/extension-inject/-/extension-inject-0.46.7.tgz(@polkadot/api@https://registry.npmmirror.com/@polkadot/api/-/api-10.11.3.tgz)(@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz)
-      '@polkadot/util': https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz
-      '@polkadot/util-crypto': https://registry.npmmirror.com/@polkadot/util-crypto/-/util-crypto-12.6.2.tgz(@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz)
-      tslib: https://registry.npmmirror.com/tslib/-/tslib-2.6.2.tgz
-    transitivePeerDependencies:
-      - bufferutil
-      - supports-color
-      - utf-8-validate
-
-  '@polkadot/extension-inject@https://registry.npmmirror.com/@polkadot/extension-inject/-/extension-inject-0.46.7.tgz(@polkadot/api@https://registry.npmmirror.com/@polkadot/api/-/api-10.11.3.tgz)(@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz)':
-    dependencies:
-      '@polkadot/api': https://registry.npmmirror.com/@polkadot/api/-/api-10.11.3.tgz
+      '@polkadot/api': 12.1.1
       '@polkadot/rpc-provider': https://registry.npmmirror.com/@polkadot/rpc-provider/-/rpc-provider-10.12.1.tgz
       '@polkadot/types': https://registry.npmmirror.com/@polkadot/types/-/types-10.12.1.tgz
       '@polkadot/util': https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz
@@ -11588,11 +11849,23 @@ snapshots:
       - supports-color
       - utf-8-validate
 
+  '@polkadot/keyring@12.6.2(@polkadot/util-crypto@12.6.2(@polkadot/util@12.6.2))(@polkadot/util@12.6.2)':
+    dependencies:
+      '@polkadot/util': 12.6.2
+      '@polkadot/util-crypto': 12.6.2(@polkadot/util@12.6.2)
+      tslib: 2.6.2
+
   '@polkadot/keyring@https://registry.npmmirror.com/@polkadot/keyring/-/keyring-12.6.2.tgz(@polkadot/util-crypto@https://registry.npmmirror.com/@polkadot/util-crypto/-/util-crypto-12.6.2.tgz(@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz))(@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz)':
     dependencies:
       '@polkadot/util': https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz
       '@polkadot/util-crypto': https://registry.npmmirror.com/@polkadot/util-crypto/-/util-crypto-12.6.2.tgz(@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz)
       tslib: https://registry.npmmirror.com/tslib/-/tslib-2.6.2.tgz
+
+  '@polkadot/networks@12.6.2':
+    dependencies:
+      '@polkadot/util': 12.6.2
+      '@substrate/ss58-registry': 1.46.0
+      tslib: 2.6.2
 
   '@polkadot/networks@https://registry.npmmirror.com/@polkadot/networks/-/networks-12.6.2.tgz':
     dependencies:
@@ -11600,47 +11873,47 @@ snapshots:
       '@substrate/ss58-registry': https://registry.npmmirror.com/@substrate/ss58-registry/-/ss58-registry-1.46.0.tgz
       tslib: https://registry.npmmirror.com/tslib/-/tslib-2.6.2.tgz
 
-  '@polkadot/rpc-augment@https://registry.npmmirror.com/@polkadot/rpc-augment/-/rpc-augment-10.11.3.tgz':
+  '@polkadot/rpc-augment@12.1.1':
     dependencies:
-      '@polkadot/rpc-core': https://registry.npmmirror.com/@polkadot/rpc-core/-/rpc-core-10.11.3.tgz
-      '@polkadot/types': https://registry.npmmirror.com/@polkadot/types/-/types-10.11.3.tgz
-      '@polkadot/types-codec': https://registry.npmmirror.com/@polkadot/types-codec/-/types-codec-10.11.3.tgz
-      '@polkadot/util': https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz
-      tslib: https://registry.npmmirror.com/tslib/-/tslib-2.6.2.tgz
+      '@polkadot/rpc-core': 12.1.1
+      '@polkadot/types': 12.1.1
+      '@polkadot/types-codec': 12.1.1
+      '@polkadot/util': 12.6.2
+      tslib: 2.6.2
     transitivePeerDependencies:
       - bufferutil
       - supports-color
       - utf-8-validate
 
-  '@polkadot/rpc-core@https://registry.npmmirror.com/@polkadot/rpc-core/-/rpc-core-10.11.3.tgz':
+  '@polkadot/rpc-core@12.1.1':
     dependencies:
-      '@polkadot/rpc-augment': https://registry.npmmirror.com/@polkadot/rpc-augment/-/rpc-augment-10.11.3.tgz
-      '@polkadot/rpc-provider': https://registry.npmmirror.com/@polkadot/rpc-provider/-/rpc-provider-10.11.3.tgz
-      '@polkadot/types': https://registry.npmmirror.com/@polkadot/types/-/types-10.11.3.tgz
-      '@polkadot/util': https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz
-      rxjs: https://registry.npmmirror.com/rxjs/-/rxjs-7.8.1.tgz
-      tslib: https://registry.npmmirror.com/tslib/-/tslib-2.6.2.tgz
+      '@polkadot/rpc-augment': 12.1.1
+      '@polkadot/rpc-provider': 12.1.1
+      '@polkadot/types': 12.1.1
+      '@polkadot/util': 12.6.2
+      rxjs: 7.8.1
+      tslib: 2.6.2
     transitivePeerDependencies:
       - bufferutil
       - supports-color
       - utf-8-validate
 
-  '@polkadot/rpc-provider@https://registry.npmmirror.com/@polkadot/rpc-provider/-/rpc-provider-10.11.3.tgz':
+  '@polkadot/rpc-provider@12.1.1':
     dependencies:
-      '@polkadot/keyring': https://registry.npmmirror.com/@polkadot/keyring/-/keyring-12.6.2.tgz(@polkadot/util-crypto@https://registry.npmmirror.com/@polkadot/util-crypto/-/util-crypto-12.6.2.tgz(@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz))(@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz)
-      '@polkadot/types': https://registry.npmmirror.com/@polkadot/types/-/types-10.11.3.tgz
-      '@polkadot/types-support': https://registry.npmmirror.com/@polkadot/types-support/-/types-support-10.11.3.tgz
-      '@polkadot/util': https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz
-      '@polkadot/util-crypto': https://registry.npmmirror.com/@polkadot/util-crypto/-/util-crypto-12.6.2.tgz(@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz)
-      '@polkadot/x-fetch': https://registry.npmmirror.com/@polkadot/x-fetch/-/x-fetch-12.6.2.tgz
-      '@polkadot/x-global': https://registry.npmmirror.com/@polkadot/x-global/-/x-global-12.6.2.tgz
-      '@polkadot/x-ws': https://registry.npmmirror.com/@polkadot/x-ws/-/x-ws-12.6.2.tgz
-      eventemitter3: https://registry.npmmirror.com/eventemitter3/-/eventemitter3-5.0.1.tgz
-      mock-socket: https://registry.npmmirror.com/mock-socket/-/mock-socket-9.3.1.tgz
-      nock: https://registry.npmmirror.com/nock/-/nock-13.5.4.tgz
-      tslib: https://registry.npmmirror.com/tslib/-/tslib-2.6.2.tgz
+      '@polkadot/keyring': 12.6.2(@polkadot/util-crypto@12.6.2(@polkadot/util@12.6.2))(@polkadot/util@12.6.2)
+      '@polkadot/types': 12.1.1
+      '@polkadot/types-support': 12.1.1
+      '@polkadot/util': 12.6.2
+      '@polkadot/util-crypto': 12.6.2(@polkadot/util@12.6.2)
+      '@polkadot/x-fetch': 12.6.2
+      '@polkadot/x-global': 12.6.2
+      '@polkadot/x-ws': 12.6.2
+      eventemitter3: 5.0.1
+      mock-socket: 9.3.1
+      nock: 13.5.4
+      tslib: 2.6.2
     optionalDependencies:
-      '@substrate/connect': 0.8.7
+      '@substrate/connect': 0.8.10
     transitivePeerDependencies:
       - bufferutil
       - supports-color
@@ -11667,12 +11940,12 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  '@polkadot/types-augment@https://registry.npmmirror.com/@polkadot/types-augment/-/types-augment-10.11.3.tgz':
+  '@polkadot/types-augment@12.1.1':
     dependencies:
-      '@polkadot/types': https://registry.npmmirror.com/@polkadot/types/-/types-10.11.3.tgz
-      '@polkadot/types-codec': https://registry.npmmirror.com/@polkadot/types-codec/-/types-codec-10.11.3.tgz
-      '@polkadot/util': https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz
-      tslib: https://registry.npmmirror.com/tslib/-/tslib-2.6.2.tgz
+      '@polkadot/types': 12.1.1
+      '@polkadot/types-codec': 12.1.1
+      '@polkadot/util': 12.6.2
+      tslib: 2.6.2
 
   '@polkadot/types-augment@https://registry.npmmirror.com/@polkadot/types-augment/-/types-augment-10.12.1.tgz':
     dependencies:
@@ -11681,11 +11954,11 @@ snapshots:
       '@polkadot/util': https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz
       tslib: https://registry.npmmirror.com/tslib/-/tslib-2.6.2.tgz
 
-  '@polkadot/types-codec@https://registry.npmmirror.com/@polkadot/types-codec/-/types-codec-10.11.3.tgz':
+  '@polkadot/types-codec@12.1.1':
     dependencies:
-      '@polkadot/util': https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz
-      '@polkadot/x-bigint': https://registry.npmmirror.com/@polkadot/x-bigint/-/x-bigint-12.6.2.tgz
-      tslib: https://registry.npmmirror.com/tslib/-/tslib-2.6.2.tgz
+      '@polkadot/util': 12.6.2
+      '@polkadot/x-bigint': 12.6.2
+      tslib: 2.6.2
 
   '@polkadot/types-codec@https://registry.npmmirror.com/@polkadot/types-codec/-/types-codec-10.12.1.tgz':
     dependencies:
@@ -11693,11 +11966,11 @@ snapshots:
       '@polkadot/x-bigint': https://registry.npmmirror.com/@polkadot/x-bigint/-/x-bigint-12.6.2.tgz
       tslib: https://registry.npmmirror.com/tslib/-/tslib-2.6.2.tgz
 
-  '@polkadot/types-create@https://registry.npmmirror.com/@polkadot/types-create/-/types-create-10.11.3.tgz':
+  '@polkadot/types-create@12.1.1':
     dependencies:
-      '@polkadot/types-codec': https://registry.npmmirror.com/@polkadot/types-codec/-/types-codec-10.11.3.tgz
-      '@polkadot/util': https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz
-      tslib: https://registry.npmmirror.com/tslib/-/tslib-2.6.2.tgz
+      '@polkadot/types-codec': 12.1.1
+      '@polkadot/util': 12.6.2
+      tslib: 2.6.2
 
   '@polkadot/types-create@https://registry.npmmirror.com/@polkadot/types-create/-/types-create-10.12.1.tgz':
     dependencies:
@@ -11705,35 +11978,35 @@ snapshots:
       '@polkadot/util': https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz
       tslib: https://registry.npmmirror.com/tslib/-/tslib-2.6.2.tgz
 
-  '@polkadot/types-known@https://registry.npmmirror.com/@polkadot/types-known/-/types-known-10.11.3.tgz':
+  '@polkadot/types-known@12.1.1':
     dependencies:
-      '@polkadot/networks': https://registry.npmmirror.com/@polkadot/networks/-/networks-12.6.2.tgz
-      '@polkadot/types': https://registry.npmmirror.com/@polkadot/types/-/types-10.11.3.tgz
-      '@polkadot/types-codec': https://registry.npmmirror.com/@polkadot/types-codec/-/types-codec-10.11.3.tgz
-      '@polkadot/types-create': https://registry.npmmirror.com/@polkadot/types-create/-/types-create-10.11.3.tgz
-      '@polkadot/util': https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz
-      tslib: https://registry.npmmirror.com/tslib/-/tslib-2.6.2.tgz
+      '@polkadot/networks': 12.6.2
+      '@polkadot/types': 12.1.1
+      '@polkadot/types-codec': 12.1.1
+      '@polkadot/types-create': 12.1.1
+      '@polkadot/util': 12.6.2
+      tslib: 2.6.2
 
-  '@polkadot/types-support@https://registry.npmmirror.com/@polkadot/types-support/-/types-support-10.11.3.tgz':
+  '@polkadot/types-support@12.1.1':
     dependencies:
-      '@polkadot/util': https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz
-      tslib: https://registry.npmmirror.com/tslib/-/tslib-2.6.2.tgz
+      '@polkadot/util': 12.6.2
+      tslib: 2.6.2
 
   '@polkadot/types-support@https://registry.npmmirror.com/@polkadot/types-support/-/types-support-10.12.1.tgz':
     dependencies:
       '@polkadot/util': https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz
       tslib: https://registry.npmmirror.com/tslib/-/tslib-2.6.2.tgz
 
-  '@polkadot/types@https://registry.npmmirror.com/@polkadot/types/-/types-10.11.3.tgz':
+  '@polkadot/types@12.1.1':
     dependencies:
-      '@polkadot/keyring': https://registry.npmmirror.com/@polkadot/keyring/-/keyring-12.6.2.tgz(@polkadot/util-crypto@https://registry.npmmirror.com/@polkadot/util-crypto/-/util-crypto-12.6.2.tgz(@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz))(@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz)
-      '@polkadot/types-augment': https://registry.npmmirror.com/@polkadot/types-augment/-/types-augment-10.11.3.tgz
-      '@polkadot/types-codec': https://registry.npmmirror.com/@polkadot/types-codec/-/types-codec-10.11.3.tgz
-      '@polkadot/types-create': https://registry.npmmirror.com/@polkadot/types-create/-/types-create-10.11.3.tgz
-      '@polkadot/util': https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz
-      '@polkadot/util-crypto': https://registry.npmmirror.com/@polkadot/util-crypto/-/util-crypto-12.6.2.tgz(@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz)
-      rxjs: https://registry.npmmirror.com/rxjs/-/rxjs-7.8.1.tgz
-      tslib: https://registry.npmmirror.com/tslib/-/tslib-2.6.2.tgz
+      '@polkadot/keyring': 12.6.2(@polkadot/util-crypto@12.6.2(@polkadot/util@12.6.2))(@polkadot/util@12.6.2)
+      '@polkadot/types-augment': 12.1.1
+      '@polkadot/types-codec': 12.1.1
+      '@polkadot/types-create': 12.1.1
+      '@polkadot/util': 12.6.2
+      '@polkadot/util-crypto': 12.6.2(@polkadot/util@12.6.2)
+      rxjs: 7.8.1
+      tslib: 2.6.2
 
   '@polkadot/types@https://registry.npmmirror.com/@polkadot/types/-/types-10.12.1.tgz':
     dependencies:
@@ -11745,6 +12018,32 @@ snapshots:
       '@polkadot/util-crypto': https://registry.npmmirror.com/@polkadot/util-crypto/-/util-crypto-12.6.2.tgz(@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz)
       rxjs: https://registry.npmmirror.com/rxjs/-/rxjs-7.8.1.tgz
       tslib: https://registry.npmmirror.com/tslib/-/tslib-2.6.2.tgz
+
+  '@polkadot/util-crypto@12.6.2(@polkadot/util@12.6.2)':
+    dependencies:
+      '@noble/curves': 1.3.0
+      '@noble/hashes': 1.3.3
+      '@polkadot/networks': 12.6.2
+      '@polkadot/util': 12.6.2
+      '@polkadot/wasm-crypto': 7.3.2(@polkadot/util@12.6.2)(@polkadot/x-randomvalues@12.6.2(@polkadot/util@12.6.2)(@polkadot/wasm-util@7.3.2(@polkadot/util@12.6.2)))
+      '@polkadot/wasm-util': 7.3.2(@polkadot/util@12.6.2)
+      '@polkadot/x-bigint': 12.6.2
+      '@polkadot/x-randomvalues': 12.6.2(@polkadot/util@12.6.2)(@polkadot/wasm-util@7.3.2(@polkadot/util@12.6.2))
+      '@scure/base': 1.1.5
+      tslib: 2.6.2
+
+  '@polkadot/util-crypto@12.6.2(@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz)':
+    dependencies:
+      '@noble/curves': 1.3.0
+      '@noble/hashes': 1.3.3
+      '@polkadot/networks': 12.6.2
+      '@polkadot/util': https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz
+      '@polkadot/wasm-crypto': 7.3.2(@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz)(@polkadot/x-randomvalues@12.6.2(@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz)(@polkadot/wasm-util@7.3.2(@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz)))
+      '@polkadot/wasm-util': 7.3.2(@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz)
+      '@polkadot/x-bigint': 12.6.2
+      '@polkadot/x-randomvalues': 12.6.2(@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz)(@polkadot/wasm-util@7.3.2(@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz))
+      '@scure/base': 1.1.5
+      tslib: 2.6.2
 
   '@polkadot/util-crypto@https://registry.npmmirror.com/@polkadot/util-crypto/-/util-crypto-12.6.2.tgz(@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz)':
     dependencies:
@@ -11759,6 +12058,16 @@ snapshots:
       '@scure/base': https://registry.npmmirror.com/@scure/base/-/base-1.1.5.tgz
       tslib: https://registry.npmmirror.com/tslib/-/tslib-2.6.2.tgz
 
+  '@polkadot/util@12.6.2':
+    dependencies:
+      '@polkadot/x-bigint': 12.6.2
+      '@polkadot/x-global': 12.6.2
+      '@polkadot/x-textdecoder': 12.6.2
+      '@polkadot/x-textencoder': 12.6.2
+      '@types/bn.js': 5.1.5
+      bn.js: 5.2.1
+      tslib: 2.6.2
+
   '@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz':
     dependencies:
       '@polkadot/x-bigint': https://registry.npmmirror.com/@polkadot/x-bigint/-/x-bigint-12.6.2.tgz
@@ -11769,6 +12078,20 @@ snapshots:
       bn.js: https://registry.npmmirror.com/bn.js/-/bn.js-5.2.1.tgz
       tslib: https://registry.npmmirror.com/tslib/-/tslib-2.6.2.tgz
 
+  '@polkadot/wasm-bridge@7.3.2(@polkadot/util@12.6.2)(@polkadot/x-randomvalues@12.6.2(@polkadot/util@12.6.2)(@polkadot/wasm-util@7.3.2(@polkadot/util@12.6.2)))':
+    dependencies:
+      '@polkadot/util': 12.6.2
+      '@polkadot/wasm-util': 7.3.2(@polkadot/util@12.6.2)
+      '@polkadot/x-randomvalues': 12.6.2(@polkadot/util@12.6.2)(@polkadot/wasm-util@7.3.2(@polkadot/util@12.6.2))
+      tslib: 2.6.2
+
+  '@polkadot/wasm-bridge@7.3.2(@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz)(@polkadot/x-randomvalues@12.6.2(@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz)(@polkadot/wasm-util@7.3.2(@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz)))':
+    dependencies:
+      '@polkadot/util': https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz
+      '@polkadot/wasm-util': 7.3.2(@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz)
+      '@polkadot/x-randomvalues': 12.6.2(@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz)(@polkadot/wasm-util@7.3.2(@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz))
+      tslib: 2.6.2
+
   '@polkadot/wasm-bridge@https://registry.npmmirror.com/@polkadot/wasm-bridge/-/wasm-bridge-7.3.2.tgz(@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz)(@polkadot/x-randomvalues@https://registry.npmmirror.com/@polkadot/x-randomvalues/-/x-randomvalues-12.6.2.tgz(@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz)(@polkadot/wasm-util@https://registry.npmmirror.com/@polkadot/wasm-util/-/wasm-util-7.3.2.tgz(@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz)))':
     dependencies:
       '@polkadot/util': https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz
@@ -11776,10 +12099,40 @@ snapshots:
       '@polkadot/x-randomvalues': https://registry.npmmirror.com/@polkadot/x-randomvalues/-/x-randomvalues-12.6.2.tgz(@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz)(@polkadot/wasm-util@https://registry.npmmirror.com/@polkadot/wasm-util/-/wasm-util-7.3.2.tgz(@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz))
       tslib: https://registry.npmmirror.com/tslib/-/tslib-2.6.2.tgz
 
+  '@polkadot/wasm-crypto-asmjs@7.3.2(@polkadot/util@12.6.2)':
+    dependencies:
+      '@polkadot/util': 12.6.2
+      tslib: 2.6.2
+
+  '@polkadot/wasm-crypto-asmjs@7.3.2(@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz)':
+    dependencies:
+      '@polkadot/util': https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz
+      tslib: 2.6.2
+
   '@polkadot/wasm-crypto-asmjs@https://registry.npmmirror.com/@polkadot/wasm-crypto-asmjs/-/wasm-crypto-asmjs-7.3.2.tgz(@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz)':
     dependencies:
       '@polkadot/util': https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz
       tslib: https://registry.npmmirror.com/tslib/-/tslib-2.6.2.tgz
+
+  '@polkadot/wasm-crypto-init@7.3.2(@polkadot/util@12.6.2)(@polkadot/x-randomvalues@12.6.2(@polkadot/util@12.6.2)(@polkadot/wasm-util@7.3.2(@polkadot/util@12.6.2)))':
+    dependencies:
+      '@polkadot/util': 12.6.2
+      '@polkadot/wasm-bridge': 7.3.2(@polkadot/util@12.6.2)(@polkadot/x-randomvalues@12.6.2(@polkadot/util@12.6.2)(@polkadot/wasm-util@7.3.2(@polkadot/util@12.6.2)))
+      '@polkadot/wasm-crypto-asmjs': 7.3.2(@polkadot/util@12.6.2)
+      '@polkadot/wasm-crypto-wasm': 7.3.2(@polkadot/util@12.6.2)
+      '@polkadot/wasm-util': 7.3.2(@polkadot/util@12.6.2)
+      '@polkadot/x-randomvalues': 12.6.2(@polkadot/util@12.6.2)(@polkadot/wasm-util@7.3.2(@polkadot/util@12.6.2))
+      tslib: 2.6.2
+
+  '@polkadot/wasm-crypto-init@7.3.2(@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz)(@polkadot/x-randomvalues@12.6.2(@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz)(@polkadot/wasm-util@7.3.2(@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz)))':
+    dependencies:
+      '@polkadot/util': https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz
+      '@polkadot/wasm-bridge': 7.3.2(@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz)(@polkadot/x-randomvalues@12.6.2(@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz)(@polkadot/wasm-util@7.3.2(@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz)))
+      '@polkadot/wasm-crypto-asmjs': 7.3.2(@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz)
+      '@polkadot/wasm-crypto-wasm': 7.3.2(@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz)
+      '@polkadot/wasm-util': 7.3.2(@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz)
+      '@polkadot/x-randomvalues': 12.6.2(@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz)(@polkadot/wasm-util@7.3.2(@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz))
+      tslib: 2.6.2
 
   '@polkadot/wasm-crypto-init@https://registry.npmmirror.com/@polkadot/wasm-crypto-init/-/wasm-crypto-init-7.3.2.tgz(@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz)(@polkadot/x-randomvalues@https://registry.npmmirror.com/@polkadot/x-randomvalues/-/x-randomvalues-12.6.2.tgz(@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz)(@polkadot/wasm-util@https://registry.npmmirror.com/@polkadot/wasm-util/-/wasm-util-7.3.2.tgz(@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz)))':
     dependencies:
@@ -11791,11 +12144,45 @@ snapshots:
       '@polkadot/x-randomvalues': https://registry.npmmirror.com/@polkadot/x-randomvalues/-/x-randomvalues-12.6.2.tgz(@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz)(@polkadot/wasm-util@https://registry.npmmirror.com/@polkadot/wasm-util/-/wasm-util-7.3.2.tgz(@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz))
       tslib: https://registry.npmmirror.com/tslib/-/tslib-2.6.2.tgz
 
+  '@polkadot/wasm-crypto-wasm@7.3.2(@polkadot/util@12.6.2)':
+    dependencies:
+      '@polkadot/util': 12.6.2
+      '@polkadot/wasm-util': 7.3.2(@polkadot/util@12.6.2)
+      tslib: 2.6.2
+
+  '@polkadot/wasm-crypto-wasm@7.3.2(@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz)':
+    dependencies:
+      '@polkadot/util': https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz
+      '@polkadot/wasm-util': 7.3.2(@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz)
+      tslib: 2.6.2
+
   '@polkadot/wasm-crypto-wasm@https://registry.npmmirror.com/@polkadot/wasm-crypto-wasm/-/wasm-crypto-wasm-7.3.2.tgz(@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz)':
     dependencies:
       '@polkadot/util': https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz
       '@polkadot/wasm-util': https://registry.npmmirror.com/@polkadot/wasm-util/-/wasm-util-7.3.2.tgz(@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz)
       tslib: https://registry.npmmirror.com/tslib/-/tslib-2.6.2.tgz
+
+  '@polkadot/wasm-crypto@7.3.2(@polkadot/util@12.6.2)(@polkadot/x-randomvalues@12.6.2(@polkadot/util@12.6.2)(@polkadot/wasm-util@7.3.2(@polkadot/util@12.6.2)))':
+    dependencies:
+      '@polkadot/util': 12.6.2
+      '@polkadot/wasm-bridge': 7.3.2(@polkadot/util@12.6.2)(@polkadot/x-randomvalues@12.6.2(@polkadot/util@12.6.2)(@polkadot/wasm-util@7.3.2(@polkadot/util@12.6.2)))
+      '@polkadot/wasm-crypto-asmjs': 7.3.2(@polkadot/util@12.6.2)
+      '@polkadot/wasm-crypto-init': 7.3.2(@polkadot/util@12.6.2)(@polkadot/x-randomvalues@12.6.2(@polkadot/util@12.6.2)(@polkadot/wasm-util@7.3.2(@polkadot/util@12.6.2)))
+      '@polkadot/wasm-crypto-wasm': 7.3.2(@polkadot/util@12.6.2)
+      '@polkadot/wasm-util': 7.3.2(@polkadot/util@12.6.2)
+      '@polkadot/x-randomvalues': 12.6.2(@polkadot/util@12.6.2)(@polkadot/wasm-util@7.3.2(@polkadot/util@12.6.2))
+      tslib: 2.6.2
+
+  '@polkadot/wasm-crypto@7.3.2(@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz)(@polkadot/x-randomvalues@12.6.2(@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz)(@polkadot/wasm-util@7.3.2(@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz)))':
+    dependencies:
+      '@polkadot/util': https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz
+      '@polkadot/wasm-bridge': 7.3.2(@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz)(@polkadot/x-randomvalues@12.6.2(@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz)(@polkadot/wasm-util@7.3.2(@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz)))
+      '@polkadot/wasm-crypto-asmjs': 7.3.2(@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz)
+      '@polkadot/wasm-crypto-init': 7.3.2(@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz)(@polkadot/x-randomvalues@12.6.2(@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz)(@polkadot/wasm-util@7.3.2(@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz)))
+      '@polkadot/wasm-crypto-wasm': 7.3.2(@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz)
+      '@polkadot/wasm-util': 7.3.2(@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz)
+      '@polkadot/x-randomvalues': 12.6.2(@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz)(@polkadot/wasm-util@7.3.2(@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz))
+      tslib: 2.6.2
 
   '@polkadot/wasm-crypto@https://registry.npmmirror.com/@polkadot/wasm-crypto/-/wasm-crypto-7.3.2.tgz(@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz)(@polkadot/x-randomvalues@https://registry.npmmirror.com/@polkadot/x-randomvalues/-/x-randomvalues-12.6.2.tgz(@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz)(@polkadot/wasm-util@https://registry.npmmirror.com/@polkadot/wasm-util/-/wasm-util-7.3.2.tgz(@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz)))':
     dependencies:
@@ -11808,15 +12195,36 @@ snapshots:
       '@polkadot/x-randomvalues': https://registry.npmmirror.com/@polkadot/x-randomvalues/-/x-randomvalues-12.6.2.tgz(@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz)(@polkadot/wasm-util@https://registry.npmmirror.com/@polkadot/wasm-util/-/wasm-util-7.3.2.tgz(@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz))
       tslib: https://registry.npmmirror.com/tslib/-/tslib-2.6.2.tgz
 
+  '@polkadot/wasm-util@7.3.2(@polkadot/util@12.6.2)':
+    dependencies:
+      '@polkadot/util': 12.6.2
+      tslib: 2.6.2
+
+  '@polkadot/wasm-util@7.3.2(@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz)':
+    dependencies:
+      '@polkadot/util': https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz
+      tslib: 2.6.2
+
   '@polkadot/wasm-util@https://registry.npmmirror.com/@polkadot/wasm-util/-/wasm-util-7.3.2.tgz(@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz)':
     dependencies:
       '@polkadot/util': https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz
       tslib: https://registry.npmmirror.com/tslib/-/tslib-2.6.2.tgz
 
+  '@polkadot/x-bigint@12.6.2':
+    dependencies:
+      '@polkadot/x-global': 12.6.2
+      tslib: 2.6.2
+
   '@polkadot/x-bigint@https://registry.npmmirror.com/@polkadot/x-bigint/-/x-bigint-12.6.2.tgz':
     dependencies:
       '@polkadot/x-global': https://registry.npmmirror.com/@polkadot/x-global/-/x-global-12.6.2.tgz
       tslib: https://registry.npmmirror.com/tslib/-/tslib-2.6.2.tgz
+
+  '@polkadot/x-fetch@12.6.2':
+    dependencies:
+      '@polkadot/x-global': 12.6.2
+      node-fetch: 3.3.2
+      tslib: 2.6.2
 
   '@polkadot/x-fetch@https://registry.npmmirror.com/@polkadot/x-fetch/-/x-fetch-12.6.2.tgz':
     dependencies:
@@ -11824,9 +12232,27 @@ snapshots:
       node-fetch: https://registry.npmmirror.com/node-fetch/-/node-fetch-3.3.2.tgz
       tslib: https://registry.npmmirror.com/tslib/-/tslib-2.6.2.tgz
 
+  '@polkadot/x-global@12.6.2':
+    dependencies:
+      tslib: 2.6.2
+
   '@polkadot/x-global@https://registry.npmmirror.com/@polkadot/x-global/-/x-global-12.6.2.tgz':
     dependencies:
       tslib: https://registry.npmmirror.com/tslib/-/tslib-2.6.2.tgz
+
+  '@polkadot/x-randomvalues@12.6.2(@polkadot/util@12.6.2)(@polkadot/wasm-util@7.3.2(@polkadot/util@12.6.2))':
+    dependencies:
+      '@polkadot/util': 12.6.2
+      '@polkadot/wasm-util': 7.3.2(@polkadot/util@12.6.2)
+      '@polkadot/x-global': 12.6.2
+      tslib: 2.6.2
+
+  '@polkadot/x-randomvalues@12.6.2(@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz)(@polkadot/wasm-util@7.3.2(@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz))':
+    dependencies:
+      '@polkadot/util': https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz
+      '@polkadot/wasm-util': 7.3.2(@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz)
+      '@polkadot/x-global': 12.6.2
+      tslib: 2.6.2
 
   '@polkadot/x-randomvalues@https://registry.npmmirror.com/@polkadot/x-randomvalues/-/x-randomvalues-12.6.2.tgz(@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz)(@polkadot/wasm-util@https://registry.npmmirror.com/@polkadot/wasm-util/-/wasm-util-7.3.2.tgz(@polkadot/util@https://registry.npmmirror.com/@polkadot/util/-/util-12.6.2.tgz))':
     dependencies:
@@ -11835,15 +12261,34 @@ snapshots:
       '@polkadot/x-global': https://registry.npmmirror.com/@polkadot/x-global/-/x-global-12.6.2.tgz
       tslib: https://registry.npmmirror.com/tslib/-/tslib-2.6.2.tgz
 
+  '@polkadot/x-textdecoder@12.6.2':
+    dependencies:
+      '@polkadot/x-global': 12.6.2
+      tslib: 2.6.2
+
   '@polkadot/x-textdecoder@https://registry.npmmirror.com/@polkadot/x-textdecoder/-/x-textdecoder-12.6.2.tgz':
     dependencies:
       '@polkadot/x-global': https://registry.npmmirror.com/@polkadot/x-global/-/x-global-12.6.2.tgz
       tslib: https://registry.npmmirror.com/tslib/-/tslib-2.6.2.tgz
 
+  '@polkadot/x-textencoder@12.6.2':
+    dependencies:
+      '@polkadot/x-global': 12.6.2
+      tslib: 2.6.2
+
   '@polkadot/x-textencoder@https://registry.npmmirror.com/@polkadot/x-textencoder/-/x-textencoder-12.6.2.tgz':
     dependencies:
       '@polkadot/x-global': https://registry.npmmirror.com/@polkadot/x-global/-/x-global-12.6.2.tgz
       tslib: https://registry.npmmirror.com/tslib/-/tslib-2.6.2.tgz
+
+  '@polkadot/x-ws@12.6.2':
+    dependencies:
+      '@polkadot/x-global': 12.6.2
+      tslib: 2.6.2
+      ws: 8.16.0
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
 
   '@polkadot/x-ws@https://registry.npmmirror.com/@polkadot/x-ws/-/x-ws-12.6.2.tgz':
     dependencies:
@@ -12497,6 +12942,8 @@ snapshots:
       estree-walker: https://registry.npmmirror.com/estree-walker/-/estree-walker-2.0.2.tgz
       picomatch: https://registry.npmmirror.com/picomatch/-/picomatch-2.3.1.tgz
 
+  '@scure/base@1.1.5': {}
+
   '@scure/base@https://registry.npmmirror.com/@scure/base/-/base-1.1.5.tgz': {}
 
   '@sinclair/typebox@0.27.8':
@@ -12512,10 +12959,27 @@ snapshots:
     dependencies:
       '@sinonjs/commons': https://registry.npmmirror.com/@sinonjs/commons/-/commons-3.0.1.tgz
 
+  '@substrate/connect-extension-protocol@2.0.0':
+    optional: true
+
   '@substrate/connect-extension-protocol@https://registry.npmmirror.com/@substrate/connect-extension-protocol/-/connect-extension-protocol-2.0.0.tgz':
     optional: true
 
+  '@substrate/connect-known-chains@1.1.8':
+    optional: true
+
   '@substrate/connect-known-chains@https://registry.npmmirror.com/@substrate/connect-known-chains/-/connect-known-chains-1.1.0.tgz':
+    optional: true
+
+  '@substrate/connect@0.8.10':
+    dependencies:
+      '@substrate/connect-extension-protocol': 2.0.0
+      '@substrate/connect-known-chains': 1.1.8
+      '@substrate/light-client-extension-helpers': 0.0.6(smoldot@2.0.22)
+      smoldot: 2.0.22
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
     optional: true
 
   '@substrate/connect@0.8.7':
@@ -12529,6 +12993,18 @@ snapshots:
       - utf-8-validate
     optional: true
 
+  '@substrate/light-client-extension-helpers@0.0.6(smoldot@2.0.22)':
+    dependencies:
+      '@polkadot-api/json-rpc-provider': 0.0.1
+      '@polkadot-api/json-rpc-provider-proxy': 0.0.1
+      '@polkadot-api/observable-client': 0.1.0(rxjs@7.8.1)
+      '@polkadot-api/substrate-client': 0.0.1
+      '@substrate/connect-extension-protocol': 2.0.0
+      '@substrate/connect-known-chains': 1.1.8
+      rxjs: 7.8.1
+      smoldot: 2.0.22
+    optional: true
+
   '@substrate/light-client-extension-helpers@https://registry.npmmirror.com/@substrate/light-client-extension-helpers/-/light-client-extension-helpers-0.0.3.tgz(smoldot@https://registry.npmmirror.com/smoldot/-/smoldot-2.0.21.tgz)':
     dependencies:
       '@polkadot-api/client': https://registry.npmmirror.com/@polkadot-api/client/-/client-0.0.1-12c4b0432a814086c3c1a3b8052b31c72c2c9ad3.1.0.tgz(rxjs@https://registry.npmmirror.com/rxjs/-/rxjs-7.8.1.tgz)
@@ -12540,6 +13016,8 @@ snapshots:
       rxjs: https://registry.npmmirror.com/rxjs/-/rxjs-7.8.1.tgz
       smoldot: https://registry.npmmirror.com/smoldot/-/smoldot-2.0.21.tgz
     optional: true
+
+  '@substrate/ss58-registry@1.46.0': {}
 
   '@substrate/ss58-registry@https://registry.npmmirror.com/@substrate/ss58-registry/-/ss58-registry-1.46.0.tgz': {}
 
@@ -12743,6 +13221,10 @@ snapshots:
       '@babel/types': https://registry.npmmirror.com/@babel/types/-/types-7.24.0.tgz
 
   '@types/bcryptjs@https://registry.npmmirror.com/@types/bcryptjs/-/bcryptjs-2.4.5.tgz': {}
+
+  '@types/bn.js@5.1.5':
+    dependencies:
+      '@types/node': 18.14.2
 
   '@types/bn.js@https://registry.npmmirror.com/@types/bn.js/-/bn.js-5.1.5.tgz':
     dependencies:
@@ -13562,6 +14044,8 @@ snapshots:
       inherits: https://registry.npmmirror.com/inherits/-/inherits-2.0.4.tgz
       readable-stream: https://registry.npmmirror.com/readable-stream/-/readable-stream-3.6.2.tgz
 
+  bn.js@5.2.1: {}
+
   bn.js@https://registry.npmmirror.com/bn.js/-/bn.js-5.2.1.tgz: {}
 
   boolbase@https://registry.npmmirror.com/boolbase/-/boolbase-1.0.0.tgz: {}
@@ -13946,6 +14430,8 @@ snapshots:
 
   damerau-levenshtein@https://registry.npmmirror.com/damerau-levenshtein/-/damerau-levenshtein-1.0.8.tgz: {}
 
+  data-uri-to-buffer@4.0.1: {}
+
   data-uri-to-buffer@https://registry.npmmirror.com/data-uri-to-buffer/-/data-uri-to-buffer-4.0.1.tgz: {}
 
   data-urls@https://registry.npmmirror.com/data-urls/-/data-urls-3.0.2.tgz:
@@ -13967,7 +14453,6 @@ snapshots:
   debug@4.3.4:
     dependencies:
       ms: 2.1.2
-    optional: true
 
   debug@https://registry.npmmirror.com/debug/-/debug-3.2.7.tgz:
     dependencies:
@@ -14514,6 +14999,8 @@ snapshots:
 
   event-target-shim@https://registry.npmmirror.com/event-target-shim/-/event-target-shim-5.0.1.tgz: {}
 
+  eventemitter3@5.0.1: {}
+
   eventemitter3@https://registry.npmmirror.com/eventemitter3/-/eventemitter3-4.0.7.tgz: {}
 
   eventemitter3@https://registry.npmmirror.com/eventemitter3/-/eventemitter3-5.0.1.tgz: {}
@@ -14627,6 +15114,11 @@ snapshots:
     dependencies:
       bser: https://registry.npmmirror.com/bser/-/bser-2.1.1.tgz
 
+  fetch-blob@3.2.0:
+    dependencies:
+      node-domexception: 1.0.0
+      web-streams-polyfill: 3.3.3
+
   fetch-blob@https://registry.npmmirror.com/fetch-blob/-/fetch-blob-3.2.0.tgz:
     dependencies:
       node-domexception: https://registry.npmmirror.com/node-domexception/-/node-domexception-1.0.0.tgz
@@ -14720,6 +15212,10 @@ snapshots:
       asynckit: https://registry.npmmirror.com/asynckit/-/asynckit-0.4.0.tgz
       combined-stream: https://registry.npmmirror.com/combined-stream/-/combined-stream-1.0.8.tgz
       mime-types: https://registry.npmmirror.com/mime-types/-/mime-types-2.1.35.tgz
+
+  formdata-polyfill@4.0.10:
+    dependencies:
+      fetch-blob: 3.2.0
 
   formdata-polyfill@https://registry.npmmirror.com/formdata-polyfill/-/formdata-polyfill-4.0.10.tgz:
     dependencies:
@@ -15684,6 +16180,8 @@ snapshots:
 
   json-stable-stringify-without-jsonify@https://registry.npmmirror.com/json-stable-stringify-without-jsonify/-/json-stable-stringify-without-jsonify-1.0.1.tgz: {}
 
+  json-stringify-safe@5.0.1: {}
+
   json-stringify-safe@https://registry.npmmirror.com/json-stringify-safe/-/json-stringify-safe-5.0.1.tgz: {}
 
   json5@2.2.3:
@@ -15949,12 +16447,13 @@ snapshots:
     dependencies:
       obliterator: https://registry.npmmirror.com/obliterator/-/obliterator-2.0.4.tgz
 
+  mock-socket@9.3.1: {}
+
   mock-socket@https://registry.npmmirror.com/mock-socket/-/mock-socket-9.3.1.tgz: {}
 
   mrmime@https://registry.npmmirror.com/mrmime/-/mrmime-2.0.0.tgz: {}
 
-  ms@2.1.2:
-    optional: true
+  ms@2.1.2: {}
 
   ms@https://registry.npmmirror.com/ms/-/ms-2.1.2.tgz: {}
 
@@ -16004,6 +16503,14 @@ snapshots:
       lower-case: https://registry.npmmirror.com/lower-case/-/lower-case-2.0.2.tgz
       tslib: https://registry.npmmirror.com/tslib/-/tslib-2.6.2.tgz
 
+  nock@13.5.4:
+    dependencies:
+      debug: 4.3.4
+      json-stringify-safe: 5.0.1
+      propagate: 2.0.1
+    transitivePeerDependencies:
+      - supports-color
+
   nock@https://registry.npmmirror.com/nock/-/nock-13.5.4.tgz:
     dependencies:
       debug: https://registry.npmmirror.com/debug/-/debug-4.3.4.tgz
@@ -16012,7 +16519,15 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  node-domexception@1.0.0: {}
+
   node-domexception@https://registry.npmmirror.com/node-domexception/-/node-domexception-1.0.0.tgz: {}
+
+  node-fetch@3.3.2:
+    dependencies:
+      data-uri-to-buffer: 4.0.1
+      fetch-blob: 3.2.0
+      formdata-polyfill: 4.0.10
 
   node-fetch@https://registry.npmmirror.com/node-fetch/-/node-fetch-3.3.2.tgz:
     dependencies:
@@ -16442,6 +16957,8 @@ snapshots:
       object-assign: https://registry.npmmirror.com/object-assign/-/object-assign-4.1.1.tgz
       react-is: https://registry.npmmirror.com/react-is/-/react-is-16.13.1.tgz
 
+  propagate@2.0.1: {}
+
   propagate@https://registry.npmmirror.com/propagate/-/propagate-2.0.1.tgz: {}
 
   proxy-addr@https://registry.npmmirror.com/proxy-addr/-/proxy-addr-2.0.7.tgz:
@@ -16715,6 +17232,10 @@ snapshots:
     dependencies:
       queue-microtask: https://registry.npmmirror.com/queue-microtask/-/queue-microtask-1.2.3.tgz
 
+  rxjs@7.8.1:
+    dependencies:
+      tslib: 2.6.2
+
   rxjs@https://registry.npmmirror.com/rxjs/-/rxjs-7.8.1.tgz:
     dependencies:
       tslib: https://registry.npmmirror.com/tslib/-/tslib-2.6.2.tgz
@@ -16749,6 +17270,9 @@ snapshots:
   saxes@https://registry.npmmirror.com/saxes/-/saxes-6.0.0.tgz:
     dependencies:
       xmlchars: https://registry.npmmirror.com/xmlchars/-/xmlchars-2.2.0.tgz
+
+  scale-ts@1.6.0:
+    optional: true
 
   scale-ts@https://registry.npmmirror.com/scale-ts/-/scale-ts-1.6.0.tgz:
     optional: true
@@ -16848,6 +17372,14 @@ snapshots:
   sisteransi@https://registry.npmmirror.com/sisteransi/-/sisteransi-1.0.5.tgz: {}
 
   slash@https://registry.npmmirror.com/slash/-/slash-3.0.0.tgz: {}
+
+  smoldot@2.0.22:
+    dependencies:
+      ws: 8.16.0
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
+    optional: true
 
   smoldot@https://registry.npmmirror.com/smoldot/-/smoldot-2.0.21.tgz:
     dependencies:
@@ -17567,6 +18099,8 @@ snapshots:
     dependencies:
       defaults: https://registry.npmmirror.com/defaults/-/defaults-1.0.4.tgz
 
+  web-streams-polyfill@3.3.3: {}
+
   web-streams-polyfill@https://registry.npmmirror.com/web-streams-polyfill/-/web-streams-polyfill-3.3.3.tgz: {}
 
   webidl-conversions@https://registry.npmmirror.com/webidl-conversions/-/webidl-conversions-7.0.0.tgz: {}
@@ -17691,6 +18225,8 @@ snapshots:
     dependencies:
       imurmurhash: https://registry.npmmirror.com/imurmurhash/-/imurmurhash-0.1.4.tgz
       signal-exit: https://registry.npmmirror.com/signal-exit/-/signal-exit-3.0.7.tgz
+
+  ws@8.16.0: {}
 
   ws@https://registry.npmmirror.com/ws/-/ws-8.16.0.tgz: {}
 
